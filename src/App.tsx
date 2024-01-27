@@ -1,28 +1,16 @@
-import { useEffect } from 'react';
 import './App.css';
 import ThemeSwitcher from './components/theme-switcher';
-import { Button } from './components/ui/button';
-import useDB from './hooks/useDB';
-import { BlockEditor } from './components/editor';
+import { Route, Routes } from 'react-router-dom';
+import { HomePage } from './pages/HomePage';
+import { LeafPage } from './pages/LeafPage';
 
 export const App = () => {
-  // const { db } = useDB();
-
-  // useEffect(() => {
-  //   if (!db) return;
-  //   (async () => {
-  //     await db.execute(
-  //       'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL)'
-  //     );
-  //     await db.execute('INSERT INTO users (name) VALUES (?)', ['John']);
-  //     const res = await db.select('SELECT * FROM users');
-  //     console.log(res);
-  //   })();
-  // }, [db]);
-
   return (
     <main className="w-full h-full">
-      <BlockEditor />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/leafs/:id" element={<LeafPage />} />
+      </Routes>
       <ThemeSwitcher />
     </main>
   );

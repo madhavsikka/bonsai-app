@@ -50,11 +50,12 @@ interface ExtensionKitProps {
   userColor?: string;
 }
 
-export const ExtensionKit = ({
-  userId,
-  userName = 'Maxi',
-}: ExtensionKitProps) => [
-  Document,
+const DocumentWithTitle = Document.extend({
+  content: 'heading block*',
+});
+
+export const ExtensionKit = ({}: ExtensionKitProps) => [
+  DocumentWithTitle,
   Columns,
   TaskList,
   TaskItem.configure({
@@ -97,6 +98,7 @@ export const ExtensionKit = ({
   ImageBlock,
   FileHandler.configure({
     allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+    // @ts-ignore
     onDrop: (currentEditor, files, pos) => {
       files.forEach(async () => {
         // const url = await API.uploadImage();
@@ -105,7 +107,8 @@ export const ExtensionKit = ({
     },
     onPaste: (currentEditor, files) => {
       files.forEach(async () => {
-        const url = await API.uploadImage();
+        // const url = await API.uploadImage();
+        const url = '';
 
         return currentEditor
           .chain()

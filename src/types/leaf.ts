@@ -1,0 +1,13 @@
+export interface Leaf {
+  id: string;
+  title: string;
+  body: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+}

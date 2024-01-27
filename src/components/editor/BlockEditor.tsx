@@ -23,7 +23,7 @@ export const BlockEditor = ({
   const menuContainerRef = useRef(null);
   const editorRef = useRef<PureEditorContent | null>(null);
 
-  const { editor, characterCount, leftSidebar } = useBlockEditor({
+  const { editor, leftSidebar } = useBlockEditor({
     initialContent,
     isEditable,
     onEditorUpdate,

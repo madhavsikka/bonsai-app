@@ -1,31 +1,28 @@
-import { TiptapCollabProvider } from '@hocuspocus/provider'
-import { Editor } from '@tiptap/core'
-// import { Language } from '@tiptap-pro/extension-ai'
-import * as Y from 'yjs'
+import { Editor } from '@tiptap/core';
+import * as Y from 'yjs';
 
 export interface TiptapProps {
-  aiToken?: string
-  hasCollab?: boolean
-  ydoc?: Y.Doc
-  provider?: TiptapCollabProvider | null | undefined
-  initialContent?: string
-  onEditorUpdate?: (editor: Editor) => void
-  isEditable?: boolean
-  showHeader?: boolean
+  aiToken?: string;
+  hasCollab?: boolean;
+  ydoc?: Y.Doc;
+  initialContent?: string;
+  onEditorUpdate?: (editor: Editor) => void;
+  isEditable?: boolean;
+  showHeader?: boolean;
 }
 
 export type EditorUser = {
-  clientId: string
-  name: string
-  color: string
-  initials?: string
-}
+  clientId: string;
+  name: string;
+  color: string;
+  initials?: string;
+};
 
 export type LanguageOption = {
-  name: string
-  label: string
-  value: any
-}
+  name: string;
+  label: string;
+  value: any;
+};
 
 export type AiTone =
   | 'academic'
@@ -37,18 +34,18 @@ export type AiTone =
   | 'humorous'
   | 'informative'
   | 'inspirational'
-  | string
+  | string;
 
-export type AiPromptType = 'SHORTEN' | 'EXTEND' | 'SIMPLIFY' | 'TONE'
+export type AiPromptType = 'SHORTEN' | 'EXTEND' | 'SIMPLIFY' | 'TONE';
 
 export type AiToneOption = {
-  name: string
-  label: string
-  value: AiTone
-}
+  name: string;
+  label: string;
+  value: AiTone;
+};
 
 export type AiImageStyle = {
-  name: string
-  label: string
-  value: string
-}
+  name: string;
+  label: string;
+  value: string;
+};

@@ -38,13 +38,13 @@ export const LinkMenu = ({ editor, appendTo }: MenuProps): JSX.Element => {
     return null;
   }, [editor]);
 
-  const onShowEdit = useCallback(() => {
-    setShowEdit(true);
-  }, []);
+  // const onShowEdit = useCallback(() => {
+  //   setShowEdit(true);
+  // }, []);
 
-  const onHideEdit = useCallback(() => {
-    setShowEdit(false);
-  }, []);
+  // const onHideEdit = useCallback(() => {
+  //   setShowEdit(false);
+  // }, []);
 
   return (
     <BaseBubbleMenu
