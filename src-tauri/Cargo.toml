@@ -7,8 +7,6 @@ license = ""
 repository = ""
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [build-dependencies]
 tauri-build = { version = "1.5", features = [] }
 
@@ -19,13 +17,10 @@ serde_json = "1.0"
 diesel = { version = "2.1.0",  features = ["sqlite", "returning_clauses_for_sqlite_3_35"] }
 dotenvy = "0.15"
 libsqlite3-sys = { version = "0.27.0", features = ["bundled"] }
+diesel_migrations = "2.1.0"
+dirs = "5.0.1"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
-
-[dependencies.tauri-plugin-sql]
-git = "https://github.com/tauri-apps/plugins-workspace"
-branch = "v1"
-features = ["sqlite"]
