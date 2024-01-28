@@ -14,6 +14,8 @@ import { TableColumnMenu, TableRowMenu } from '@/extensions/Table/menus';
 import { TiptapProps } from './types';
 import { TextMenu } from './menus/TextMenu';
 import { ContentItemMenu } from './menus/ContentItemMenu';
+import { EditorHeader } from './bars/EditorHeader';
+import { EditorTopbar } from './topbar/Topbar';
 
 export const BlockEditor = ({
   initialContent,
@@ -23,7 +25,7 @@ export const BlockEditor = ({
   const menuContainerRef = useRef(null);
   const editorRef = useRef<PureEditorContent | null>(null);
 
-  const { editor, leftSidebar } = useBlockEditor({
+  const { editor, leftSidebar, characterCount } = useBlockEditor({
     initialContent,
     isEditable,
     onEditorUpdate,
@@ -41,6 +43,7 @@ export const BlockEditor = ({
         editor={editor}
       />
       <div className="relative flex flex-col flex-1 h-full overflow-hidden">
+        <EditorTopbar />
         <EditorContent
           editor={editor}
           ref={editorRef}
@@ -53,6 +56,12 @@ export const BlockEditor = ({
         <TableRowMenu editor={editor} appendTo={menuContainerRef} />
         <TableColumnMenu editor={editor} appendTo={menuContainerRef} />
         <ImageBlockMenu editor={editor} appendTo={menuContainerRef} />
+        <EditorHeader
+          characters={characterCount.characters()}
+          words={characterCount.words()}
+          isSidebarOpen={leftSidebar.isOpen}
+          toggleSidebar={leftSidebar.toggle}
+        />
       </div>
     </div>
   );

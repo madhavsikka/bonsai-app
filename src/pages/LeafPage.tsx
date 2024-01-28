@@ -17,12 +17,14 @@ export const LeafPage = () => {
     [id, leaf]
   );
 
-  return !loading && leaf ? (
-    <div className="h-full w-full">
-      <BlockEditor
-        initialContent={`${leaf.body}`}
-        onEditorUpdate={editorUpdateHandler}
-      />
-    </div>
-  ) : null;
+  return (
+    <>
+      {!loading && leaf ? (
+        <BlockEditor
+          initialContent={`${leaf.body}`}
+          onEditorUpdate={editorUpdateHandler}
+        />
+      ) : null}
+    </>
+  );
 };

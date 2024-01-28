@@ -51,7 +51,7 @@ interface ExtensionKitProps {
 }
 
 const DocumentWithTitle = Document.extend({
-  content: 'heading block*',
+  // content: 'heading block*',
 });
 
 export const ExtensionKit = ({}: ExtensionKitProps) => [
