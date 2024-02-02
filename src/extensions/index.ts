@@ -44,3 +44,4 @@ export { ImageUpload } from './ImageUpload';
 export { ImageBlock } from './ImageBlock';
 export { Columns, Column } from './MultiColumn';
 export { emojiSuggestion } from './EmojiSuggestion';
+export { InlineChat } from './InlineChat';

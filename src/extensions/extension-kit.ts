@@ -38,6 +38,7 @@ import {
   Column,
   TaskItem,
   TaskList,
+  InlineChat,
 } from './index';
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import { ImageUpload } from './ImageUpload';
@@ -152,6 +153,7 @@ export const ExtensionKit = ({}: ExtensionKitProps) => [
     width: 2,
     class: 'ProseMirror-dropcursor border-black',
   }),
+  InlineChat,
 ];
 
 export default ExtensionKit;
