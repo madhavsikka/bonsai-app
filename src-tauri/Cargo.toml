@@ -17,6 +17,12 @@ serde_json = "1.0"
 dotenvy = "0.15"
 dirs = "5.0.1"
 cozo = "0.7.6"
+tokenizers = {version = "0.14.0", features = ["http"]}
+hf-hub = {version = "0.3.0", features = ["tokio"]}
+candle = { git = "https://github.com/huggingface/candle.git", package = "candle-core" }
+candle-transformers = { git = "https://github.com/huggingface/candle" }
+candle-nn = { git = "https://github.com/huggingface/candle" }
+anyhow = "1.0.75"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

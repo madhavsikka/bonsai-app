@@ -1,3 +1,4 @@
+pub mod bert;
 pub mod cozo;
 pub mod db;
 pub mod models;
