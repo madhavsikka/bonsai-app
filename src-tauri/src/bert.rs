@@ -12,7 +12,7 @@ use hf_hub::{api::sync::Api, Repo, RepoType};
 use tokenizers::Tokenizer;
 
 #[derive(Debug)]
-struct EmbeddingArgs {
+pub struct EmbeddingArgs {
     cpu: bool,
     model_id: String,
     revision: String,
@@ -22,7 +22,24 @@ struct EmbeddingArgs {
 }
 
 impl EmbeddingArgs {
-    fn build(&self) -> Result<(VarBuilder, Config, Tokenizer)> {
+    pub fn new(
+        cpu: bool,
+        model_id: String,
+        revision: String,
+        use_pth: bool,
+        normalize_embeddings: bool,
+        approximate_gelu: bool,
+    ) -> Self {
+        Self {
+            cpu,
+            model_id,
+            revision,
+            use_pth,
+            normalize_embeddings,
+            approximate_gelu,
+        }
+    }
+    pub fn build(&self) -> Result<(VarBuilder, Config, Tokenizer)> {
         let device = if self.cpu {
             candle::Device::Cpu
         } else {
@@ -64,14 +81,14 @@ pub fn normalize_l2(v: &Tensor) -> Result<Tensor> {
     Ok(v.broadcast_div(&v.sqr()?.sum_keepdim(1)?.sqrt()?)?)
 }
 
-struct BertModelEmbeddings {
+pub struct BertModelEmbeddings {
     model: BertModel,
     tokenizer: Tokenizer,
     args: EmbeddingArgs,
 }
 
 impl BertModelEmbeddings {
-    fn new(args: EmbeddingArgs) -> Result<Self> {
+    pub fn new(args: EmbeddingArgs) -> Result<Self> {
         let (vb, config, tokenizer) = args.build()?;
         let model = BertModel::load(vb, &config)?;
         Ok(Self {
@@ -81,7 +98,7 @@ impl BertModelEmbeddings {
         })
     }
 
-    fn embed(&self, input: Vec<String>) -> Result<Vec<Vec<f32>>> {
+    pub fn embed(&self, input: Vec<String>) -> Result<Vec<Vec<f32>>> {
         let tokens = self.tokenizer.encode_batch(input, true).map_err(E::msg)?;
         let device = candle::Device::Cpu;
         let token_ids = tokens
