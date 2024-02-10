@@ -1,5 +1,5 @@
 import { Leaf } from '@/types/leaf';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import { useEffect, useState } from 'react';
 
 export const useListLeafs = () => {
