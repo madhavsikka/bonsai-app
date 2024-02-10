@@ -23,6 +23,7 @@ candle = { git = "https://github.com/huggingface/candle.git", package = "candle-
 candle-transformers = { git = "https://github.com/huggingface/candle" }
 candle-nn = { git = "https://github.com/huggingface/candle" }
 anyhow = "1.0.75"
+nanoid = "0.4.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
