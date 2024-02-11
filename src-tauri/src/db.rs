@@ -51,6 +51,5 @@ fn db_file_exists() -> bool {
 }
 
 fn get_db_path() -> String {
-    // Create a new database file in app's data directory
-    temp_dir().to_str().unwrap().to_string() + "/bonsai.db"
+    temp_dir().to_str().unwrap().to_string() + "/bons.db"
 }
