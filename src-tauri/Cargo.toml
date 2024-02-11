@@ -20,6 +20,13 @@ libsqlite3-sys = { version = "0.27.0", features = ["bundled"] }
 diesel_migrations = "2.1.0"
 dirs = "5.0.1"
 
+[target.'cfg(target_os = "linux")'.dependencies]
+webkit2gtk = "0.18" # if tauri build fails, make sure to match this version to what we have in tauri
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc = "0.2"
+
+
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!

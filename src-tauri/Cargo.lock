@@ -155,10 +155,12 @@ dependencies = [
  "dirs",
  "dotenvy",
  "libsqlite3-sys",
+ "objc",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
+ "webkit2gtk",
 ]
 
 [[package]]

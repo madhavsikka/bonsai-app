@@ -38,6 +38,7 @@ export const InlineChatView = ({
   getPos,
 }: NodeViewWrapperProps) => {
   const { isDarkMode } = useDarkmode();
+  // @ts-ignore
   const [previewText, setPreviewText] = useState(undefined);
   const textareaId = useMemo(() => uuid(), []);
 
@@ -57,6 +58,7 @@ export const InlineChatView = ({
     ],
   });
 
+  // @ts-ignore
   const insert = useCallback(() => {
     const from = getPos();
     const to = from + node.nodeSize;
