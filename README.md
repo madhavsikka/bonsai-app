@@ -1,7 +1,9 @@
-# Tauri + React + Typescript
+# Bonsai
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+- Bonsai is a local-first, AI-native rich text editor aimed at providing a clean and minimalistic editing environment for content creators.
 
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+## Tech Stack
+- Tauri
+- React
+- Tiptap
+- SQLite
