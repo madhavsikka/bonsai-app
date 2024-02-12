@@ -1,10 +1,10 @@
 import { cn } from '@/lib/utils';
 import { memo, useCallback } from 'react';
 import { Editor } from '@tiptap/react';
-import { TableOfContents } from './TableOfContents';
 
 export const Sidebar = memo(
   ({
+    // @ts-ignore
     editor,
     isOpen,
     onClose,
@@ -13,6 +13,7 @@ export const Sidebar = memo(
     isOpen?: boolean;
     onClose: () => void;
   }) => {
+    // @ts-ignore
     const handlePotentialClose = useCallback(() => {
       if (window.innerWidth < 1024) {
         onClose();
@@ -30,10 +31,10 @@ export const Sidebar = memo(
       <div className={windowClassName}>
         <div className="w-full h-full overflow-hidden">
           <div className="w-full h-full p-6 overflow-auto">
-            <TableOfContents
+            {/* <TableOfContents
               onItemClick={handlePotentialClose}
               editor={editor}
-            />
+            /> */}
           </div>
         </div>
       </div>

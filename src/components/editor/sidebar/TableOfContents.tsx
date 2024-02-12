@@ -1,6 +1,5 @@
 import { Editor as CoreEditor } from '@tiptap/core';
 import { memo, useEffect, useState } from 'react';
-import { TableOfContentStorage } from '@tiptap-pro/extension-table-of-content';
 import { cn } from '@/lib/utils';
 
 export type TableOfContentsProps = {
@@ -10,7 +9,7 @@ export type TableOfContentsProps = {
 
 export const TableOfContents = memo(
   ({ editor, onItemClick }: TableOfContentsProps) => {
-    const [data, setData] = useState<TableOfContentStorage | null>(null);
+    const [data, setData] = useState<any>(null);
 
     useEffect(() => {
       const handler = ({ editor: currentEditor }: { editor: CoreEditor }) => {
@@ -35,7 +34,7 @@ export const TableOfContents = memo(
         </div>
         {data && data.content.length > 0 ? (
           <div className="flex flex-col gap-1">
-            {data.content.map((item) => (
+            {data.content.map((item: any) => (
               <a
                 key={item.id}
                 href={`#${item.id}`}

@@ -1,21 +1,16 @@
-// import { API } from '@/lib/api';
-
 import {
   BlockquoteFigure,
   CharacterCount,
   Color,
   Document,
   Dropcursor,
-  Emoji,
   Figcaption,
-  FileHandler,
   Focus,
   FontFamily,
   FontSize,
   Heading,
   Highlight,
   HorizontalRule,
-  ImageBlock,
   Link,
   Placeholder,
   Selection,
@@ -24,7 +19,6 @@ import {
   Subscript,
   Superscript,
   Table,
-  TableOfContent,
   TableCell,
   TableHeader,
   TableRow,
@@ -33,7 +27,6 @@ import {
   TrailingNode,
   Typography,
   Underline,
-  emojiSuggestion,
   Columns,
   Column,
   TaskItem,
@@ -41,8 +34,6 @@ import {
   InlineChat,
 } from './index';
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
-import { ImageUpload } from './ImageUpload';
-import { TableOfContentNode } from './TableOfContentNode';
 import { lowlight } from 'lowlight';
 
 interface ExtensionKitProps {
@@ -91,41 +82,6 @@ export const ExtensionKit = ({}: ExtensionKitProps) => [
   Highlight.configure({ multicolor: true }),
   Underline,
   CharacterCount.configure({ limit: 50000 }),
-  TableOfContent,
-  TableOfContentNode,
-  ImageUpload.configure({
-    // clientId: provider?.document?.clientID,
-  }),
-  ImageBlock,
-  FileHandler.configure({
-    allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
-    // @ts-ignore
-    onDrop: (currentEditor, files, pos) => {
-      files.forEach(async () => {
-        // const url = await API.uploadImage();
-        // currentEditor.chain().setImageBlockAt({ pos, src: url }).focus().run();
-      });
-    },
-    onPaste: (currentEditor, files) => {
-      files.forEach(async () => {
-        // const url = await API.uploadImage();
-        const url = '';
-
-        return currentEditor
-          .chain()
-          .setImageBlockAt({
-            pos: currentEditor.state.selection.anchor,
-            src: url,
-          })
-          .focus()
-          .run();
-      });
-    },
-  }),
-  Emoji.configure({
-    enableEmoticons: true,
-    suggestion: emojiSuggestion,
-  }),
   TextAlign.extend({
     addKeyboardShortcuts() {
       return {};
