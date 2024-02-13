@@ -14,7 +14,6 @@ import { TiptapProps } from './types';
 import { TextMenu } from './menus/TextMenu';
 // import { ContentItemMenu } from './menus/ContentItemMenu';
 import { EditorHeader } from './bars/EditorHeader';
-import { EditorTopbar } from './topbar/Topbar';
 import { useZoom } from '@/hooks/useZoom';
 
 export const BlockEditor = ({
@@ -44,7 +43,6 @@ export const BlockEditor = ({
         editor={editor}
       />
       <div className="relative flex flex-col flex-1 h-full overflow-hidden">
-        <EditorTopbar />
         <EditorContent
           editor={editor}
           ref={editorRef}
