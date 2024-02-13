@@ -1,12 +1,9 @@
-name: "publish"
+name: "tauri_publish"
 
 on:
   push:
     branches:
-      - release
-
-# This is the example from the readme.
-# On each push to the `release` branch it will create or update a GitHub release, build your app, and upload the artifacts to the release.
+      - main
 
 jobs:
   publish-tauri:
