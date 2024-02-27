@@ -7,6 +7,7 @@ import {
   ImageUpload,
   Link,
   CodeBlock,
+  InlineChat,
 } from '@/extensions';
 import { TableOfContentNode } from '@/extensions/TableOfContentNode';
 
@@ -43,6 +44,7 @@ export const isCustomNodeSelected = (editor: Editor, node: HTMLElement) => {
     Link.name,
     Figcaption.name,
     TableOfContentNode.name,
+    InlineChat.name,
   ];
 
   return (

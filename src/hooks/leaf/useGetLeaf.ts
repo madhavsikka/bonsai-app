@@ -15,7 +15,6 @@ export const useGetLeaf = ({ id }: { id: string | undefined }) => {
         const res = (await invoke('get_leaf', { id: Number(id) }))[
           'message'
         ] as Leaf;
-        console.log(res);
         setLeaf(res);
       } catch (e: any) {
         setError(e);

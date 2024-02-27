@@ -124,7 +124,7 @@ export const Divider = forwardRef<HTMLHRElement>((props, ref) => {
     <hr
       {...props}
       ref={ref}
-      className="my-1 border-neutral-200 dark:border-neutral-800"
+      className="my-2 border-neutral-200 dark:border-neutral-800"
     />
   );
 });

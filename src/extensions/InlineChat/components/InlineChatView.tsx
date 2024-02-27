@@ -4,14 +4,19 @@ import { v4 as uuid } from 'uuid';
 import { Editor } from '@tiptap/core';
 import { Panel } from '@/components/ui/Panel';
 import { Textarea } from '@/components/ui/Textarea';
+import starlight from '@/assets/star-light.svg';
+import stardark from '@/assets/star-dark.svg';
+import wavedark from '@/assets/wave-dark.svg';
 
 import { useDarkmode } from '@/hooks/useDarkMode';
 import { useChat } from '@/hooks/ai/useChat';
+import { Divider } from '@/components/ui/PopoverMenu';
+import { CrossCircledIcon } from '@radix-ui/react-icons';
 
 const UserAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
   return (
     <img
-      src={isDarkMode ? '/static/wave-dark.svg' : '/static/wave-dark.svg'}
+      src={isDarkMode ? wavedark : wavedark}
       alt="avatar"
       width={24}
       height={24}
@@ -23,7 +28,7 @@ const UserAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
 const BonsaiAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
   return (
     <img
-      src={isDarkMode ? '/static/star-light.svg' : '/static/star-dark.svg'}
+      src={isDarkMode ? starlight : stardark}
       alt="avatar"
       width={24}
       height={24}
@@ -36,6 +41,7 @@ export const InlineChatView = ({
   editor,
   node,
   getPos,
+  deleteNode,
 }: NodeViewWrapperProps) => {
   const { isDarkMode } = useDarkmode();
   // @ts-ignore
@@ -69,49 +75,52 @@ export const InlineChatView = ({
   const handleTextAreaSubmit = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
-        // @ts-ignore
-        e.target.form.requestSubmit();
+        handleSubmit();
         e.preventDefault();
       }
     },
-    []
+    [handleSubmit]
   );
 
   return (
     <NodeViewWrapper data-drag-handle>
       <Panel noShadow className="w-full">
-        <form onSubmit={handleSubmit}>
-          <div className="flex flex-col p-1">
-            {messages
-              .filter((m) => m.role === 'user' || m.role === 'bonsai')
-              .map((m) => (
-                <div key={m.id} className="flex gap-2 items-start mb-4">
-                  {m.role === 'bonsai' ? (
-                    <BonsaiAvatar isDarkMode={isDarkMode} />
-                  ) : (
-                    <UserAvatar isDarkMode={isDarkMode} />
-                  )}
-                  <div className="flex flex-col px-1 text-black/80 dark:text-white/80 text-xs font-semibold">
-                    <span className="mb-1">{m.role}</span>
-                    <div
-                      dangerouslySetInnerHTML={{ __html: m.content }}
-                      className="font-normal"
-                    />
-                  </div>
+        <CrossCircledIcon
+          onClick={() => deleteNode()}
+          className="ml-auto hover:cursor-pointer"
+          width={14}
+        />
+        <div className="flex flex-col p-1">
+          {messages
+            .filter((m) => m.role === 'user' || m.role === 'bonsai')
+            .map((m) => (
+              <div key={m.id} className="flex gap-2 items-start mb-4">
+                {m.role === 'bonsai' ? (
+                  <BonsaiAvatar isDarkMode={isDarkMode} />
+                ) : (
+                  <UserAvatar isDarkMode={isDarkMode} />
+                )}
+                <div className="flex flex-col px-1 text-black/80 dark:text-white/80 text-xs font-semibold">
+                  <span className="mb-1">{m.role}</span>
+                  <div
+                    dangerouslySetInnerHTML={{ __html: m.content }}
+                    className="font-normal"
+                  />
                 </div>
-              ))}
-            <Textarea
-              ref={(input) => input && input.focus()}
-              id={textareaId}
-              value={input}
-              onChange={handleInputChange}
-              placeholder={'Write something...'}
-              required
-              className="mb-2 text-xs font-normal"
-              onKeyDown={handleTextAreaSubmit}
-            />
-          </div>
-        </form>
+              </div>
+            ))}
+          {messages.length > 0 && <Divider />}
+          <Textarea
+            ref={(input) => input && input.focus()}
+            id={textareaId}
+            value={input}
+            onChange={handleInputChange}
+            placeholder={'Write here...'}
+            required
+            className="mb-2 text-xs font-normal outline-none resize-none"
+            onKeyDown={handleTextAreaSubmit}
+          />
+        </div>
       </Panel>
     </NodeViewWrapper>
   );
