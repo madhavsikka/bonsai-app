@@ -136,6 +136,40 @@ fn get_env(name: &str) -> String {
 
 // -------------------------------------------------------
 
+#[tauri::command]
+fn set_config(key: &str, value: &str) {
+    use bonsai_app::db::establish_db_connection;
+    use bonsai_app::models::*;
+    use bonsai_app::schema::config;
+    use diesel::prelude::*;
+
+    let connection = &mut establish_db_connection();
+    let new_config = NewConfig { key, value };
+    let _: Result<Config, _> = diesel::insert_into(config::table)
+        .values(&new_config)
+        .get_result(connection);
+}
+
+// -------------------------------------------------------
+
+#[tauri::command]
+fn get_config(key: &str) -> String {
+    use bonsai_app::db::establish_db_connection;
+    use bonsai_app::models::*;
+    use bonsai_app::schema::config;
+    use diesel::prelude::*;
+
+    let connection = &mut establish_db_connection();
+    let result: Result<Config, _> = config::table
+        .filter(config::key.eq(key))
+        .first::<Config>(connection);
+
+    match result {
+        Ok(config) => config.value,
+        Err(_) => String::from(""),
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .setup(|_app| {
@@ -148,7 +182,9 @@ fn main() {
             get_leaf,
             update_leaf,
             zoom_window,
-            get_env
+            get_env,
+            set_config,
+            get_config
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

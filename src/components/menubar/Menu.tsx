@@ -10,8 +10,11 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from '@/components/ui/menubar';
+import { useNavigate } from 'react-router-dom';
 
 export function Menu() {
+  const navigate = useNavigate();
+
   return (
     <Menubar className="rounded-none border-b border-none px-2 lg:px-4">
       <MenubarMenu>
@@ -19,8 +22,8 @@ export function Menu() {
         <MenubarContent>
           <MenubarItem>About bonsai</MenubarItem>
           <MenubarSeparator />
-          <MenubarItem>
-            Preferences... <MenubarShortcut>⌘,</MenubarShortcut>
+          <MenubarItem onClick={() => navigate(`/preferences`)}>
+            Preferences<MenubarShortcut>⌘,</MenubarShortcut>
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>

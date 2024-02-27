@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ChatOpenAI, ChatOpenAICallOptions } from '@langchain/openai';
 import { HumanMessage, AIMessage } from '@langchain/core/messages';
 import { v4 as uuid } from 'uuid';
-import { invoke } from '@tauri-apps/api/tauri';
+import { useGetConfig } from '../config/useGetConfig';
 
 export enum ChatMessageRole {
   User = 'user',
@@ -30,13 +30,13 @@ export const useChat = ({}: useChatProps) => {
   const [input, setInput] = useState<string>('');
   const [chatModel, setChatModel] =
     useState<ChatOpenAI<ChatOpenAICallOptions>>();
+  const getConfig = useGetConfig();
 
   useEffect(() => {
     const initChat = async () => {
       try {
-        const openAIApiKey = (await invoke('get_env', {
-          name: 'OPENAI_API_KEY',
-        })) as string;
+        const openAIApiKey = (await getConfig('openai_api_key')) as string;
+
         const newChat = new ChatOpenAI({
           maxTokens: 250,
           streaming: true,
