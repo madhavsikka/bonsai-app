@@ -129,6 +129,13 @@ fn zoom_window(window: tauri::Window, scale_factor: f64) {
 
 // -------------------------------------------------------
 
+#[tauri::command]
+fn get_env(name: &str) -> String {
+    std::env::var(String::from(name)).unwrap_or(String::from(""))
+}
+
+// -------------------------------------------------------
+
 fn main() {
     tauri::Builder::default()
         .setup(|_app| {
@@ -140,7 +147,8 @@ fn main() {
             list_leafs,
             get_leaf,
             update_leaf,
-            zoom_window
+            zoom_window,
+            get_env
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

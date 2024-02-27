@@ -1,13 +1,8 @@
-import { useCallback, useState } from 'react';
-import { ChatOpenAI } from '@langchain/openai';
+import { useCallback, useEffect, useState } from 'react';
+import { ChatOpenAI, ChatOpenAICallOptions } from '@langchain/openai';
 import { HumanMessage, AIMessage } from '@langchain/core/messages';
 import { v4 as uuid } from 'uuid';
-
-const chat = new ChatOpenAI({
-  maxTokens: 250,
-  streaming: true,
-  openAIApiKey: import.meta.env.VITE_OPENAI_API_KEY,
-});
+import { invoke } from '@tauri-apps/api/tauri';
 
 export enum ChatMessageRole {
   User = 'user',
@@ -33,6 +28,29 @@ const chatMessageToLangchainMessage = (message: ChatMessage): HumanMessage => {
 export const useChat = ({}: useChatProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState<string>('');
+  const [chatModel, setChatModel] =
+    useState<ChatOpenAI<ChatOpenAICallOptions>>();
+
+  useEffect(() => {
+    const initChat = async () => {
+      try {
+        const openAIApiKey = (await invoke('get_env', {
+          name: 'OPENAI_API_KEY',
+        })) as string;
+        const newChat = new ChatOpenAI({
+          maxTokens: 250,
+          streaming: true,
+          openAIApiKey,
+        });
+
+        setChatModel(newChat);
+      } catch (error) {
+        console.error('Failed to initialize chat:', error);
+      }
+    };
+
+    initChat();
+  }, []);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -50,7 +68,7 @@ export const useChat = ({}: useChatProps) => {
     setMessages(updatedMessages);
     setInput('');
 
-    chat.invoke(updatedMessages.map(chatMessageToLangchainMessage), {
+    chatModel?.invoke(updatedMessages.map(chatMessageToLangchainMessage), {
       callbacks: [
         {
           handleLLMNewToken(token: string) {
