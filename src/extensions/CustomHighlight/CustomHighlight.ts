@@ -72,7 +72,7 @@ export const CustomHighlight = Extension.create({
               extension.options.highlightedParagraphIds
             );
           },
-          apply: (tr, oldState, oldEditorState, newEditorState) => {
+          apply: (tr, oldState, _, newEditorState) => {
             // Check for updates in highlightedParagraphIds through transactions
             const meta = tr.getMeta(extension.name);
             if (meta) {
