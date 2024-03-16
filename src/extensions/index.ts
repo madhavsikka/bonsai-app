@@ -22,7 +22,7 @@ export { OrderedList } from '@tiptap/extension-ordered-list';
 export { Collaboration } from '@tiptap/extension-collaboration';
 export { TaskItem } from '@tiptap/extension-task-item';
 export { TaskList } from '@tiptap/extension-task-list';
-
+export { BlockID } from './BlockID';
 export { Selection } from './Selection';
 export { Table, TableCell, TableHeader, TableRow } from './Table';
 export { HorizontalRule } from './HorizontalRule';
@@ -42,3 +42,4 @@ export { ImageBlock } from './ImageBlock';
 export { Columns, Column } from './MultiColumn';
 export { emojiSuggestion } from './EmojiSuggestion';
 export { InlineChat } from './InlineChat';
+export { CustomHighlight } from './CustomHighlight';

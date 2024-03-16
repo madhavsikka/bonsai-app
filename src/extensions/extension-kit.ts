@@ -32,6 +32,8 @@ import {
   TaskItem,
   TaskList,
   InlineChat,
+  BlockID,
+  CustomHighlight,
 } from './index';
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import { lowlight } from 'lowlight';
@@ -110,6 +112,8 @@ export const ExtensionKit = ({}: ExtensionKitProps) => [
     class: 'ProseMirror-dropcursor border-black',
   }),
   InlineChat,
+  BlockID,
+  CustomHighlight,
 ];
 
 export default ExtensionKit;
