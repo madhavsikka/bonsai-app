@@ -9,9 +9,10 @@ import stardark from '@/assets/star-dark.svg';
 import wavedark from '@/assets/wave-dark.svg';
 
 import { useDarkmode } from '@/hooks/useDarkMode';
-import { useChat } from '@/hooks/ai/useChat';
+import { ChatMessageRole, useChat } from '@/hooks/ai/useChat';
 import { Divider } from '@/components/ui/PopoverMenu';
 import { CrossCircledIcon } from '@radix-ui/react-icons';
+import { Node } from '@tiptap/pm/model';
 
 const UserAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
   return (
@@ -37,12 +38,19 @@ const BonsaiAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
   );
 };
 
+export interface InlineChatViewProps extends NodeViewWrapperProps {
+  editor: Editor;
+  node: Node;
+  getPos: () => number;
+  deleteNode: () => void;
+}
+
 export const InlineChatView = ({
   editor,
   node,
   getPos,
   deleteNode,
-}: NodeViewWrapperProps) => {
+}: InlineChatViewProps) => {
   const { isDarkMode } = useDarkmode();
   // @ts-ignore
   const [previewText, setPreviewText] = useState(undefined);
@@ -51,7 +59,7 @@ export const InlineChatView = ({
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     initialMessages: [
       {
-        role: 'system',
+        role: ChatMessageRole.System,
         content: `You are a helpful AI writing assistant embedded inside a rich text editor. Here is the prior context: ${(
           editor as Editor
         ).state.doc.textBetween(
@@ -69,13 +77,18 @@ export const InlineChatView = ({
     const from = getPos();
     const to = from + node.nodeSize;
 
-    editor.chain().focus().insertContentAt({ from, to }, previewText).run();
+    editor
+      .chain()
+      .focus()
+      .insertContentAt({ from, to }, previewText ?? '')
+      .run();
   }, [editor, previewText, getPos, node.nodeSize]);
 
   const handleTextAreaSubmit = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         handleSubmit();
+        // editor.commands.setHighlightedParagraphIds(['temp']);
         e.preventDefault();
       }
     },

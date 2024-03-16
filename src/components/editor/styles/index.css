@@ -144,3 +144,9 @@
 [data-theme='slash-command'] {
   width: 1000vw;
 }
+
+.ProseMirror {
+  .custom-highlight {
+    background-color: yellow;
+  }
+}

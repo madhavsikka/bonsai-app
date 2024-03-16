@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ChatOpenAI, ChatOpenAICallOptions } from '@langchain/openai';
-import { HumanMessage, AIMessage } from '@langchain/core/messages';
+import {
+  HumanMessage,
+  AIMessage,
+  SystemMessage,
+} from '@langchain/core/messages';
 import { v4 as uuid } from 'uuid';
 import { useGetConfig } from '../config/useGetConfig';
 
 export enum ChatMessageRole {
   User = 'user',
   Bonsai = 'bonsai',
+  System = 'system',
 }
 
 export interface ChatMessage {
@@ -14,7 +19,9 @@ export interface ChatMessage {
   role: ChatMessageRole;
   content: string;
 }
-export interface useChatProps {}
+export interface useChatProps {
+  initialMessages?: ChatMessage[];
+}
 
 const chatMessageToLangchainMessage = (message: ChatMessage): HumanMessage => {
   switch (message.role) {
@@ -22,11 +29,13 @@ const chatMessageToLangchainMessage = (message: ChatMessage): HumanMessage => {
       return new AIMessage({ content: message.content });
     case ChatMessageRole.User:
       return new HumanMessage({ content: message.content });
+    case ChatMessageRole.System:
+      return new SystemMessage({ content: message.content });
   }
 };
 
-export const useChat = ({}: useChatProps) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+export const useChat = ({ initialMessages = [] }: useChatProps) => {
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState<string>('');
   const [chatModel, setChatModel] =
     useState<ChatOpenAI<ChatOpenAICallOptions>>();
@@ -65,6 +74,7 @@ export const useChat = ({}: useChatProps) => {
       { id: uuid(), role: ChatMessageRole.User, content: input },
       { id: uuid(), role: ChatMessageRole.Bonsai, content: '' },
     ];
+    console.log('updatedMessages', updatedMessages);
     setMessages(updatedMessages);
     setInput('');
 
