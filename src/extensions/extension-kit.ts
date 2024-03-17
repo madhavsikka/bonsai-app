@@ -34,6 +34,7 @@ import {
   InlineChat,
   BlockID,
   CustomHighlight,
+  Reflect,
 } from './index';
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import { lowlight } from 'lowlight';
@@ -42,13 +43,14 @@ interface ExtensionKitProps {
   userId?: string;
   userName?: string;
   userColor?: string;
+  openAIAPIKey?: string;
 }
 
 const DocumentWithTitle = Document.extend({
   // content: 'heading block*',
 });
 
-export const ExtensionKit = ({}: ExtensionKitProps) => [
+export const ExtensionKit = ({ openAIAPIKey }: ExtensionKitProps) => [
   DocumentWithTitle,
   Columns,
   TaskList,
@@ -114,6 +116,9 @@ export const ExtensionKit = ({}: ExtensionKitProps) => [
   InlineChat,
   BlockID,
   CustomHighlight,
+  Reflect.configure({
+    openAIAPIKey,
+  }),
 ];
 
 export default ExtensionKit;

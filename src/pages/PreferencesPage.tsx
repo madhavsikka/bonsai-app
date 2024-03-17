@@ -11,27 +11,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useGetConfig } from '@/hooks/config/useGetConfig';
 import { useSetConfig } from '@/hooks/config/useSetConfig';
-import { useEffect, useState } from 'react';
+import { CONFIG_KEYS } from '@/types/config';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export const PreferencesPage = () => {
   const navigate = useNavigate();
-  const getConfig = useGetConfig();
+  const { config: openAIApiKey } = useGetConfig(CONFIG_KEYS.OPENAI_API_KEY);
   const setConfig = useSetConfig();
   const [openAiApiKey, setOpenAiApiKey] = useState('');
-
-  useEffect(() => {
-    getConfig('openai_api_key').then((value: any) => {
-      setOpenAiApiKey(value ?? '');
-    });
-  }, [getConfig]);
 
   const handleOpenAiApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setOpenAiApiKey(e.target.value);
   };
 
   const handleSaveClick = () => {
-    setConfig('openai_api_key', openAiApiKey);
+    setConfig('openai_api_key', openAIApiKey);
     navigate(-1);
   };
 
