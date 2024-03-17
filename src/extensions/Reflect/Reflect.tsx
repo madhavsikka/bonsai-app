@@ -52,6 +52,11 @@ export const Reflect = Extension.create<ReflectExtensionOptions>({
       [this.options.shortcut]: () => {
         const editor = this.editor;
         const reflectBlocks = collectReflectBlocks(editor.getJSON());
+        const blockIds = reflectBlocks.map((block) => block.blockId);
+        console.log(JSON.stringify(editor.getJSON()));
+        console.log('Reflect blocks:', blockIds);
+        editor.commands.addNotificationDot(blockIds);
+        return true;
 
         const worker = new Worker(
           new URL('@/workers/reflect.ts', import.meta.url),

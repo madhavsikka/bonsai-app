@@ -35,6 +35,7 @@ import {
   BlockID,
   CustomHighlight,
   Reflect,
+  NotificationDot,
 } from './index';
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import { lowlight } from 'lowlight';
@@ -119,6 +120,7 @@ export const ExtensionKit = ({ openAIAPIKey }: ExtensionKitProps) => [
   Reflect.configure({
     openAIAPIKey,
   }),
+  NotificationDot,
 ];
 
 export default ExtensionKit;
