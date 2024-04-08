@@ -1,20 +1,16 @@
 import { EditorContent, PureEditorContent } from '@tiptap/react';
 import { useRef } from 'react';
 import { LinkMenu } from './menus';
-
 import { useBlockEditor } from '../../hooks/editor/useEditor';
-
-import './styles/index.css';
-
 import { Sidebar } from './sidebar/Sidebar';
 import ImageBlockMenu from '@/extensions/ImageBlock/components/ImageBlockMenu';
 import { ColumnsMenu } from '@/extensions/MultiColumn/menus';
 import { TableColumnMenu, TableRowMenu } from '@/extensions/Table/menus';
 import { TiptapProps } from './types';
 import { TextMenu } from './menus/TextMenu';
-// import { ContentItemMenu } from './menus/ContentItemMenu';
 import { EditorHeader } from './bars/EditorHeader';
 import { useZoom } from '@/hooks/useZoom';
+import './styles/index.css';
 
 export const BlockEditor = ({
   initialContent,
@@ -48,7 +44,6 @@ export const BlockEditor = ({
           ref={editorRef}
           className="flex-1 overflow-y-auto"
         />
-        {/* <ContentItemMenu editor={editor} /> */}
         <LinkMenu editor={editor} appendTo={menuContainerRef} />
         <TextMenu editor={editor} />
         <ColumnsMenu editor={editor} appendTo={menuContainerRef} />

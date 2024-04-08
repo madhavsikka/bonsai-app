@@ -43,3 +43,5 @@ export { Columns, Column } from './MultiColumn';
 export { emojiSuggestion } from './EmojiSuggestion';
 export { InlineChat } from './InlineChat';
 export { CustomHighlight } from './CustomHighlight';
+export { Reflect } from './Reflect';
+export { NotificationDot } from './NotificationDot';

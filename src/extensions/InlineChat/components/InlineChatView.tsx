@@ -95,6 +95,10 @@ export const InlineChatView = ({
     [handleSubmit]
   );
 
+  if (node.attrs.hidden) {
+    return null; // If hidden, don't render the inline chat
+  }
+
   return (
     <NodeViewWrapper data-drag-handle>
       <Panel noShadow className="w-full">

@@ -22,7 +22,7 @@ export const BlockID = Node.create({
         attributes: {
           blockId: {
             default: null,
-            rendered: false,
+            rendered: true,
             keepOnSplit: false,
           },
         },

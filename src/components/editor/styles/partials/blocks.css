@@ -44,4 +44,19 @@
   [data-type='column'] {
     @apply overflow-auto;
   }
+
+  .notification-dot {
+    position: relative;
+  }
+  
+  .notification-dot::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: -20px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #007bff;
+  }
 }
