@@ -1,4 +1,4 @@
-import { mergeAttributes, Node } from '@tiptap/core';
+import { CommandProps, mergeAttributes, Node } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import { v4 as uuid } from 'uuid';
 import { InlineChatView } from './components/InlineChatView';
@@ -7,6 +7,8 @@ declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     inlineChat: {
       setInlineChat: () => ReturnType;
+      insertInlineChatAfterBlock: (blockId: string) => ReturnType;
+      hideAllInlineChats: () => ReturnType;
     };
   }
 }
@@ -57,6 +59,14 @@ export const InlineChat = Node.create({
           'data-author-name': attributes.authorName,
         }),
       },
+      hidden: {
+        default: false,
+        parseHTML: (element: HTMLElement) =>
+          element.getAttribute('data-hidden') === 'true',
+        renderHTML: (attributes: { hidden?: boolean }) => ({
+          'data-hidden': attributes.hidden ? 'true' : 'false',
+        }),
+      },
     };
   },
 
@@ -79,7 +89,7 @@ export const InlineChat = Node.create({
     return {
       setInlineChat:
         () =>
-        ({ chain }) =>
+        ({ chain }: CommandProps) =>
           chain()
             .focus()
             .insertContent({
@@ -91,6 +101,56 @@ export const InlineChat = Node.create({
               },
             })
             .run(),
+
+      insertInlineChatAfterBlock:
+        (blockId: string) =>
+        ({ chain, tr }: CommandProps) => {
+          const { doc } = tr;
+          let blockPos: number | null = null;
+
+          doc.nodesBetween(0, doc.content.size, (node, pos) => {
+            if (node.attrs.blockId === blockId) {
+              blockPos = pos + node.nodeSize;
+              return false; // Stop the iteration
+            }
+          });
+
+          if (blockPos === null) {
+            return false;
+          }
+
+          chain()
+            .focus()
+            .insertContentAt(blockPos, {
+              type: this.name,
+              attrs: {
+                id: uuid(),
+                authorId: this.options.authorId,
+                authorName: this.options.authorName,
+              },
+            })
+            .run();
+
+          return true;
+        },
+
+      hideAllInlineChats:
+        () =>
+        ({ chain, state }: CommandProps) => {
+          const { tr } = state;
+          const { doc } = tr;
+
+          doc.descendants((node, pos) => {
+            if (node.type.name === this.name) {
+              tr.setNodeMarkup(pos, undefined, {
+                ...node.attrs,
+                hidden: true,
+              });
+            }
+          });
+
+          return chain().updateAttributes(this.name, { hidden: true }).run();
+        },
     };
   },
 
