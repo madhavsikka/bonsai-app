@@ -18,6 +18,22 @@
   font-style: italic;
 }
 
+@font-face {
+  font-family: 'JetBrainsMono';
+  src: url('/fonts/JetBrainsMono-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-stretch: 75% 125%;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'JetBrainsMono';
+  src: url('/fonts/JetBrainsMono-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-stretch: 75% 125%;
+  font-style: italic;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -53,7 +69,7 @@
  
   .dark {
     --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
+    --foreground: 220 3% 79%;
  
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -61,8 +77,8 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
  
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+    --primary: 0 0% 98%;  
+    --primary-foreground: 159 83% 30%;
  
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
@@ -91,12 +107,12 @@
     @apply border-border;
   }
   html {
-    @apply bg-background text-foreground font-worksans;
+    @apply bg-background text-foreground font-jetbrainsmono;
     width: 100%;
     height: 100%;
   }
   body {
-    @apply bg-background text-foreground font-worksans;
+    @apply bg-background text-foreground font-jetbrainsmono;
     width: 100%;
     height: 100%;
   }
