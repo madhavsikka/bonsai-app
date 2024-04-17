@@ -19,6 +19,7 @@ module.exports = {
     extend: {
       fontFamily: {
         worksans: ['WorkSans', 'sans-serif'],
+        jetbrainsmono: ['JetBrainsMono', 'monospace'],
       },
       colors: {
         border: 'hsl(var(--border))',
