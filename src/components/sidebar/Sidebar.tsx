@@ -11,9 +11,11 @@ export function Sidebar({ className }: SidebarProps) {
   const { createLeaf } = useCreateLeaf();
   const navigate = useNavigate();
 
+  // Use current time as the default leaf name
   const handleCreateLeaf = useCallback(async () => {
-    const leaf = await createLeaf({ title: 'My New Leaf', body: '' });
-    navigate(`/leafs/${leaf?.id}`);
+    const name = `${Date.now()}`;
+    await createLeaf({ name: name, content: '' });
+    navigate(`/leafs/${name}`);
   }, []);
 
   return (

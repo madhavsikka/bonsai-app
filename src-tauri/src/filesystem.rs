@@ -1,0 +1,70 @@
+use serde::{Deserialize, Serialize};
+use std::fs::{self, File};
+use std::io::{self, Write};
+use std::path::PathBuf;
+
+pub struct Database {
+    root_dir: PathBuf,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct Leaf {
+    name: String,
+    content: String,
+}
+
+impl Database {
+    pub fn new(name: &str) -> io::Result<Self> {
+        let home_dir = dirs::home_dir().expect("Failed to get home directory");
+        let root_dir = home_dir.join(name);
+        fs::create_dir_all(&root_dir)?;
+        Ok(Self { root_dir })
+    }
+
+    pub fn create_leaf(&self, leaf: &Leaf) -> io::Result<()> {
+        let full_path = self.root_dir.join(&leaf.name);
+        println!("Creating leaf at {:?}", full_path);
+        let mut file = File::create(full_path)?;
+        file.write_all(leaf.content.as_bytes())?;
+        Ok(())
+    }
+
+    pub fn read_leaf(&self, name: &str) -> io::Result<Leaf> {
+        let full_path = self.root_dir.join(name);
+        let content = fs::read_to_string(full_path)?;
+        Ok(Leaf {
+            name: name.to_string(),
+            content,
+        })
+    }
+
+    pub fn list_leaves(&self) -> io::Result<Vec<Leaf>> {
+        let entries = fs::read_dir(&self.root_dir)?;
+        let mut leaves = Vec::new();
+        for entry in entries {
+            let entry = entry?;
+            let file_name = entry.file_name();
+            let file_name = file_name.to_str().unwrap().to_string();
+            let file_path = entry.path();
+            let file_content = fs::read_to_string(file_path)?;
+            leaves.push(Leaf {
+                name: file_name,
+                content: file_content,
+            });
+        }
+        Ok(leaves)
+    }
+
+    pub fn delete_leaf(&self, name: &str) -> io::Result<()> {
+        let full_path = self.root_dir.join(name);
+        fs::remove_file(full_path)?;
+        Ok(())
+    }
+
+    pub fn update_leaf(&self, leaf: &Leaf) -> io::Result<()> {
+        let full_path = self.root_dir.join(&leaf.name);
+        let mut file = File::create(full_path)?;
+        file.write_all(leaf.content.as_bytes())?;
+        Ok(())
+    }
+}

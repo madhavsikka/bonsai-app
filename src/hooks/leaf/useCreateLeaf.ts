@@ -9,12 +9,12 @@ export const useCreateLeaf = () => {
   const createLeaf = useCallback(async (newLeaf: Partial<Leaf>) => {
     try {
       setIsSubmitting(true);
-      const res = await invoke('create_leaf', {
-        title: newLeaf.title,
-        body: newLeaf.body ?? '',
+      await invoke('create_leaf', {
+        leaf: {
+          name: newLeaf.name,
+          content: newLeaf.content ?? '',
+        },
       });
-      // @ts-ignore
-      return res['message'] as Leaf;
     } catch (e: any) {
       setError(e);
     } finally {
