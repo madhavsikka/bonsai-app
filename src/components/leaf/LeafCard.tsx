@@ -28,7 +28,7 @@ export function LeafCard({
         style={{ ...getRandomPattern() }}
       />
       <div className="p-4 border border-t-0 rounded-b-lg flex-grow">
-        <h3 className="font-semibold">{leaf.title}</h3>
+        <h3 className="font-semibold">{leaf.name}</h3>
       </div>
     </div>
   );

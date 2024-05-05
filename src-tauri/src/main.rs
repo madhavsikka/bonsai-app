@@ -8,99 +8,34 @@ extern crate webkit2gtk;
 #[macro_use]
 extern crate objc;
 
-mod db;
-use bonsai_app::models::Leaf;
-
-// -------------------------------------------------------
-#[derive(serde::Serialize)]
-struct CreateLeafResponse {
-    message: Leaf,
-}
-
-#[tauri::command]
-fn create_leaf(title: &str, body: &str) -> Result<CreateLeafResponse, String> {
-    use bonsai_app::db::establish_db_connection;
-    use bonsai_app::models::*;
-    use bonsai_app::schema::leafs;
-    use diesel::prelude::*;
-
-    let connection = &mut establish_db_connection();
-    let new_leaf = NewLeaf { title, body };
-    let leaf = diesel::insert_into(leafs::table)
-        .values(&new_leaf)
-        .get_result(connection)
-        .expect("Error saving new leaf");
-
-    Ok(CreateLeafResponse { message: leaf })
-}
+use bonsai_app::filesystem::{Database, Leaf};
 
 // -------------------------------------------------------
 
-#[derive(serde::Serialize)]
-struct ListLeafsResponse {
-    message: Vec<Leaf>,
+#[tauri::command]
+fn create_leaf(db: tauri::State<Database>, leaf: Leaf) -> Result<(), String> {
+    db.create_leaf(&leaf).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-fn list_leafs() -> Result<ListLeafsResponse, String> {
-    use bonsai_app::db::establish_db_connection;
-    use bonsai_app::models::*;
-    use bonsai_app::schema::leafs;
-    use diesel::prelude::*;
-
-    let connection = &mut establish_db_connection();
-    let leafs = leafs::table
-        .load::<Leaf>(connection)
-        .expect("Error loading leafs");
-
-    Ok(ListLeafsResponse { message: leafs })
-}
-
-// -------------------------------------------------------
-
-#[derive(serde::Serialize)]
-struct GetLeafResponse {
-    message: Leaf,
+fn update_leaf(db: tauri::State<Database>, leaf: Leaf) -> Result<(), String> {
+    db.update_leaf(&leaf).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-fn get_leaf(id: i32) -> Result<GetLeafResponse, String> {
-    use bonsai_app::db::establish_db_connection;
-    use bonsai_app::models::*;
-    use bonsai_app::schema::leafs;
-    use diesel::prelude::*;
-
-    let connection = &mut establish_db_connection();
-    let leaf = leafs::table
-        .find(id)
-        .first::<Leaf>(connection)
-        .expect("Error loading leaf");
-
-    Ok(GetLeafResponse { message: leaf })
-}
-
-// -------------------------------------------------------
-
-#[derive(serde::Serialize)]
-struct UpdateLeafResponse {
-    message: Leaf,
+fn read_leaf(db: tauri::State<Database>, name: String) -> Result<Leaf, String> {
+    db.read_leaf(&name).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-fn update_leaf(id: i32, title: &str, body: &str) -> Result<UpdateLeafResponse, String> {
-    use bonsai_app::db::establish_db_connection;
-    use bonsai_app::schema::leafs;
-    use diesel::prelude::*;
-
-    let connection = &mut establish_db_connection();
-    let leaf = diesel::update(leafs::table.find(id))
-        .set((leafs::title.eq(title), leafs::body.eq(body)))
-        .get_result(connection)
-        .expect("Error updating leaf");
-
-    Ok(UpdateLeafResponse { message: leaf })
+fn list_leaves(db: tauri::State<Database>) -> Result<Vec<Leaf>, String> {
+    db.list_leaves().map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn delete_leaf(db: tauri::State<Database>, name: String) -> Result<(), String> {
+    db.delete_leaf(&name).map_err(|e| e.to_string())
+}
 // -------------------------------------------------------
 
 #[tauri::command]
@@ -136,55 +71,17 @@ fn get_env(name: &str) -> String {
 
 // -------------------------------------------------------
 
-#[tauri::command]
-fn set_config(key: &str, value: &str) {
-    use bonsai_app::db::establish_db_connection;
-    use bonsai_app::models::*;
-    use bonsai_app::schema::config;
-    use diesel::prelude::*;
-
-    let connection = &mut establish_db_connection();
-    let new_config = NewConfig { key, value };
-    let _: Result<Config, _> = diesel::insert_into(config::table)
-        .values(&new_config)
-        .get_result(connection);
-}
-
-// -------------------------------------------------------
-
-#[tauri::command]
-fn get_config(key: &str) -> String {
-    use bonsai_app::db::establish_db_connection;
-    use bonsai_app::models::*;
-    use bonsai_app::schema::config;
-    use diesel::prelude::*;
-
-    let connection = &mut establish_db_connection();
-    let result: Result<Config, _> = config::table
-        .filter(config::key.eq(key))
-        .first::<Config>(connection);
-
-    match result {
-        Ok(config) => config.value,
-        Err(_) => String::from(""),
-    }
-}
-
 fn main() {
     tauri::Builder::default()
-        .setup(|_app| {
-            db::init();
-            Ok(())
-        })
+        .manage(Database::new("bonsai_db").unwrap())
         .invoke_handler(tauri::generate_handler![
-            create_leaf,
-            list_leafs,
-            get_leaf,
-            update_leaf,
             zoom_window,
             get_env,
-            set_config,
-            get_config
+            create_leaf,
+            read_leaf,
+            delete_leaf,
+            update_leaf,
+            list_leaves,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -11,7 +11,7 @@ export const App = () => {
       <AppConfigProvider>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/leafs/:id" element={<LeafPage />} />
+          <Route path="/leafs/:name" element={<LeafPage />} />
           <Route path="/preferences" element={<PreferencesPage />} />
         </Routes>
       </AppConfigProvider>

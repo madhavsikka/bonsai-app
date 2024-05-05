@@ -12,9 +12,10 @@ export const useListLeafs = () => {
       try {
         setLoading(true);
         // @ts-ignore
-        const res = (await invoke('list_leafs', {}))['message'] as Leaf[];
+        const res = (await invoke('list_leaves', { path: '' })) as Leaf[];
         setLeafs(res);
       } catch (e: any) {
+        console.error(e);
         setError(e);
       } finally {
         setLoading(false);

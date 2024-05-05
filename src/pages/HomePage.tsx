@@ -30,11 +30,12 @@ export const HomePage = () => {
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
                   {!loading &&
+                    leafs &&
                     leafs.map((leaf) => (
-                      <Link to={`/leafs/${leaf.id}`} key={leaf.id}>
+                      <Link to={`/leafs/${leaf.name}`} key={leaf.name}>
                         <LeafCard
                           leaf={leaf}
-                          key={leaf.id}
+                          key={leaf.name}
                           className="min-h-[500px]"
                           coverImageClassName="min-h-[200px]"
                         />

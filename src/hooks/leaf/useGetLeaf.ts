@@ -2,7 +2,7 @@ import { Leaf } from '@/types/leaf';
 import { invoke } from '@tauri-apps/api/tauri';
 import { useEffect, useState } from 'react';
 
-export const useGetLeaf = ({ id }: { id: string | undefined }) => {
+export const useGetLeaf = ({ name }: { name: string }) => {
   const [leaf, setLeaf] = useState<Leaf>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | undefined>(undefined);
@@ -12,10 +12,8 @@ export const useGetLeaf = ({ id }: { id: string | undefined }) => {
       try {
         setLoading(true);
         // @ts-ignore
-        const res = (await invoke('get_leaf', { id: Number(id) }))[
-          'message'
-        ] as Leaf;
-        setLeaf(res);
+        const res = (await invoke('read_leaf', { name })) as Leaf;
+        setLeaf({ name: res.name, content: res.content });
       } catch (e: any) {
         setError(e);
       } finally {
@@ -23,8 +21,8 @@ export const useGetLeaf = ({ id }: { id: string | undefined }) => {
       }
     };
 
-    if (id) fetchLeafs();
-  }, [id]);
+    if (name) fetchLeafs();
+  }, [name]);
 
   return { leaf, loading, error };
 };

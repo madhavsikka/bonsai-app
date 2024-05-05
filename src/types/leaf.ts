@@ -1,7 +1,6 @@
 export interface Leaf {
-  id: string;
-  title: string;
-  body: string;
+  name: string;
+  content: string;
 }
 
 export interface User {
