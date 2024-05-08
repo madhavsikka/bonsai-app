@@ -13,7 +13,7 @@ export const useGetLeaf = ({ name }: { name: string }) => {
         setLoading(true);
         // @ts-ignore
         const res = (await invoke('read_leaf', { name })) as Leaf;
-        setLeaf({ name: res.name, content: res.content });
+        setLeaf(res);
       } catch (e: any) {
         setError(e);
       } finally {

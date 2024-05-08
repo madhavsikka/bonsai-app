@@ -63,7 +63,7 @@ export const ExtensionKit = ({ openAIAPIKey }: ExtensionKitProps) => [
   Heading.configure({
     levels: [1, 2, 3, 4, 5, 6],
     HTMLAttributes: {
-      class: 'text-primary-foreground',
+      // class: 'text-primary-foreground',
     },
   }),
   HorizontalRule,
