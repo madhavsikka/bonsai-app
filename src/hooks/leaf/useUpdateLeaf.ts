@@ -10,10 +10,8 @@ export const useUpdateLeaf = () => {
     try {
       setIsSubmitting(true);
       await invoke('update_leaf', {
-        leaf: {
-          name: updatedLeaf.name,
-          content: updatedLeaf.content ?? '',
-        },
+        name: updatedLeaf.name,
+        content: updatedLeaf.content ?? '',
       });
     } catch (e: any) {
       setError(e);

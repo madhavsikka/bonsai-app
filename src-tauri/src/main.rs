@@ -13,13 +13,13 @@ use bonsai_app::filesystem::{Database, Leaf};
 // -------------------------------------------------------
 
 #[tauri::command]
-fn create_leaf(db: tauri::State<Database>, leaf: Leaf) -> Result<(), String> {
-    db.create_leaf(&leaf).map_err(|e| e.to_string())
+fn create_leaf(db: tauri::State<Database>, name: String, content: String) -> Result<(), String> {
+    db.create_leaf(&name, &content).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-fn update_leaf(db: tauri::State<Database>, leaf: Leaf) -> Result<(), String> {
-    db.update_leaf(&leaf).map_err(|e| e.to_string())
+fn update_leaf(db: tauri::State<Database>, name: String, content: String) -> Result<(), String> {
+    db.update_leaf(&name, &content).map_err(|e| e.to_string())
 }
 
 #[tauri::command]

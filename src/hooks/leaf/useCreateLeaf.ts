@@ -10,12 +10,11 @@ export const useCreateLeaf = () => {
     try {
       setIsSubmitting(true);
       await invoke('create_leaf', {
-        leaf: {
-          name: newLeaf.name,
-          content: newLeaf.content ?? '',
-        },
+        name: newLeaf.name,
+        content: newLeaf.content ?? '',
       });
     } catch (e: any) {
+      console.error(e);
       setError(e);
     } finally {
       setIsSubmitting(false);

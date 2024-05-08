@@ -30,11 +30,11 @@ impl Database {
         Ok(Self { root_dir })
     }
 
-    pub fn create_leaf(&self, leaf: &Leaf) -> io::Result<()> {
-        let full_path = self.root_dir.join(&leaf.name);
+    pub fn create_leaf(&self, name: &str, content: &str) -> io::Result<()> {
+        let full_path = self.root_dir.join(name);
         println!("Creating leaf at {:?}", full_path);
         let mut file = File::create(full_path)?;
-        file.write_all(leaf.content.as_bytes())?;
+        file.write_all(content.as_bytes())?;
         Ok(())
     }
 
@@ -80,10 +80,10 @@ impl Database {
         Ok(())
     }
 
-    pub fn update_leaf(&self, leaf: &Leaf) -> io::Result<()> {
-        let full_path = self.root_dir.join(&leaf.name);
+    pub fn update_leaf(&self, name: &str, content: &str) -> io::Result<()> {
+        let full_path = self.root_dir.join(name);
         let mut file = File::create(full_path)?;
-        file.write_all(leaf.content.as_bytes())?;
+        file.write_all(content.as_bytes())?;
         Ok(())
     }
 }
