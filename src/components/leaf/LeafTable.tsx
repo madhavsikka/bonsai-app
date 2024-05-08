@@ -1,4 +1,4 @@
-import { User, Leaf, Menu, Package2, Search } from 'lucide-react';
+import { User, Leaf, Search } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -10,13 +10,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { CreateLeafDialog } from './CreateLeafDialog';
 import { BonsaiAvatar } from '../avatar/BonsaiAvatar';
 import { LeafDataTable } from './LeafDataTable';
 import { useListLeafs } from '@/hooks/leaf/useListLeafs';
 
 export const LeafTable = () => {
-  const { leafs, loading } = useListLeafs();
+  const { leafs } = useListLeafs();
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r md:block">

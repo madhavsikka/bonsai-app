@@ -33,8 +33,26 @@ import { Leaf } from '@/types/leaf';
 import { LeafAvatar } from '../avatar/LeafAvatar';
 import { useNavigate } from 'react-router-dom';
 
+const dateOptions = {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+} as const;
+
+export const formatTimestamp = (timestamp: string) => {
+  const date = new Date(timestamp);
+  const formattedDate = date.toLocaleString('en-US', dateOptions);
+  const formattedDateWithSuffix = formattedDate.replace(
+    /(\d+)(st|nd|rd|th)/,
+    '$1<sup>$2</sup>'
+  );
+
+  return formattedDateWithSuffix;
+};
+
 export const LeafDataTable = ({ leafs }: { leafs: Leaf[] }) => {
   const navigate = useNavigate();
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -54,6 +72,8 @@ export const LeafDataTable = ({ leafs }: { leafs: Leaf[] }) => {
                 <span className="sr-only">Image</span>
               </TableHead>
               <TableHead>Name</TableHead>
+              <TableHead>Created At</TableHead>
+              <TableHead>Modified At</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -74,6 +94,8 @@ export const LeafDataTable = ({ leafs }: { leafs: Leaf[] }) => {
                 >
                   {leaf.name}
                 </TableCell>
+                <TableCell>{formatTimestamp(leaf.createdAt)}</TableCell>
+                <TableCell>{formatTimestamp(leaf.modifiedAt)}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

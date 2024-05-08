@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
 use std::io::{self, Write};
@@ -8,9 +9,17 @@ pub struct Database {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Leaf {
     name: String,
     content: String,
+    created_at: String,
+    modified_at: String,
+}
+
+fn iso8601(st: &std::time::SystemTime) -> String {
+    let dt: DateTime<Utc> = st.clone().into();
+    format!("{}", dt.format("%+"))
 }
 
 impl Database {
@@ -31,10 +40,15 @@ impl Database {
 
     pub fn read_leaf(&self, name: &str) -> io::Result<Leaf> {
         let full_path = self.root_dir.join(name);
-        let content = fs::read_to_string(full_path)?;
+        let content = fs::read_to_string(&full_path)?;
+        let metadata = fs::metadata(&full_path)?;
+        let created_at = iso8601(&metadata.created()?);
+        let modified_at = iso8601(&metadata.modified()?);
         Ok(Leaf {
             name: name.to_string(),
             content,
+            created_at,
+            modified_at,
         })
     }
 
@@ -46,10 +60,15 @@ impl Database {
             let file_name = entry.file_name();
             let file_name = file_name.to_str().unwrap().to_string();
             let file_path = entry.path();
-            let file_content = fs::read_to_string(file_path)?;
+            let file_content = fs::read_to_string(&file_path)?;
+            let metadata = fs::metadata(&file_path)?;
+            let created_at = iso8601(&metadata.created()?);
+            let modified_at = iso8601(&metadata.modified()?);
             leaves.push(Leaf {
                 name: file_name,
                 content: file_content,
+                created_at,
+                modified_at,
             });
         }
         Ok(leaves)
