@@ -31,8 +31,10 @@ import {
 import { CreateLeafDialog } from './CreateLeafDialog';
 import { Leaf } from '@/types/leaf';
 import { LeafAvatar } from '../avatar/LeafAvatar';
+import { useNavigate } from 'react-router-dom';
 
 export const LeafDataTable = ({ leafs }: { leafs: Leaf[] }) => {
+  const navigate = useNavigate();
   return (
     <Card className="w-full">
       <CardHeader>
@@ -60,10 +62,18 @@ export const LeafDataTable = ({ leafs }: { leafs: Leaf[] }) => {
           <TableBody>
             {leafs.map((leaf) => (
               <TableRow key={leaf.name}>
-                <TableCell className="hidden sm:table-cell">
+                <TableCell
+                  className="hidden sm:table-cell cursor-pointer"
+                  onClick={() => navigate(`/leafs/${leaf.name}`)}
+                >
                   <LeafAvatar />
                 </TableCell>
-                <TableCell className="font-medium">{leaf.name}</TableCell>
+                <TableCell
+                  className="font-medium hover:underline cursor-pointer"
+                  onClick={() => navigate(`/leafs/${leaf.name}`)}
+                >
+                  {leaf.name}
+                </TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
