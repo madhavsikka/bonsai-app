@@ -27,7 +27,7 @@ const ShortcutKey = ({ children }: { children: string }): JSX.Element => {
   return <kbd className={className}>{children}</kbd>;
 };
 
-export const Tooltip = ({
+export const EditorTooltip = ({
   children,
   enabled = true,
   title,
@@ -78,4 +78,4 @@ export const Tooltip = ({
   return <>{children}</>;
 };
 
-export default Tooltip;
+export default EditorTooltip;

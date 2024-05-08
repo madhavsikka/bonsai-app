@@ -3,7 +3,7 @@ import { ButtonHTMLAttributes, HTMLProps, forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Surface } from './Surface';
 import { EditorButton, ButtonProps } from './EditorButton';
-import Tooltip from './Tooltip';
+import EditorTooltip from './EditorTooltip';
 
 export type ToolbarWrapperProps = {
   shouldShowContent?: boolean;
@@ -99,9 +99,9 @@ const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 
     if (tooltip) {
       return (
-        <Tooltip title={tooltip} shortcut={tooltipShortcut}>
+        <EditorTooltip title={tooltip} shortcut={tooltipShortcut}>
           {content}
-        </Tooltip>
+        </EditorTooltip>
       );
     }
 
