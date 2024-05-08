@@ -1,16 +1,13 @@
-import starlight from '@/assets/star-light.svg';
-import stardark from '@/assets/star-dark.svg';
-import { useDarkmode } from '@/hooks/useDarkMode';
+import leaf from '@/assets/leaf-round.svg';
 
 export const BonsaiAvatar = () => {
-  const { isDarkMode } = useDarkmode();
   return (
     <img
-      src={isDarkMode ? starlight : stardark}
+      src={leaf}
       alt="avatar"
-      width={24}
-      height={24}
-      style={{ maxWidth: '24px', borderRadius: '6px' }}
+      width={30}
+      height={30}
+      style={{ borderRadius: '6px' }}
     />
   );
 };

@@ -37,6 +37,12 @@ export const BlockEditor = ({
         editor={editor}
       />
       <div className="relative flex flex-col flex-1 h-full overflow-hidden">
+        <EditorHeader
+          characters={characterCount.characters()}
+          words={characterCount.words()}
+          isSidebarOpen={leftSidebar.isOpen}
+          toggleSidebar={leftSidebar.toggle}
+        />
         <EditorContent
           editor={editor}
           ref={editorRef}
@@ -48,12 +54,6 @@ export const BlockEditor = ({
         <TableRowMenu editor={editor} appendTo={menuContainerRef} />
         <TableColumnMenu editor={editor} appendTo={menuContainerRef} />
         <ImageBlockMenu editor={editor} appendTo={menuContainerRef} />
-        <EditorHeader
-          characters={characterCount.characters()}
-          words={characterCount.words()}
-          isSidebarOpen={leftSidebar.isOpen}
-          toggleSidebar={leftSidebar.toggle}
-        />
       </div>
     </div>
   );

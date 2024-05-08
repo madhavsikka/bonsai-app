@@ -29,8 +29,8 @@ export const CreateLeafDialog = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <UIButton className="mt-4">
-          <PlusCircledIcon className="mr-2" />
+        <UIButton className="mt-4 text-background">
+          <PlusCircledIcon className="mr-2 text-background" />
           Add Leaf
         </UIButton>
       </DialogTrigger>
