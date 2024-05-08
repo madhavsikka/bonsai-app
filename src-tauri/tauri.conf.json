@@ -34,9 +34,11 @@
     },
     "windows": [
       {
-        "fullscreen": true,
         "title": "bonsai",
-        "decorations": false
+        "decorations": false,
+        "width": 1920,
+        "height": 1080,
+        "resizable": true
       }
     ]
   }
