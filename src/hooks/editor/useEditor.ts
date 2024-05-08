@@ -21,7 +21,7 @@ export const useBlockEditor = ({
 
   const onDebouncedEditorUpdate = useDebouncedCallback((value) => {
     onEditorUpdate?.(value);
-  }, 5000);
+  }, 2000);
 
   const editor = useEditor(
     {
