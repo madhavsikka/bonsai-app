@@ -4,8 +4,10 @@ import { HomePage } from './pages/HomePage';
 import { LeafPage } from './pages/LeafPage';
 import { PreferencesPage } from './pages/PreferencesPage';
 import { AppConfigProvider } from './providers/AppConfigProvider';
+import { useZoom } from './hooks/useZoom';
 
 export const App = () => {
+  const {} = useZoom();
   return (
     <main className="w-full h-full">
       <AppConfigProvider>

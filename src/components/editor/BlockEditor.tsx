@@ -9,7 +9,6 @@ import { TableColumnMenu, TableRowMenu } from '@/extensions/Table/menus';
 import { TiptapProps } from './types';
 import { TextMenu } from './menus/TextMenu';
 import { EditorHeader } from './bars/EditorHeader';
-import { useZoom } from '@/hooks/useZoom';
 import './styles/index.css';
 
 export const BlockEditor = ({
@@ -19,7 +18,6 @@ export const BlockEditor = ({
 }: TiptapProps) => {
   const menuContainerRef = useRef(null);
   const editorRef = useRef<PureEditorContent | null>(null);
-  const {} = useZoom();
 
   const { editor, leftSidebar, characterCount } = useBlockEditor({
     initialContent,
