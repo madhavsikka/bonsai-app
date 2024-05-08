@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { UIButton } from '@/components/ui/button';
 import { PlusCircledIcon } from '@radix-ui/react-icons';
 import { useCreateLeaf } from '@/hooks/leaf/useCreateLeaf';
 import { useNavigate } from 'react-router-dom';
@@ -26,14 +26,14 @@ export function Sidebar({ className }: SidebarProps) {
             Library
           </h2>
           <div className="space-y-1">
-            <Button
+            <UIButton
               variant="ghost"
               className="w-full justify-start"
               onClick={handleCreateLeaf}
             >
               <PlusCircledIcon className="mr-2" />
               <span>New Leaf</span>
-            </Button>
+            </UIButton>
           </div>
         </div>
       </div>

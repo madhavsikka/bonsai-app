@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { UIButton } from '@/components/ui/button';
 
 import {
   DropdownMenu,
@@ -99,10 +99,14 @@ export const LeafDataTable = ({ leafs }: { leafs: Leaf[] }) => {
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
+                      <UIButton
+                        aria-haspopup="true"
+                        size="icon"
+                        variant="ghost"
+                      >
                         <MoreHorizontal className="h-4 w-4" />
                         <span className="sr-only">Toggle menu</span>
-                      </Button>
+                      </UIButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>

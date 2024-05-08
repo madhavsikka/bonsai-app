@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { UIButton } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Dialog,
@@ -29,10 +29,10 @@ export const CreateLeafDialog = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="mt-4">
+        <UIButton className="mt-4">
           <PlusCircledIcon className="mr-2" />
           Add Leaf
-        </Button>
+        </UIButton>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -56,9 +56,9 @@ export const CreateLeafDialog = () => {
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit" onClick={handleCreateLeaf}>
+          <UIButton type="submit" onClick={handleCreateLeaf}>
             Done
-          </Button>
+          </UIButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

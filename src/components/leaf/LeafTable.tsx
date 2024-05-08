@@ -1,6 +1,6 @@
 import { User, Leaf, Search } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { UIButton } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,10 +55,14 @@ export const LeafTable = () => {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full">
+              <UIButton
+                variant="secondary"
+                size="icon"
+                className="rounded-full"
+              >
                 <User className="h-5 w-5" />
                 <span className="sr-only">Toggle user menu</span>
-              </Button>
+              </UIButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>

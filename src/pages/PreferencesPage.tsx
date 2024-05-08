@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { UIButton } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -53,10 +53,10 @@ export const PreferencesPage = () => {
           </form>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={() => navigate(-1)}>
+          <UIButton variant="outline" onClick={() => navigate(-1)}>
             Cancel
-          </Button>
-          <Button onClick={handleSaveClick}>Save</Button>
+          </UIButton>
+          <UIButton onClick={handleSaveClick}>Save</UIButton>
         </CardFooter>
       </Card>
     </div>
