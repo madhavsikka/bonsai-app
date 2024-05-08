@@ -1,7 +1,7 @@
 import { EditorInfo } from './EditorInfo';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
-import { Button } from '@/components/ui/Button';
+import { EditorButton } from '@/components/ui/EditorButton';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -38,9 +38,9 @@ export const EditorHeader = ({ characters, words }: EditorHeaderProps) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Button variant="ghost" className="p-1 m-0">
+      <EditorButton variant="ghost" className="p-1 m-0">
         <ArrowLeftIcon className="m-0" onClick={() => navigate(-1)} />
-      </Button>
+      </EditorButton>
       <EditorInfo characters={characters} words={words} />
     </div>
   );
