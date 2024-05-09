@@ -26,6 +26,16 @@ export const CreateLeafDialog = () => {
     navigate(`/leafs/${leafName}`);
   }, [leafName]);
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleCreateLeaf();
+      }
+    },
+    [handleCreateLeaf]
+  );
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -49,8 +59,10 @@ export const CreateLeafDialog = () => {
             <Input
               id="name"
               value={leafName}
+              autoFocus
               placeholder="The origins of Bonsai"
               className="col-span-3"
+              onKeyDown={handleKeyDown}
               onChange={(e) => setLeafName(e.target.value)}
             />
           </div>
