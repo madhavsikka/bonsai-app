@@ -11,7 +11,7 @@ export const Sidebar = () => {
             className="flex items-center justify-center gap-2 font-semibold"
           >
             <BonsaiAvatar />
-            <span className="text-lg font-normal">bonsai</span>
+            <span className="text-md font-normal">bonsai</span>
           </a>
         </div>
         <div className="flex-1">

@@ -1,9 +1,9 @@
-import leaf from '@/assets/leaf-round.svg';
+import sprout from '@/assets/sprout.svg';
 
 export const BonsaiAvatar = () => {
   return (
     <img
-      src={leaf}
+      src={sprout}
       alt="avatar"
       width={30}
       height={30}
