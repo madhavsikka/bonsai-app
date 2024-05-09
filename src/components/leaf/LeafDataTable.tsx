@@ -4,7 +4,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -32,6 +31,8 @@ import { CreateLeafDialog } from './CreateLeafDialog';
 import { Leaf } from '@/types/leaf';
 import { LeafAvatar } from '../avatar/LeafAvatar';
 import { useNavigate } from 'react-router-dom';
+import { useDeleteLeaf } from '@/hooks/leaf/useDeleteLeaf';
+import { useCallback } from 'react';
 
 const dateOptions = {
   day: 'numeric',
@@ -50,8 +51,24 @@ export const formatTimestamp = (timestamp: string) => {
   return formattedDateWithSuffix;
 };
 
-export const LeafDataTable = ({ leafs }: { leafs: Leaf[] }) => {
+export const LeafDataTable = ({
+  leafs,
+  onRefreshLeaves,
+}: {
+  leafs: Leaf[];
+  onRefreshLeaves: () => void;
+}) => {
   const navigate = useNavigate();
+
+  const { deleteLeaf } = useDeleteLeaf();
+
+  const handleDeleteLeaf = useCallback(
+    async (leafName: string) => {
+      await deleteLeaf(leafName);
+      onRefreshLeaves();
+    },
+    [deleteLeaf, onRefreshLeaves]
+  );
 
   return (
     <Card className="w-full">
@@ -120,9 +137,12 @@ export const LeafDataTable = ({ leafs }: { leafs: Leaf[] }) => {
                         </UIButton>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteLeaf(leaf.name)}
+                          className="cursor-pointer"
+                        >
+                          Delete
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

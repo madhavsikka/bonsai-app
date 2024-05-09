@@ -10,7 +10,6 @@ import { TiptapProps } from './types';
 import { TextMenu } from './menus/TextMenu';
 import { EditorHeader } from './bars/EditorHeader';
 import './styles/index.css';
-import ThemeSwitcher from '../theme-switcher';
 
 export const BlockEditor = ({
   initialContent,
@@ -56,7 +55,6 @@ export const BlockEditor = ({
         <TableColumnMenu editor={editor} appendTo={menuContainerRef} />
         <ImageBlockMenu editor={editor} appendTo={menuContainerRef} />
       </div>
-      <ThemeSwitcher />
     </div>
   );
 };
