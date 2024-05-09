@@ -7,7 +7,6 @@ import {
 } from '@langchain/core/messages';
 import { v4 as uuid } from 'uuid';
 import { useGetConfig } from '../config/useGetConfig';
-import { CONFIG_KEYS } from '@/types/config';
 
 export enum ChatMessageRole {
   User = 'user',
@@ -40,25 +39,26 @@ export const useChat = ({ initialMessages = [] }: useChatProps) => {
   const [input, setInput] = useState<string>('');
   const [chatModel, setChatModel] =
     useState<ChatOpenAI<ChatOpenAICallOptions>>();
-  const { config: openAIApiKey } = useGetConfig(CONFIG_KEYS.OPENAI_API_KEY);
+  const { config, isLoading } = useGetConfig();
 
   useEffect(() => {
     const initChat = async () => {
+      const openaiApiKey = config?.openaiApiKey ?? '';
       try {
         const newChat = new ChatOpenAI({
           maxTokens: 250,
           streaming: true,
-          openAIApiKey,
+          openAIApiKey: openaiApiKey,
         });
         setChatModel(newChat);
       } catch (error) {
         console.error('Failed to initialize chat:', error);
       }
     };
-    if (openAIApiKey) {
+    if (config && !isLoading) {
       initChat();
     }
-  }, [openAIApiKey]);
+  }, [config, isLoading]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {

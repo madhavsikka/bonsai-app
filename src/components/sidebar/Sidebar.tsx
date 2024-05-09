@@ -1,42 +1,31 @@
-import { cn } from '@/lib/utils';
-import { UIButton } from '@/components/ui/button';
-import { PlusCircledIcon } from '@radix-ui/react-icons';
-import { useCreateLeaf } from '@/hooks/leaf/useCreateLeaf';
-import { useNavigate } from 'react-router-dom';
-import { useCallback } from 'react';
+import { BonsaiAvatar } from '../avatar/BonsaiAvatar';
+import { Leaf } from 'lucide-react';
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-export function Sidebar({ className }: SidebarProps) {
-  const { createLeaf } = useCreateLeaf();
-  const navigate = useNavigate();
-
-  // Use current time as the default leaf name
-  const handleCreateLeaf = useCallback(async () => {
-    const name = `${Date.now()}`;
-    await createLeaf({ name: name, content: '' });
-    navigate(`/leafs/${name}`);
-  }, []);
-
+export const Sidebar = () => {
   return (
-    <div className={cn('pb-12', className)}>
-      <div className="space-y-4 py-4">
-        <div className="px-3 py-2">
-          <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-            Library
-          </h2>
-          <div className="space-y-1">
-            <UIButton
-              variant="ghost"
-              className="w-full justify-start"
-              onClick={handleCreateLeaf}
+    <div className="hidden border-r md:block">
+      <div className="flex h-full max-h-screen flex-col gap-2">
+        <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+          <a
+            href="/"
+            className="flex items-center justify-center gap-2 font-semibold"
+          >
+            <BonsaiAvatar />
+            <span className="text-lg font-normal">bonsai</span>
+          </a>
+        </div>
+        <div className="flex-1">
+          <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+            <a
+              href="#"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-foreground transition-all hover:text-primary"
             >
-              <PlusCircledIcon className="mr-2" />
-              <span>New Leaf</span>
-            </UIButton>
-          </div>
+              <Leaf className="h-4 w-4" />
+              Leaves
+            </a>
+          </nav>
         </div>
       </div>
     </div>
   );
-}
+};

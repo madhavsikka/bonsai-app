@@ -16,7 +16,7 @@ export const EditorHeader = ({ characters, words }: EditorHeaderProps) => {
   return (
     <div
       className={cn(
-        'flex flex-row items-center justify-between py-1 px-3',
+        'flex flex-row items-center justify-between py-3 px-6',
         'fixed top-0 left-0 w-full z-10',
         'transition-opacity duration-400'
       )}

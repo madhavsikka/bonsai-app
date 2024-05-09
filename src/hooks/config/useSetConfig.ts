@@ -1,13 +1,14 @@
+import { Config } from '@/types/config';
 import { invoke } from '@tauri-apps/api/tauri';
 import { useCallback } from 'react';
 
 export const useSetConfig = () => {
-  const setConfig = useCallback(async (key: string, value: string) => {
+  const setConfig = useCallback(async (config: Config) => {
     try {
-      const res = await invoke('set_config', { key, value });
-      return res;
+      await invoke('set_config', { config });
     } catch (error) {
-      return error;
+      console.error('Error setting config:', error);
+      throw error;
     }
   }, []);
   return setConfig;

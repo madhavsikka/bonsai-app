@@ -3,7 +3,6 @@ import { ExtensionKit } from '../../extensions/extension-kit';
 import { useSidebar } from '../useSidebar';
 import { Editor } from '@tiptap/core';
 import { useDebouncedCallback } from 'use-debounce';
-import { useAppConfig } from '@/providers/AppConfigProvider';
 
 export interface useBlockEditorProps {
   initialContent?: string;
@@ -17,8 +16,6 @@ export const useBlockEditor = ({
 }: useBlockEditorProps) => {
   const leftSidebar = useSidebar();
 
-  const { openAIAPIKey } = useAppConfig();
-
   const onDebouncedEditorUpdate = useDebouncedCallback((value) => {
     onEditorUpdate?.(value);
   }, 2000);
@@ -27,7 +24,7 @@ export const useBlockEditor = ({
     {
       autofocus: true,
       content: initialContent || '',
-      extensions: [...ExtensionKit({ openAIAPIKey })],
+      extensions: [...ExtensionKit({})],
       onUpdate: ({ editor }) => {
         onDebouncedEditorUpdate(editor);
       },
@@ -41,7 +38,7 @@ export const useBlockEditor = ({
         },
       },
     },
-    [openAIAPIKey]
+    []
   );
 
   const characterCount = editor?.storage.characterCount || {

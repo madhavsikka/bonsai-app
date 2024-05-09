@@ -8,7 +8,7 @@ extern crate webkit2gtk;
 #[macro_use]
 extern crate objc;
 
-use bonsai_app::filesystem::{Database, Leaf};
+use bonsai_app::filesystem::{Config, Database, Leaf};
 
 // -------------------------------------------------------
 
@@ -65,8 +65,13 @@ fn zoom_window(window: tauri::Window, scale_factor: f64) {
 // -------------------------------------------------------
 
 #[tauri::command]
-fn get_env(name: &str) -> String {
-    std::env::var(String::from(name)).unwrap_or(String::from(""))
+fn get_config(db: tauri::State<Database>) -> Result<Config, String> {
+    db.get_config().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn set_config(db: tauri::State<Database>, config: Config) -> Result<(), String> {
+    db.set_config(&config).map_err(|e| e.to_string())
 }
 
 // -------------------------------------------------------
@@ -76,7 +81,8 @@ fn main() {
         .manage(Database::new("bonsai_db").unwrap())
         .invoke_handler(tauri::generate_handler![
             zoom_window,
-            get_env,
+            get_config,
+            set_config,
             create_leaf,
             read_leaf,
             delete_leaf,

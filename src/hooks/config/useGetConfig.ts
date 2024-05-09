@@ -1,21 +1,24 @@
+import { Config } from '@/types/config';
 import { invoke } from '@tauri-apps/api/tauri';
 import { useCallback, useState, useEffect } from 'react';
 
-export const useGetConfig = (key: string) => {
-  const [config, setConfig] = useState('');
+export const useGetConfig = () => {
+  const [config, setConfig] = useState<Config>();
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<Error | null>(null);
 
   const getConfig = useCallback(async () => {
     try {
-      const res = (await invoke('get_config', { key })) as string;
+      const res = (await invoke('get_config')) as Config;
+      console.log({ res });
       setConfig(res);
-    } catch (error: any) {
-      setError(error);
+    } catch (error) {
+      console.error('Error getting config:', error);
+      setError(error as Error);
     } finally {
       setIsLoading(false);
     }
-  }, [key]);
+  }, []);
 
   useEffect(() => {
     getConfig();

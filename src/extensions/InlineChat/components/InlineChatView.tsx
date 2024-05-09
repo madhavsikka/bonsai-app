@@ -4,9 +4,8 @@ import { v4 as uuid } from 'uuid';
 import { Editor } from '@tiptap/core';
 import { Panel } from '@/components/ui/Panel';
 import { Textarea } from '@/components/ui/Textarea';
-import starlight from '@/assets/star-light.svg';
-import stardark from '@/assets/star-dark.svg';
 import wavedark from '@/assets/wave-dark.svg';
+import leaf from '@/assets/leaf-round.svg';
 
 import { useDarkmode } from '@/hooks/useDarkMode';
 import { ChatMessageRole, useChat } from '@/hooks/ai/useChat';
@@ -29,7 +28,7 @@ const UserAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
 const BonsaiAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
   return (
     <img
-      src={isDarkMode ? starlight : stardark}
+      src={isDarkMode ? leaf : leaf}
       alt="avatar"
       width={24}
       height={24}
