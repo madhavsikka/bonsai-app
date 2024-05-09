@@ -127,7 +127,7 @@ export const InlineChatView = ({
             id={textareaId}
             value={input}
             onChange={handleInputChange}
-            placeholder={'Write here...'}
+            placeholder={'Write here, bonsai has context of this document...'}
             required
             className="mb-2 text-xs font-normal outline-none resize-none"
             onKeyDown={handleTextAreaSubmit}
