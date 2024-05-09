@@ -2,7 +2,6 @@ import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { LeafDataTable } from './LeafDataTable';
 import { useListLeafs } from '@/hooks/leaf/useListLeafs';
-import { CommandK } from '../command/commandk';
 
 export const LeafTable = () => {
   const { leafs } = useListLeafs();
@@ -21,7 +20,6 @@ export const LeafTable = () => {
             </div>
           </form>
         </div>
-        <CommandK />
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
         <div className="flex flex-1 rounded-lg border border-dashed shadow-sm">
