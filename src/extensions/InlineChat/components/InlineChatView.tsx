@@ -59,13 +59,9 @@ export const InlineChatView = ({
     initialMessages: [
       {
         role: ChatMessageRole.System,
-        content: `You are a helpful AI writing assistant embedded inside a rich text editor. Here is the prior context: ${(
+        content: `You are a helpful AI writing assistant embedded inside a rich text editor. \nYour task is to answer user's questions and help them write better. Here is the document content: "${(
           editor as Editor
-        ).state.doc.textBetween(
-          0,
-          getPos(),
-          '\n'
-        )}. Answer user's questions and help them write better.`,
+        ).getText()}".`,
         id: uuid(),
       },
     ],
