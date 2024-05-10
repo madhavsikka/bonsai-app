@@ -154,7 +154,8 @@ export const LeafDataTable = ({
       )}
       <CardFooter>
         <div className="text-xs text-muted-foreground">
-          Showing <strong>{(leafs ?? []).length}</strong> leaves
+          Showing <strong>{(leafs ?? []).length}</strong>{' '}
+          {leafs?.length === 1 ? 'leaf' : 'leaves'}
         </div>
       </CardFooter>
     </Card>
