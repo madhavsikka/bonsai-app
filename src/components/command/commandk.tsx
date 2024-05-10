@@ -33,11 +33,12 @@ export const CommandK = () => {
 
   return (
     <>
-      <p className="text-sm text-foreground">
+      <p className="text-md text-foreground">
         Press{' '}
         <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg px-1.5 font-mono text-[10px] font-medium text-foreground opacity-100">
           <span className="text-xs">⌘</span>K
-        </kbd>
+        </kbd>{' '}
+        to search
       </p>
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput
