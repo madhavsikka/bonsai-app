@@ -14,12 +14,12 @@ export const Sidebar = () => {
           onClick={() => navigate('/')}
         >
           <BonsaiAvatar />
-          <span className="text-md font-normal">bonsai</span>
+          <span className="text-md font-light">bonsai</span>
         </div>
         <div className="flex-1">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
             <div
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-foreground transition-all hover:text-primary cursor-pointer ${
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-foreground transition-all hover:text-primary cursor-pointer font-normal ${
                 location.pathname === '/'
                   ? 'bg-muted text-primary'
                   : 'hover:bg-muted-100'
