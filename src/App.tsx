@@ -5,8 +5,11 @@ import { LeafPage } from './pages/LeafPage';
 import { PreferencesPage } from './pages/PreferencesPage';
 import { useZoom } from './hooks/useZoom';
 import useGlobalShortcuts from './hooks/shortcuts/useGlobalShortcuts';
+import { useDarkmode } from './hooks/useDarkMode';
+import { ConfigProvider } from './providers/ConfigProvider';
 
-export const App = () => {
+const AppContent = () => {
+  useDarkmode();
   useZoom();
   useGlobalShortcuts();
   return (
@@ -17,6 +20,14 @@ export const App = () => {
         <Route path="/preferences" element={<PreferencesPage />} />
       </Routes>
     </main>
+  );
+};
+
+export const App = () => {
+  return (
+    <ConfigProvider>
+      <AppContent />
+    </ConfigProvider>
   );
 };
 

@@ -4,4 +4,5 @@ export enum CONFIG_KEYS {
 
 export interface Config {
   openaiApiKey: string;
+  theme: string;
 }

@@ -1,28 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useConfig } from '@/providers/ConfigProvider';
+import { useEffect } from 'react';
 
 export const useDarkmode = () => {
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const { config, setConfig } = useConfig();
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => setIsDarkMode(mediaQuery.matches);
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+    document.documentElement.classList.toggle('dark', config.theme === 'dark');
+  }, [config.theme]);
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode);
-  }, [isDarkMode]);
-
-  const toggleDarkMode = useCallback(
-    () => setIsDarkMode((isDark) => !isDark),
-    []
-  );
-  const lightMode = useCallback(() => setIsDarkMode(false), []);
-  const darkMode = useCallback(() => setIsDarkMode(true), []);
+  const toggleDarkMode = () =>
+    setConfig({ theme: config.theme === 'dark' ? 'light' : 'dark' });
+  const lightMode = () => setConfig({ theme: 'light' });
+  const darkMode = () => setConfig({ theme: 'dark' });
 
   return {
-    isDarkMode,
+    isDarkMode: config.theme === 'dark',
     toggleDarkMode,
     lightMode,
     darkMode,

@@ -22,6 +22,7 @@ pub struct Leaf {
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     openai_api_key: String,
+    theme: String,
 }
 
 fn iso8601(st: &std::time::SystemTime) -> String {
@@ -114,6 +115,7 @@ impl Database {
         } else {
             Ok(Config {
                 openai_api_key: "".to_string(),
+                theme: "dark".to_string(),
             })
         }
     }
