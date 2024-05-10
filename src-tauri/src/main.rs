@@ -36,6 +36,11 @@ fn list_leaves(db: tauri::State<Database>) -> Result<Vec<Leaf>, String> {
 fn delete_leaf(db: tauri::State<Database>, name: String) -> Result<(), String> {
     db.delete_leaf(&name).map_err(|e| e.to_string())
 }
+
+#[tauri::command]
+fn search_leaves(db: tauri::State<Database>, query: String) -> Result<Vec<Leaf>, String> {
+    db.search_leaves(&query).map_err(|e| e.to_string())
+}
 // -------------------------------------------------------
 
 #[tauri::command]
@@ -88,6 +93,7 @@ fn main() {
             delete_leaf,
             update_leaf,
             list_leaves,
+            search_leaves
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -8,13 +8,17 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandShortcut,
 } from '@/components/ui/command';
 import { useNavigate } from 'react-router-dom';
+import { useSearchLeaf } from '@/hooks/leaf/useSearchLeaf';
 
 export const CommandK = () => {
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
+  const [query, setQuery] = React.useState('');
+  const { leaves: searchedLeaves } = useSearchLeaf({ query });
+
+  console.log('searchedLeaves', searchedLeaves);
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -36,9 +40,32 @@ export const CommandK = () => {
         </kbd>
       </p>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Type a command or search..." />
+        <CommandInput
+          placeholder="Search for leaves..."
+          value={query}
+          onValueChange={setQuery}
+        />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
+          {searchedLeaves.length > 0 && (
+            <CommandGroup heading="Leaves">
+              {searchedLeaves.map((leaf) => {
+                console.log('leaf', leaf);
+                return (
+                  <CommandItem
+                    forceMount
+                    key={leaf.name}
+                    onSelect={() => {
+                      navigate(`/leafs/${leaf.name}`);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <span>{leaf.name}</span>
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          )}
           <CommandGroup heading="Settings">
             <CommandItem
               onSelect={() => {
@@ -48,7 +75,6 @@ export const CommandK = () => {
             >
               <GearIcon className="mr-2 h-4 w-4" />
               <span>Settings</span>
-              <CommandShortcut>⌘S</CommandShortcut>
             </CommandItem>
           </CommandGroup>
         </CommandList>

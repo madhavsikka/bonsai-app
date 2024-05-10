@@ -93,6 +93,33 @@ impl Database {
         file.write_all(content.as_bytes())?;
         Ok(())
     }
+
+    pub fn search_leaves(&self, query: &str) -> io::Result<Vec<Leaf>> {
+        let entries = fs::read_dir(&self.root_dir)?;
+        let mut leaves = Vec::new();
+        let query_lowercase = query.to_lowercase();
+        for entry in entries {
+            let entry = entry?;
+            let file_name = entry.file_name();
+            let file_name_lowercase = file_name.to_str().unwrap().to_lowercase();
+            let file_name = file_name.to_str().unwrap().to_string();
+            if file_name_lowercase.contains(&query_lowercase) {
+                let file_path = entry.path();
+                let file_content = fs::read_to_string(&file_path)?;
+                let metadata = fs::metadata(&file_path)?;
+                let created_at = iso8601(&metadata.created()?);
+                let modified_at = iso8601(&metadata.modified()?);
+                leaves.push(Leaf {
+                    name: file_name,
+                    content: file_content,
+                    created_at,
+                    modified_at,
+                });
+            }
+        }
+        Ok(leaves)
+    }
+
     pub fn set_config(&self, config: &Config) -> io::Result<()> {
         let config_dir = config_dir().expect("Failed to get config directory");
         let bonsai_dir = config_dir.join("bonsai");
