@@ -68,7 +68,11 @@ export const CreateLeafDialog = () => {
           </div>
         </div>
         <DialogFooter>
-          <UIButton type="submit" onClick={handleCreateLeaf}>
+          <UIButton
+            type="submit"
+            onClick={handleCreateLeaf}
+            disabled={!leafName}
+          >
             Done
           </UIButton>
         </DialogFooter>
