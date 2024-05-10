@@ -38,7 +38,9 @@
     "windows": [
       {
         "title": "bonsai",
-        "resizable": true
+        "resizable": true,
+        "width": 1024,
+        "height": 768
       }
     ]
   }
