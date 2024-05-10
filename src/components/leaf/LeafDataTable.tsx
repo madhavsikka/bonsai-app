@@ -78,7 +78,7 @@ export const LeafDataTable = ({
           <CreateLeafDialog />
         </CardTitle>
         <CardDescription>
-          Manage your leaves. Add, edit, or delete them as you see fit.
+          Nurture your ideas like leaves on a bonsai tree.
         </CardDescription>
       </CardHeader>
       {!leafs?.length && (
