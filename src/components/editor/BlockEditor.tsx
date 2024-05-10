@@ -1,5 +1,5 @@
 import { EditorContent, PureEditorContent } from '@tiptap/react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { LinkMenu } from './menus';
 import { useBlockEditor } from '../../hooks/editor/useEditor';
 import { Sidebar } from './sidebar/Sidebar';
@@ -24,6 +24,12 @@ export const BlockEditor = ({
     isEditable,
     onEditorUpdate,
   });
+
+  useEffect(() => {
+    if (editor) {
+      editor.commands.focus('end');
+    }
+  }, [editor]);
 
   if (!editor) {
     return null;

@@ -11,7 +11,7 @@ export const useCreateLeaf = () => {
       setIsSubmitting(true);
       await invoke('create_leaf', {
         name: newLeaf.name,
-        content: newLeaf.content ?? '',
+        content: newLeaf.content ? newLeaf.content : `<h1>${newLeaf.name}</h1>`,
       });
     } catch (e: any) {
       console.error(e);
