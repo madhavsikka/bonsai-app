@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { LinkMenu } from './menus';
 import { useBlockEditor } from '../../hooks/editor/useEditor';
 import { Sidebar } from './sidebar/Sidebar';
-import ImageBlockMenu from '@/extensions/ImageBlock/components/ImageBlockMenu';
+// import ImageBlockMenu from '@/extensions/ImageBlock/components/ImageBlockMenu';
 import { ColumnsMenu } from '@/extensions/MultiColumn/menus';
 import { TableColumnMenu, TableRowMenu } from '@/extensions/Table/menus';
 import { TiptapProps } from './types';
