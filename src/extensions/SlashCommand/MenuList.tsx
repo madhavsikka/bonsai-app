@@ -141,7 +141,11 @@ export const MenuList = React.forwardRef((props: MenuListProps, ref) => {
                 }
                 onClick={createCommandClickHandler(groupIndex, commandIndex)}
               >
-                <Icon name={command.iconName} className="mr-1" />
+                <Icon
+                  name={command.iconName}
+                  className="mr-1"
+                  strokeWidth={1}
+                />
                 {command.label}
               </DropdownButton>
             ))}

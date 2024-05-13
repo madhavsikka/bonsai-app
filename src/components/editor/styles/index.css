@@ -97,6 +97,7 @@
   }
 
   .node-imageBlock {
+    margin: 0;
     & img {
       @apply border-2 border-transparent rounded-xl overflow-hidden;
     }

@@ -64,19 +64,21 @@ impl Database {
         let mut leaves = Vec::new();
         for entry in entries {
             let entry = entry?;
-            let file_name = entry.file_name();
-            let file_name = file_name.to_str().unwrap().to_string();
             let file_path = entry.path();
-            let file_content = fs::read_to_string(&file_path)?;
-            let metadata = fs::metadata(&file_path)?;
-            let created_at = iso8601(&metadata.created()?);
-            let modified_at = iso8601(&metadata.modified()?);
-            leaves.push(Leaf {
-                name: file_name,
-                content: file_content,
-                created_at,
-                modified_at,
-            });
+            if file_path.is_file() {
+                let file_name = entry.file_name();
+                let file_name = file_name.to_str().unwrap().to_string();
+                let file_content = fs::read_to_string(&file_path)?;
+                let metadata = fs::metadata(&file_path)?;
+                let created_at = iso8601(&metadata.created()?);
+                let modified_at = iso8601(&metadata.modified()?);
+                leaves.push(Leaf {
+                    name: file_name,
+                    content: file_content,
+                    created_at,
+                    modified_at,
+                });
+            }
         }
         Ok(leaves)
     }
@@ -145,5 +147,25 @@ impl Database {
                 theme: "dark".to_string(),
             })
         }
+    }
+
+    pub fn upload_file(&self, file_name: &str, file_data: &[u8]) -> io::Result<String> {
+        let uploads_dir = self.root_dir.join("uploads");
+        fs::create_dir_all(&uploads_dir)?;
+        let file_path = uploads_dir.join(&file_name);
+
+        let mut file = fs::File::create(&file_path)?;
+        file.write_all(file_data)?;
+
+        Ok(file_path.to_str().unwrap().to_string())
+    }
+
+    pub fn get_file(&self, file_name: &str) -> io::Result<Vec<u8>> {
+        let uploads_dir = self.root_dir.join("uploads");
+        let file_path = uploads_dir.join(file_name);
+
+        let file_data = fs::read(&file_path)?;
+
+        Ok(file_data)
     }
 }

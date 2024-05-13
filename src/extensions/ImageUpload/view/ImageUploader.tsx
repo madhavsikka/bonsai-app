@@ -1,9 +1,9 @@
 import { Spinner } from '@/components/ui/Spinner';
 import { useDropZone, useFileUpload, useUploader } from './hooks';
-import { EditorButton } from '@/components/ui/EditorButton';
 import { Icon } from '@/components/ui/Icon';
 import { cn } from '@/lib/utils';
 import { ChangeEvent, useCallback } from 'react';
+import { UIButton } from '@/components/ui/button';
 
 export const ImageUploader = ({
   onUpload,
@@ -25,14 +25,14 @@ export const ImageUploader = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8 rounded-lg min-h-[10rem] bg-opacity-80">
+      <div className="flex items-center justify-center p-8 rounded-lg min-h-[10rem]">
         <Spinner className="text-neutral-500" size={1.5} />
       </div>
     );
   }
 
   const wrapperClass = cn(
-    'flex flex-col items-center justify-center px-8 py-10 rounded-lg bg-opacity-80',
+    'flex flex-col items-center justify-center px-8 py-10 rounded-lg',
     draggedInside && 'bg-neutral-100'
   );
 
@@ -44,24 +44,20 @@ export const ImageUploader = ({
       onDragLeave={onDragLeave}
       contentEditable={false}
     >
-      <Icon
-        name="Image"
-        className="w-12 h-12 mb-4 text-black dark:text-white opacity-20"
-      />
+      <Icon name="Image" className="w-12 h-12 mb-4" strokeWidth={1.5} />
       <div className="flex flex-col items-center justify-center gap-2">
-        <div className="text-sm font-medium text-center text-neutral-400 dark:text-neutral-500">
-          {draggedInside ? 'Drop image here' : 'Drag and drop or'}
+        <div className="text-sm font-medium text-center">
+          {draggedInside ? 'Drop image here' : 'Drop or'}
         </div>
         <div>
-          <EditorButton
-            disabled={draggedInside}
-            onClick={handleUploadClick}
-            variant="primary"
-            buttonSize="small"
-          >
-            <Icon name="Upload" />
+          <UIButton disabled={draggedInside} onClick={handleUploadClick}>
+            <Icon
+              name="Upload"
+              className="mr-2 text-background"
+              strokeWidth={1.5}
+            />
             Upload an image
-          </EditorButton>
+          </UIButton>
         </div>
       </div>
       <input

@@ -88,27 +88,31 @@ export const ImageBlockMenu = ({
         sticky: 'popper',
       }}
     >
-      <Toolbar.Wrapper shouldShowContent={shouldShow()} ref={menuRef}>
+      <Toolbar.Wrapper
+        shouldShowContent={shouldShow()}
+        ref={menuRef}
+        className="gap-1"
+      >
         <Toolbar.Button
           tooltip="Align image left"
           active={editor.isActive('imageBlock', { align: 'left' })}
           onClick={onAlignImageLeft}
         >
-          <Icon name="AlignHorizontalDistributeStart" />
+          <Icon name="AlignHorizontalDistributeStart" strokeWidth={1.5} />
         </Toolbar.Button>
         <Toolbar.Button
           tooltip="Align image center"
           active={editor.isActive('imageBlock', { align: 'center' })}
           onClick={onAlignImageCenter}
         >
-          <Icon name="AlignHorizontalDistributeCenter" />
+          <Icon name="AlignHorizontalDistributeCenter" strokeWidth={1.5} />
         </Toolbar.Button>
         <Toolbar.Button
           tooltip="Align image right"
           active={editor.isActive('imageBlock', { align: 'right' })}
           onClick={onAlignImageRight}
         >
-          <Icon name="AlignHorizontalDistributeEnd" />
+          <Icon name="AlignHorizontalDistributeEnd" strokeWidth={1.5} />
         </Toolbar.Button>
         <Toolbar.Divider />
         <ImageBlockWidth

@@ -1,6 +1,5 @@
 import { DragEvent, useCallback, useEffect, useRef, useState } from 'react';
-import toast from 'react-hot-toast';
-// import { API } from '@/lib/api'
+import { convertFileSrc, invoke } from '@tauri-apps/api/tauri';
 
 export const useUploader = ({
   onUpload,
@@ -9,17 +8,21 @@ export const useUploader = ({
 }) => {
   const [loading, setLoading] = useState(false);
 
-  const uploadFile = useCallback(async () => {
+  const uploadFile = async (file: File) => {
     setLoading(true);
     try {
-      // const url = await API.uploadImage();
-      // onUpload(url);
-    } catch (errPayload: any) {
-      const error = errPayload?.response?.data?.error || 'Something went wrong';
-      toast.error(error);
+      const fileData = await file.arrayBuffer();
+      const filePath: string = await invoke('upload_file', {
+        fileName: file.name,
+        fileData: Array.from(new Uint8Array(fileData)),
+      });
+      const fileUrl = convertFileSrc(filePath);
+      onUpload(fileUrl);
+    } catch (error) {
+      console.error('Error uploading image:', error);
     }
     setLoading(false);
-  }, [onUpload]);
+  };
 
   return { loading, uploadFile };
 };

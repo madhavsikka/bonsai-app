@@ -24,7 +24,7 @@ import {
   TableRow,
   TextAlign,
   TextStyle,
-  TrailingNode,
+  // TrailingNode,
   Typography,
   Underline,
   Columns,
@@ -33,6 +33,9 @@ import {
   TaskList,
   InlineChat,
   BlockID,
+  ImageUpload,
+  Image,
+  ImageBlock,
   CustomHighlight,
   NotificationDot,
 } from './index';
@@ -65,6 +68,9 @@ export const ExtensionKit = ({}: ExtensionKitProps) => [
       // class: 'text-primary-foreground',
     },
   }),
+  ImageBlock,
+  ImageUpload,
+  Image,
   HorizontalRule,
   StarterKit.configure({
     document: false,
@@ -82,7 +88,6 @@ export const ExtensionKit = ({}: ExtensionKitProps) => [
   FontSize,
   FontFamily,
   Color,
-  TrailingNode,
   Link.configure({
     openOnClick: false,
   }),

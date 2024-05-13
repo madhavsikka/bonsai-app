@@ -41,6 +41,22 @@ fn delete_leaf(db: tauri::State<Database>, name: String) -> Result<(), String> {
 fn search_leaves(db: tauri::State<Database>, query: String) -> Result<Vec<Leaf>, String> {
     db.search_leaves(&query).map_err(|e| e.to_string())
 }
+
+#[tauri::command]
+fn upload_file(
+    db: tauri::State<Database>,
+    file_name: String,
+    file_data: Vec<u8>,
+) -> Result<String, String> {
+    db.upload_file(&file_name, &file_data)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn get_file(db: tauri::State<Database>, file_name: String) -> Result<Vec<u8>, String> {
+    db.get_file(&file_name).map_err(|e| e.to_string())
+}
+
 // -------------------------------------------------------
 
 #[tauri::command]
@@ -93,7 +109,9 @@ fn main() {
             delete_leaf,
             update_leaf,
             list_leaves,
-            search_leaves
+            search_leaves,
+            upload_file,
+            get_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
