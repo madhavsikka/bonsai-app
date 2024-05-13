@@ -32,5 +32,6 @@
   [data-placeholder][data-suggestion]::before,
   [data-placeholder][data-suggestion] *::before {
     content: none !important;
+    user-select: none;
   }
 }

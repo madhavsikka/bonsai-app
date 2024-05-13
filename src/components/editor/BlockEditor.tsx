@@ -59,7 +59,7 @@ export const BlockEditor = ({
         <ColumnsMenu editor={editor} appendTo={menuContainerRef} />
         <TableRowMenu editor={editor} appendTo={menuContainerRef} />
         <TableColumnMenu editor={editor} appendTo={menuContainerRef} />
-        <ImageBlockMenu editor={editor} appendTo={menuContainerRef} />
+        {/* <ImageBlockMenu editor={editor} appendTo={menuContainerRef} /> */}
       </div>
     </div>
   );

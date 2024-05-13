@@ -18,7 +18,7 @@ export const InlineChat = Node.create({
 
   group: 'block',
 
-  draggable: true,
+  draggable: false,
 
   addKeyboardShortcuts() {
     return {
