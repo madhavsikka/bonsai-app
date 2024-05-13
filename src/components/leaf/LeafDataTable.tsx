@@ -71,7 +71,7 @@ export const LeafDataTable = ({
   );
 
   return (
-    <Card className="w-full">
+    <Card className="w-full overflow-y-auto flex flex-col">
       <CardHeader>
         <CardTitle className="text-2xl flex justify-between items-center">
           <span>Leaves </span>
@@ -82,82 +82,86 @@ export const LeafDataTable = ({
         </CardDescription>
       </CardHeader>
       {!leafs?.length && (
-        <div className="flex flex-col items-center justify-center gap-1 text-center w-full h-full">
-          <h3 className="text-2xl font-bold tracking-tight">
-            You have no leaves!
-          </h3>
-          <p className="text-sm text-foreground">
-            Start writing your first leaf by clicking the button above.
-          </p>
-        </div>
-      )}
-      {leafs && leafs.length > 0 && (
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="hidden w-[100px] sm:table-cell">
-                  <span className="sr-only">Image</span>
-                </TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Created At</TableHead>
-                <TableHead>Modified At</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {leafs.map((leaf) => (
-                <TableRow key={leaf.name}>
-                  <TableCell
-                    className="hidden sm:table-cell cursor-pointer"
-                    onClick={() => navigate(`/leafs/${leaf.name}`)}
-                  >
-                    <LeafAvatar />
-                  </TableCell>
-                  <TableCell
-                    className="font-medium hover:underline cursor-pointer"
-                    onClick={() => navigate(`/leafs/${leaf.name}`)}
-                  >
-                    {leaf.name}
-                  </TableCell>
-                  <TableCell>{formatTimestamp(leaf.createdAt)}</TableCell>
-                  <TableCell>{formatTimestamp(leaf.modifiedAt)}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <UIButton
-                          aria-haspopup="true"
-                          size="icon"
-                          variant="ghost"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </UIButton>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteLeaf(leaf.name)}
-                          className="cursor-pointer"
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <CardContent className="flex-1">
+          <div className="flex flex-col items-center justify-center gap-1 text-center w-full h-full">
+            <h3 className="text-2xl font-bold tracking-tight">
+              You have no leaves!
+            </h3>
+            <p className="text-sm text-foreground">
+              Start writing your first leaf by clicking the button above.
+            </p>
+          </div>
         </CardContent>
       )}
-      <CardFooter>
-        <div className="text-xs text-muted-foreground">
-          Showing <strong>{(leafs ?? []).length}</strong>{' '}
-          {leafs?.length === 1 ? 'leaf' : 'leaves'}
-        </div>
-      </CardFooter>
+      {leafs && leafs.length > 0 && (
+        <>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="hidden w-[100px] sm:table-cell">
+                    <span className="sr-only">Image</span>
+                  </TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Created At</TableHead>
+                  <TableHead>Modified At</TableHead>
+                  <TableHead>
+                    <span className="sr-only">Actions</span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {leafs.map((leaf) => (
+                  <TableRow key={leaf.name}>
+                    <TableCell
+                      className="hidden sm:table-cell cursor-pointer"
+                      onClick={() => navigate(`/leafs/${leaf.name}`)}
+                    >
+                      <LeafAvatar />
+                    </TableCell>
+                    <TableCell
+                      className="font-medium hover:underline cursor-pointer"
+                      onClick={() => navigate(`/leafs/${leaf.name}`)}
+                    >
+                      {leaf.name}
+                    </TableCell>
+                    <TableCell>{formatTimestamp(leaf.createdAt)}</TableCell>
+                    <TableCell>{formatTimestamp(leaf.modifiedAt)}</TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <UIButton
+                            aria-haspopup="true"
+                            size="icon"
+                            variant="ghost"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                          </UIButton>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteLeaf(leaf.name)}
+                            className="cursor-pointer"
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+          <CardFooter>
+            <div className="text-xs text-muted-foreground">
+              Showing <strong>{(leafs ?? []).length}</strong>{' '}
+              {leafs?.length === 1 ? 'leaf' : 'leaves'}
+            </div>
+          </CardFooter>
+        </>
+      )}
     </Card>
   );
 };

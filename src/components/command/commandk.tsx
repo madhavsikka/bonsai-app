@@ -18,8 +18,6 @@ export const CommandK = () => {
   const [query, setQuery] = React.useState('');
   const { leaves: searchedLeaves } = useSearchLeaf({ query });
 
-  console.log('searchedLeaves', searchedLeaves);
-
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
@@ -51,7 +49,6 @@ export const CommandK = () => {
           {searchedLeaves.length > 0 && (
             <CommandGroup heading="Leaves">
               {searchedLeaves.map((leaf) => {
-                console.log('leaf', leaf);
                 return (
                   <CommandItem
                     forceMount

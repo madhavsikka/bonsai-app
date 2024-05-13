@@ -10,7 +10,6 @@ export const useGetConfig = () => {
   const getConfig = useCallback(async () => {
     try {
       const res = (await invoke('get_config')) as Config;
-      console.log({ res });
       setConfig(res);
     } catch (error) {
       console.error('Error getting config:', error);

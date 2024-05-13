@@ -32,7 +32,6 @@ export const PreferencesPage = () => {
 
   useEffect(() => {
     if (config) {
-      console.log({ config });
       setOpenaiApiKey(config.openaiApiKey);
       setTheme(config.theme);
     }
@@ -106,10 +105,10 @@ export const PreferencesPage = () => {
                   </form>
                 </CardContent>
                 <CardFooter className="flex justify-between">
+                  <UIButton onClick={handleSaveClick}>Save</UIButton>
                   <UIButton variant="outline" onClick={() => navigate(-1)}>
                     Cancel
                   </UIButton>
-                  <UIButton onClick={handleSaveClick}>Save</UIButton>
                 </CardFooter>
               </Card>
             ) : null}

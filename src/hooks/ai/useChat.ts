@@ -73,7 +73,6 @@ export const useChat = ({ initialMessages = [] }: useChatProps) => {
       { id: uuid(), role: ChatMessageRole.User, content: input },
       { id: uuid(), role: ChatMessageRole.Bonsai, content: '' },
     ];
-    console.log('updatedMessages', updatedMessages);
     setMessages(updatedMessages);
     setInput('');
 
