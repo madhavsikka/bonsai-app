@@ -1,6 +1,7 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { JsonOutputToolsParser } from 'langchain/output_parsers';
+import { WorkerAIBlock } from '@/extensions/Reflect';
 
 const properties = {
   enhancedParagraphs: {
@@ -39,8 +40,22 @@ const enhancedContentTool = {
   },
 };
 
-self.onmessage = async (event: MessageEvent) => {
-  const model = new ChatOpenAI({ openAIApiKey: event.data.key });
+export interface WorkerAIMessage extends MessageEvent {
+  data: {
+    name: string;
+    openaiApiKey: string;
+    blocks: WorkerAIBlock;
+  };
+}
+
+export interface WorkerAIResponse {
+  name: string;
+  response: WorkerAIBlock[];
+}
+
+self.onmessage = async (event: WorkerAIMessage) => {
+  const { name, openaiApiKey, blocks } = event.data;
+  const model = new ChatOpenAI({ openAIApiKey: openaiApiKey });
   const modelWithTools = model.bind({
     tools: [enhancedContentTool],
     tool_choice: enhancedContentTool,
@@ -49,16 +64,20 @@ self.onmessage = async (event: MessageEvent) => {
   const prompt = ChatPromptTemplate.fromMessages([
     [
       'system',
-      "You are a helpful writing assistant. Your job is to improve the user's writing by suggesting enhancements in the content. Only suggest enhancements if they are relevant and helpful. If the content is already good, don't suggest any changes.",
+      "You are a helpful writing assistant. Your job is to improve user's writing by suggesting enhancements in the content. Only suggest enhancements if they are relevant and helpful. If the content is already good, don't suggest any changes.",
     ],
     ['human', 'Here is my content: {content}'],
   ]);
 
   const outputParser = new JsonOutputToolsParser();
   const chain = prompt.pipe(modelWithTools).pipe(outputParser);
-  const response: any = await chain.invoke({
-    content: JSON.stringify(event.data.blocks),
+  const chainResponse: any = await chain.invoke({
+    content: JSON.stringify(blocks),
   });
+  const response = chainResponse?.[0]?.args
+    ?.enhancedParagraphs as WorkerAIBlock[];
 
-  self.postMessage(response?.[0].args.enhancedParagraphs);
+  console.log('Response from AI:', response);
+
+  self.postMessage({ name, response });
 };

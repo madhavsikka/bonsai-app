@@ -1,14 +1,51 @@
 import { useEditor } from '@tiptap/react';
 import { ExtensionKit } from '../../extensions/extension-kit';
 import { useSidebar } from '../useSidebar';
-import { Editor } from '@tiptap/core';
+import { Editor, Extension } from '@tiptap/core';
 import { useDebouncedCallback } from 'use-debounce';
+import {
+  AIWorkerExtensionName,
+  WorkerAIExtensions,
+} from '@/extensions/AIWorker/ai-worker';
+import { useConfig } from '@/providers/ConfigProvider';
+
+export const createDynamicExtension = (options: WorkerAIExtensions) => {
+  return Extension.create({
+    name: options.name,
+
+    onCreate() {
+      const aiWorkerExtension: any =
+        this.editor.extensionManager.extensions.find(
+          (extension) => extension.name === AIWorkerExtensionName
+        );
+
+      if (aiWorkerExtension) {
+        const workerExtensions =
+          aiWorkerExtension.options.workerExtensions || [];
+        workerExtensions.push({
+          extensionName: this.name,
+          prompt: options.prompt,
+          interval: options.interval,
+        });
+        aiWorkerExtension.options.workerExtensions = workerExtensions;
+      } else {
+        console.error('AIWorkerExtension not found.');
+      }
+    },
+  });
+};
 
 export interface useBlockEditorProps {
   initialContent?: string;
   onEditorUpdate?: (editor: Editor) => void;
   isEditable?: boolean;
 }
+
+const myDynamicExtension = createDynamicExtension({
+  name: 'myDynamicExtension',
+  prompt: 'Enter your prompt here',
+  interval: 5000,
+});
 
 export const useBlockEditor = ({
   initialContent,
@@ -20,11 +57,18 @@ export const useBlockEditor = ({
     onEditorUpdate?.(value);
   }, 1000);
 
+  const { config } = useConfig();
+
   const editor = useEditor(
     {
       autofocus: true,
       content: initialContent || '',
-      extensions: [...ExtensionKit({})],
+      extensions: [
+        ...ExtensionKit({
+          openAIAPIKey: '',
+        }),
+        myDynamicExtension,
+      ],
       onUpdate: ({ editor }) => {
         onDebouncedEditorUpdate(editor);
       },

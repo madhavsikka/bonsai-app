@@ -6,7 +6,7 @@ interface ReflectExtensionOptions {
   openAIAPIKey?: string;
 }
 
-interface ReflectBlock {
+export interface WorkerAIBlock {
   blockId: string;
   text: string;
 }
@@ -22,8 +22,8 @@ const collectTextBlocks = (doc: JSONContent): string[] => {
   return blocks;
 };
 
-const collectReflectBlocks = (doc: JSONContent): ReflectBlock[] => {
-  const blocks: ReflectBlock[] = [];
+const collectReflectBlocks = (doc: JSONContent): WorkerAIBlock[] => {
+  const blocks: WorkerAIBlock[] = [];
 
   if (doc.attrs?.blockId) {
     blocks.push({
@@ -57,7 +57,6 @@ export const Reflect = Extension.create<ReflectExtensionOptions>({
         for (const block of reflectBlocks) {
           editor.commands.insertInlineChatAfterBlock(block.blockId);
         }
-        return true;
 
         const worker = new Worker(
           new URL('@/workers/reflect.ts', import.meta.url),

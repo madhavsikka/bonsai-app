@@ -46,3 +46,4 @@ export { CustomHighlight } from './CustomHighlight';
 export { Reflect } from './Reflect';
 export { NotificationDot } from './NotificationDot';
 export { Image } from './Image';
+export { AIWorkerExtension } from './AIWorker';
