@@ -160,51 +160,57 @@ export const InlineChat = Node.create({
 
       insertOrReuseInlineChatAfterBlock:
         (blockId: string, initialMessage?: string) =>
-        ({ state, dispatch }: CommandProps) => {
+        ({ state, dispatch, view }: CommandProps) => {
           const { tr } = state;
           const { doc } = tr;
           let blockPos: number | null = null;
           let existingInlineChatPos: number | null = null;
+          let existingInlineChatNodeSize: number | null = null;
 
           doc.descendants((node, pos) => {
-            if (
-              node.type.name === this.name &&
-              node.attrs.blockId === blockId
-            ) {
-              existingInlineChatPos = pos;
-              return false; // Stop the iteration
-            }
             if (node.attrs.blockId === blockId) {
-              blockPos = pos + node.nodeSize;
+              blockPos = pos;
+              const nd = doc.nodeAt(pos + node.nodeSize);
+              if (nd?.type.name === this.name) {
+                existingInlineChatPos = pos + node.nodeSize;
+                existingInlineChatNodeSize = nd.nodeSize;
+              }
+              return false;
             }
           });
 
-          if (existingInlineChatPos !== null) {
-            tr.delete(existingInlineChatPos, existingInlineChatPos + 1);
+          if (
+            existingInlineChatPos !== null &&
+            existingInlineChatNodeSize !== null
+          ) {
+            const deleteTransaction = view.state.tr.delete(
+              existingInlineChatPos,
+              existingInlineChatPos + existingInlineChatNodeSize
+            );
+            view.dispatch(deleteTransaction);
           }
 
-          // Recalculate blockPos after deleting the node
-          blockPos = null;
+          let newInlineChatPos: number | null = null;
           doc.descendants((node, pos) => {
             if (node.attrs.blockId === blockId) {
-              blockPos = pos + node.nodeSize;
+              newInlineChatPos = pos + node.nodeSize;
+              return false;
             }
           });
 
-          if (blockPos !== null) {
-            tr.insert(
-              blockPos,
+          if (newInlineChatPos !== null) {
+            const insertTransaction = view.state.tr.insert(
+              newInlineChatPos,
               this.type.create({
                 id: uuid(),
-                blockId: blockId,
+                blockId: uuid(),
                 authorId: this.options.authorId,
                 authorName: this.options.authorName,
                 initialMessage,
               })
             );
+            view.dispatch(insertTransaction);
           }
-
-          dispatch?.(tr);
 
           return true;
         },
