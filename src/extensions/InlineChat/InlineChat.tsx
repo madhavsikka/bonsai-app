@@ -7,7 +7,14 @@ declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     inlineChat: {
       setInlineChat: () => ReturnType;
-      insertInlineChatAfterBlock: (blockId: string) => ReturnType;
+      insertInlineChatAfterBlock: (
+        blockId: string,
+        initialMessage?: string
+      ) => ReturnType;
+      insertOrReuseInlineChatAfterBlock: (
+        blockId: string,
+        initialMessage?: string
+      ) => ReturnType;
       hideAllInlineChats: () => ReturnType;
     };
   }
@@ -22,7 +29,7 @@ export const InlineChat = Node.create({
 
   addKeyboardShortcuts() {
     return {
-      'Mod-k': () => this.editor.commands.setInlineChat(),
+      'Mod-j': () => this.editor.commands.setInlineChat(),
     };
   },
 
@@ -45,6 +52,13 @@ export const InlineChat = Node.create({
           'data-id': attributes.id,
         }),
       },
+      blockId: {
+        default: null,
+        parseHTML: (element) => element.getAttribute('data-block-id'),
+        renderHTML: (attributes) => ({
+          'data-block-id': attributes.blockId,
+        }),
+      },
       authorId: {
         default: undefined,
         parseHTML: (element) => element.getAttribute('data-author-id'),
@@ -65,6 +79,13 @@ export const InlineChat = Node.create({
           element.getAttribute('data-hidden') === 'true',
         renderHTML: (attributes: { hidden?: boolean }) => ({
           'data-hidden': attributes.hidden ? 'true' : 'false',
+        }),
+      },
+      initialMessage: {
+        default: undefined,
+        parseHTML: (element) => element.getAttribute('data-initial-message'),
+        renderHTML: (attributes) => ({
+          'data-initial-message': attributes.initialMessage,
         }),
       },
     };
@@ -96,6 +117,7 @@ export const InlineChat = Node.create({
               type: this.name,
               attrs: {
                 id: uuid(),
+                blockId: uuid(),
                 authorId: this.options.authorId,
                 authorName: this.options.authorName,
               },
@@ -103,7 +125,7 @@ export const InlineChat = Node.create({
             .run(),
 
       insertInlineChatAfterBlock:
-        (blockId: string) =>
+        (blockId: string, initialMessage?: string) =>
         ({ chain, tr }: CommandProps) => {
           const { doc } = tr;
           let blockPos: number | null = null;
@@ -125,11 +147,64 @@ export const InlineChat = Node.create({
               type: this.name,
               attrs: {
                 id: uuid(),
+                blockId: blockId, // target blockId
                 authorId: this.options.authorId,
                 authorName: this.options.authorName,
+                initialMessage,
               },
             })
             .run();
+
+          return true;
+        },
+
+      insertOrReuseInlineChatAfterBlock:
+        (blockId: string, initialMessage?: string) =>
+        ({ state, dispatch }: CommandProps) => {
+          const { tr } = state;
+          const { doc } = tr;
+          let blockPos: number | null = null;
+          let existingInlineChatPos: number | null = null;
+
+          doc.descendants((node, pos) => {
+            if (
+              node.type.name === this.name &&
+              node.attrs.blockId === blockId
+            ) {
+              existingInlineChatPos = pos;
+              return false; // Stop the iteration
+            }
+            if (node.attrs.blockId === blockId) {
+              blockPos = pos + node.nodeSize;
+            }
+          });
+
+          if (existingInlineChatPos !== null) {
+            tr.delete(existingInlineChatPos, existingInlineChatPos + 1);
+          }
+
+          // Recalculate blockPos after deleting the node
+          blockPos = null;
+          doc.descendants((node, pos) => {
+            if (node.attrs.blockId === blockId) {
+              blockPos = pos + node.nodeSize;
+            }
+          });
+
+          if (blockPos !== null) {
+            tr.insert(
+              blockPos,
+              this.type.create({
+                id: uuid(),
+                blockId: blockId,
+                authorId: this.options.authorId,
+                authorName: this.options.authorName,
+                initialMessage,
+              })
+            );
+          }
+
+          dispatch?.(tr);
 
           return true;
         },
@@ -155,7 +230,9 @@ export const InlineChat = Node.create({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(InlineChatView);
+    return ReactNodeViewRenderer(InlineChatView, {
+      attrs: { blockId: uuid() },
+    });
   },
 });
 

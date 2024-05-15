@@ -50,6 +50,7 @@ export const InlineChatView = ({
   getPos,
   deleteNode,
 }: InlineChatViewProps) => {
+  const { blockId, hidden } = node.attrs;
   const { isDarkMode } = useDarkmode();
   // @ts-ignore
   const [previewText, setPreviewText] = useState(undefined);
@@ -64,6 +65,15 @@ export const InlineChatView = ({
         ).getText()}".`,
         id: uuid(),
       },
+      ...(node.attrs.initialMessage
+        ? [
+            {
+              role: ChatMessageRole.Bonsai,
+              content: node.attrs.initialMessage,
+              id: uuid(),
+            },
+          ]
+        : []),
     ],
   });
 
@@ -90,12 +100,12 @@ export const InlineChatView = ({
     [handleSubmit]
   );
 
-  if (node.attrs.hidden) {
+  if (hidden) {
     return null; // If hidden, don't render the inline chat
   }
 
   return (
-    <NodeViewWrapper data-drag-handle>
+    <NodeViewWrapper data-drag-handle data-block-id={blockId}>
       <Panel noShadow className="w-full">
         <CrossCircledIcon
           onClick={() => deleteNode()}

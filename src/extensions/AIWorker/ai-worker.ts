@@ -17,6 +17,7 @@ interface AIWorkerExtensionOptions {
   worker: Worker | null;
   workerExtensions: WorkerAIExtensions[];
   debouncedUpdate: (() => void) | undefined;
+  previousBlocks: WorkerAIBlock[];
 }
 
 function debounce(func: (...args: any[]) => void, delay: number) {
@@ -33,6 +34,34 @@ function debounce(func: (...args: any[]) => void, delay: number) {
   };
 }
 
+const collectTextBlocks = (doc: JSONContent): string[] => {
+  const blocks: string[] = [];
+
+  if (doc.text) {
+    blocks.push(doc.text);
+  }
+  blocks.push(...(doc.content?.flatMap(collectTextBlocks) ?? []));
+
+  return blocks;
+};
+
+const collectReflectBlocks = (doc: JSONContent): WorkerAIBlock[] => {
+  const blocks: WorkerAIBlock[] = [];
+
+  if (doc.attrs?.blockId) {
+    const text = collectTextBlocks(doc).join(' ');
+    if (text.length > 0) {
+      blocks.push({
+        blockId: doc.attrs.blockId,
+        text: text,
+      });
+    }
+  }
+  blocks.push(...(doc.content?.flatMap(collectReflectBlocks) ?? []));
+
+  return blocks;
+};
+
 export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
   name: AIWorkerExtensionName,
 
@@ -42,6 +71,7 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
       openAIAPIKey: '',
       workerExtensions: [] as WorkerAIExtensions[],
       debouncedUpdate: undefined,
+      previousBlocks: [],
     };
   },
 
@@ -52,55 +82,46 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
         type: 'module',
       }
     );
+
     worker.onmessage = (event: MessageEvent) => {
       console.log('Received message from worker:', event.data);
+      event.data.response.forEach((block: any) => {
+        this.editor.commands.insertOrReuseInlineChatAfterBlock(
+          block.blockId,
+          block.updatedText
+        );
+      });
     };
     this.options.worker = worker;
 
+    // Debounce the update function.
     this.options.debouncedUpdate = debounce(() => {
-      console.log('OnUpdate Worker Extensions:', this.options.workerExtensions);
-
       const worker = this.options.worker;
       const workerExtensions: WorkerAIExtensions[] =
         this.options.workerExtensions;
 
-      const collectTextBlocks = (doc: JSONContent): string[] => {
-        const blocks: string[] = [];
-
-        if (doc.text) {
-          blocks.push(doc.text);
-        }
-        blocks.push(...(doc.content?.flatMap(collectTextBlocks) ?? []));
-
-        return blocks;
+      // Compare current blocks with previous blocks
+      const currentBlocks = collectReflectBlocks(this.editor.getJSON());
+      const hasChanged = (block: WorkerAIBlock) => {
+        const prevBlock = this.options.previousBlocks.find(
+          (prevBlock) => prevBlock.blockId === block.blockId
+        );
+        return !prevBlock || prevBlock.text !== block.text;
       };
+      const changedBlocks = currentBlocks.filter(hasChanged);
 
-      const collectReflectBlocks = (doc: JSONContent): WorkerAIBlock[] => {
-        const blocks: WorkerAIBlock[] = [];
-
-        if (doc.attrs?.blockId) {
-          blocks.push({
-            blockId: doc.attrs.blockId,
-            text: collectTextBlocks(doc).join(' '),
+      if (changedBlocks.length > 0) {
+        this.options.previousBlocks = currentBlocks;
+        workerExtensions.forEach((workExt) => {
+          const { name, prompt } = workExt;
+          worker?.postMessage({
+            name: name,
+            prompt: prompt,
+            blocks: changedBlocks,
+            openaiApiKey: this.options.openAIAPIKey,
           });
-        }
-        blocks.push(...(doc.content?.flatMap(collectReflectBlocks) ?? []));
-
-        return blocks;
-      };
-
-      const blocks = collectReflectBlocks(this.editor.getJSON());
-
-      workerExtensions.forEach((workExt) => {
-        const { name, prompt } = workExt;
-
-        worker?.postMessage({
-          name: name,
-          prompt: prompt,
-          blocks: blocks,
-          openaiApiKey: this.options.openAIAPIKey,
         });
-      });
+      }
     }, 5000);
   },
 
