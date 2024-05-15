@@ -47,17 +47,26 @@ const myDynamicExtension = createDynamicExtension({
   interval: 5000,
 });
 
+const DEFAULT_RETURN = {
+  editor: null,
+  characterCount: null,
+  leftSidebar: null,
+};
+
 export const useBlockEditor = ({
   initialContent,
   onEditorUpdate,
 }: useBlockEditorProps) => {
+  const { config } = useConfig();
+  if (!config) {
+    return DEFAULT_RETURN;
+  }
+
   const leftSidebar = useSidebar();
 
   const onDebouncedEditorUpdate = useDebouncedCallback((value) => {
     onEditorUpdate?.(value);
   }, 1000);
-
-  const { config } = useConfig();
 
   const editor = useEditor(
     {
@@ -65,7 +74,7 @@ export const useBlockEditor = ({
       content: initialContent || '',
       extensions: [
         ...ExtensionKit({
-          openAIAPIKey: '',
+          openAIAPIKey: config.openaiApiKey,
         }),
         myDynamicExtension,
       ],

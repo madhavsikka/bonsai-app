@@ -160,16 +160,14 @@ export const InlineChat = Node.create({
 
       insertOrReuseInlineChatAfterBlock:
         (blockId: string, initialMessage?: string) =>
-        ({ state, dispatch, view }: CommandProps) => {
+        ({ state, view }: CommandProps) => {
           const { tr } = state;
           const { doc } = tr;
-          let blockPos: number | null = null;
           let existingInlineChatPos: number | null = null;
           let existingInlineChatNodeSize: number | null = null;
 
           doc.descendants((node, pos) => {
             if (node.attrs.blockId === blockId) {
-              blockPos = pos;
               const nd = doc.nodeAt(pos + node.nodeSize);
               if (nd?.type.name === this.name) {
                 existingInlineChatPos = pos + node.nodeSize;
