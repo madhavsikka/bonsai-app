@@ -1,3 +1,4 @@
+import { ChatMessageRole } from '@/hooks/ai/useChat';
 import { Extension, JSONContent } from '@tiptap/core';
 export const AIWorkerExtensionName = 'aiWorker';
 
@@ -50,10 +51,10 @@ const collectReflectBlocks = (doc: JSONContent): WorkerAIBlock[] => {
 
   if (doc.attrs?.blockId) {
     const text = collectTextBlocks(doc).join(' ');
-    if (text.length > 0) {
+    if (text.trim().length > 0) {
       blocks.push({
         blockId: doc.attrs.blockId,
-        text: text,
+        text: text.trim(),
       });
     }
   }
@@ -86,10 +87,22 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
     worker.onmessage = (event: MessageEvent) => {
       console.log('Received message from worker:', event.data);
       event.data.response.forEach((block: any) => {
-        this.editor.commands.insertOrReuseInlineChatAfterBlock(
-          block.blockId,
-          block.updatedText
-        );
+        // this.editor.commands.insertOrReuseInlineChatAfterBlock(
+        //   block.blockId,
+        //   block.updatedText,
+        //   true
+        // );
+        // this.editor.storage.
+        const blockId = block.blockId as string;
+        const updatedText = block.updatedText as string;
+        // this.editor.commands.updateInlineChatMessagesInStorage(blockId, [
+        //   {
+        //     id: blockId,
+        //     role: ChatMessageRole.Bonsai,
+        //     content: updatedText,
+        //   },
+        // ]);
+        // this.editor.commands.addNotificationDot(block.blockId);
       });
     };
     this.options.worker = worker;
@@ -109,6 +122,10 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
         return !prevBlock || prevBlock.text !== block.text;
       };
       const changedBlocks = currentBlocks.filter(hasChanged);
+
+      // changedBlocks.forEach((block) => {
+      //   this.editor.commands.deleteInlineChat(block.blockId);
+      // });
 
       if (changedBlocks.length > 0) {
         this.options.previousBlocks = currentBlocks;

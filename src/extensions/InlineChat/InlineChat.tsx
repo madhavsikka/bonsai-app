@@ -2,6 +2,7 @@ import { CommandProps, mergeAttributes, Node } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import { v4 as uuid } from 'uuid';
 import { InlineChatView } from './components/InlineChatView';
+import { ChatMessage } from '@/hooks/ai/useChat';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -15,9 +16,19 @@ declare module '@tiptap/core' {
         blockId: string,
         initialMessage?: string
       ) => ReturnType;
+      updateInlineChatMessagesInStorage: (
+        blockId: string,
+        updatedMessages: ChatMessage[]
+      ) => ReturnType;
+      insertInlineChatInput: (blockId: string) => ReturnType;
+      deleteInlineChat: (blockId: string) => ReturnType;
       hideAllInlineChats: () => ReturnType;
     };
   }
+}
+
+interface InlineChatStorage {
+  messages: Record<string, ChatMessage[]>;
 }
 
 export const InlineChat = Node.create({
@@ -57,6 +68,13 @@ export const InlineChat = Node.create({
         parseHTML: (element) => element.getAttribute('data-block-id'),
         renderHTML: (attributes) => ({
           'data-block-id': attributes.blockId,
+        }),
+      },
+      targetBlockId: {
+        default: null,
+        parseHTML: (element) => element.getAttribute('data-target-block-id'),
+        renderHTML: (attributes) => ({
+          'data-target-block-id': attributes.targetBlockId,
         }),
       },
       authorId: {
@@ -106,6 +124,12 @@ export const InlineChat = Node.create({
     ];
   },
 
+  addStorage() {
+    return {
+      messages: {},
+    } as InlineChatStorage;
+  },
+
   addCommands() {
     return {
       setInlineChat:
@@ -123,6 +147,39 @@ export const InlineChat = Node.create({
               },
             })
             .run(),
+
+      updateInlineChatMessagesInStorage:
+        (blockId: string, updatedMessages: ChatMessage[]) =>
+        ({ tr, dispatch }: CommandProps) => {
+          const chatMessages = this.storage.messages as Record<
+            string,
+            ChatMessage[]
+          >;
+
+          chatMessages[blockId] = updatedMessages;
+
+          dispatch?.(tr);
+
+          return true;
+        },
+
+      insertInlineChatInput:
+        (blockId: string) =>
+        ({}) => {
+          const messages = this.storage.messages as Record<
+            string,
+            ChatMessage[]
+          >;
+
+          const chatMessages = messages[blockId] ?? [];
+
+          this.editor.commands.insertOrReuseInlineChatAfterBlock(
+            blockId,
+            chatMessages[0]?.content
+          );
+
+          return true;
+        },
 
       insertInlineChatAfterBlock:
         (blockId: string, initialMessage?: string) =>
@@ -158,11 +215,45 @@ export const InlineChat = Node.create({
           return true;
         },
 
+      deleteInlineChat:
+        (blockId: string) =>
+        ({ chain, state, view }: CommandProps) => {
+          const { tr } = state;
+          const { doc } = tr;
+
+          let existingInlineChatPos: number | null = null;
+          let existingInlineChatNodeSize: number | null = null;
+
+          doc.descendants((node, pos) => {
+            if (node.attrs.blockId === blockId) {
+              const nd = doc.nodeAt(pos + node.nodeSize);
+              if (nd?.type.name === this.name) {
+                existingInlineChatPos = pos + node.nodeSize;
+                existingInlineChatNodeSize = nd.nodeSize;
+              }
+              return false;
+            }
+          });
+
+          if (
+            existingInlineChatPos !== null &&
+            existingInlineChatNodeSize !== null
+          ) {
+            const deleteTransaction = view.state.tr.delete(
+              existingInlineChatPos,
+              existingInlineChatPos + existingInlineChatNodeSize
+            );
+            view.dispatch(deleteTransaction);
+          }
+          return true;
+        },
+
       insertOrReuseInlineChatAfterBlock:
         (blockId: string, initialMessage?: string) =>
         ({ state, view }: CommandProps) => {
           const { tr } = state;
           const { doc } = tr;
+
           let existingInlineChatPos: number | null = null;
           let existingInlineChatNodeSize: number | null = null;
 

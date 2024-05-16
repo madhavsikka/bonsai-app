@@ -39,6 +39,7 @@ import {
   CustomHighlight,
   NotificationDot,
   AIWorkerExtension,
+  AIParagraph,
 } from './index';
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import { lowlight } from 'lowlight';

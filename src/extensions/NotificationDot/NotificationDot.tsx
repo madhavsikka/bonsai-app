@@ -69,6 +69,19 @@ export const NotificationDot = Extension.create<NotificationDotOptions>({
           decorations(state) {
             return this.getState(state);
           },
+          handleClick: (view, pos, event) => {
+            const { schema, doc, tr } = view.state;
+            const node = doc.nodeAt(pos);
+
+            if (node && node.type === schema.nodes.paragraph) {
+              const blockId = node.attrs.blockId;
+              if (blockId) {
+                this.editor.commands.insertInlineChatInput(blockId);
+                return true;
+              }
+            }
+            return false;
+          },
         },
       }),
     ];
