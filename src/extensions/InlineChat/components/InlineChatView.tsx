@@ -1,5 +1,5 @@
 import { NodeViewWrapper, NodeViewWrapperProps } from '@tiptap/react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import { Editor } from '@tiptap/core';
 import { Panel } from '@/components/ui/Panel';
@@ -7,16 +7,15 @@ import { Textarea } from '@/components/ui/Textarea';
 import wavedark from '@/assets/wave-dark.svg';
 import leaf from '@/assets/leaf-round.svg';
 
-import { useDarkmode } from '@/hooks/useDarkMode';
-import { ChatMessageRole, useChat } from '@/hooks/ai/useChat';
+import { ChatMessage, ChatMessageRole, useChat } from '@/hooks/ai/useChat';
 import { Divider } from '@/components/ui/PopoverMenu';
 import { CrossCircledIcon } from '@radix-ui/react-icons';
 import { Node } from '@tiptap/pm/model';
 
-const UserAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
+const UserAvatar = () => {
   return (
     <img
-      src={isDarkMode ? wavedark : wavedark}
+      src={wavedark}
       alt="avatar"
       width={24}
       height={24}
@@ -25,10 +24,10 @@ const UserAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
   );
 };
 
-const BonsaiAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
+const BonsaiAvatar = () => {
   return (
     <img
-      src={isDarkMode ? leaf : leaf}
+      src={leaf}
       alt="avatar"
       width={24}
       height={24}
@@ -50,32 +49,52 @@ export const InlineChatView = ({
   getPos,
   deleteNode,
 }: InlineChatViewProps) => {
-  const { blockId, hidden } = node.attrs;
-  const { isDarkMode } = useDarkmode();
+  const { blockId, targetBlockId } = node.attrs;
+
+  const [isHidden, setIsHidden] = useState(true);
+
+  useEffect(() => {
+    setIsHidden(node.attrs.hidden ?? true);
+  }, [node.attrs.hidden]);
+
   // @ts-ignore
   const [previewText, setPreviewText] = useState(undefined);
   const textareaId = useMemo(() => uuid(), []);
 
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
-    initialMessages: [
-      {
-        role: ChatMessageRole.System,
-        content: `You are a helpful AI writing assistant embedded inside a rich text editor. \nYour task is to answer user's questions and help them write better. Here is the document content: "${(
-          editor as Editor
-        ).getText()}".`,
-        id: uuid(),
-      },
-      ...(node.attrs.initialMessage
-        ? [
+  const chatInput = useMemo(() => {
+    const storedMessages = (editor.storage.inlineChat.messages[targetBlockId] ??
+      []) as ChatMessage[];
+    console.log(
+      'storedMessages',
+      editor.storage.inlineChat.messages[targetBlockId],
+      targetBlockId
+    );
+    if (storedMessages.length > 0) {
+      if (storedMessages[0].role !== ChatMessageRole.System) {
+        return {
+          initialMessages: [
             {
-              role: ChatMessageRole.Bonsai,
-              content: node.attrs.initialMessage,
+              role: ChatMessageRole.System,
+              content: `You are a helpful AI writing assistant embedded inside a rich text editor. \nYour task is to answer user's questions and help them write better. Here is the document content: "${(
+                editor as Editor
+              ).getText()}".`,
               id: uuid(),
             },
-          ]
-        : []),
-    ],
-  });
+            ...storedMessages,
+          ],
+        };
+      }
+    }
+    return { initialMessages: storedMessages };
+  }, []);
+
+  const { messages, input, handleInputChange, handleSubmit } =
+    useChat(chatInput);
+
+  useEffect(() => {
+    console.log('messages', messages);
+    editor.storage.inlineChat.messages[targetBlockId] = messages;
+  }, [messages]);
 
   // @ts-ignore
   const insert = useCallback(() => {
@@ -100,8 +119,8 @@ export const InlineChatView = ({
     [handleSubmit]
   );
 
-  if (hidden) {
-    return null; // If hidden, don't render the inline chat
+  if (isHidden) {
+    return null;
   }
 
   return (
@@ -117,11 +136,7 @@ export const InlineChatView = ({
             .filter((m) => m.role === 'user' || m.role === 'bonsai')
             .map((m) => (
               <div key={m.id} className="flex gap-2 items-start mb-4">
-                {m.role === 'bonsai' ? (
-                  <BonsaiAvatar isDarkMode={isDarkMode} />
-                ) : (
-                  <UserAvatar isDarkMode={isDarkMode} />
-                )}
+                {m.role === 'bonsai' ? <BonsaiAvatar /> : <UserAvatar />}
                 <div className="flex flex-col px-1 text-black/80 dark:text-white/80 text-xs font-semibold">
                   <span className="mb-1">{m.role}</span>
                   <div

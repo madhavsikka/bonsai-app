@@ -3,6 +3,7 @@ import { ReactNodeViewRenderer } from '@tiptap/react';
 import { v4 as uuid } from 'uuid';
 import { InlineChatView } from './components/InlineChatView';
 import { ChatMessage } from '@/hooks/ai/useChat';
+import { message } from '@tauri-apps/api/dialog';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -23,6 +24,7 @@ declare module '@tiptap/core' {
       insertInlineChatInput: (blockId: string) => ReturnType;
       deleteInlineChat: (blockId: string) => ReturnType;
       hideAllInlineChats: () => ReturnType;
+      toggleInlineChatInput: (blockId: string) => ReturnType;
     };
   }
 }
@@ -99,11 +101,11 @@ export const InlineChat = Node.create({
           'data-hidden': attributes.hidden ? 'true' : 'false',
         }),
       },
-      initialMessage: {
+      initialMessages: {
         default: undefined,
-        parseHTML: (element) => element.getAttribute('data-initial-message'),
+        parseHTML: (element) => element.getAttribute('data-initial-messages'),
         renderHTML: (attributes) => ({
-          'data-initial-message': attributes.initialMessage,
+          'data-initial-messages': attributes.initialMessages,
         }),
       },
     };
@@ -127,6 +129,8 @@ export const InlineChat = Node.create({
   addStorage() {
     return {
       messages: {},
+      visibility: {},
+      targetToInlineChatBlockIdMap: {},
     } as InlineChatStorage;
   },
 
@@ -157,10 +161,57 @@ export const InlineChat = Node.create({
           >;
 
           chatMessages[blockId] = updatedMessages;
+        },
 
-          dispatch?.(tr);
+      toggleInlineChatInput:
+        (blockId: string) =>
+        ({ chain, tr }: CommandProps) => {
+          const { doc } = this.editor.state;
+          const chatBlockId =
+            this.storage.targetToInlineChatBlockIdMap[blockId];
 
-          return true;
+          console.log('chatBlock', this.storage.messages, blockId);
+
+          if (!chatBlockId) {
+            doc.descendants((node, pos) => {
+              if (
+                node.type.name === 'paragraph' &&
+                node.attrs.blockId === blockId &&
+                node.textContent.length > 0
+              ) {
+                const chatPos = pos + node.nodeSize;
+                const chatBlockId = uuid();
+                this.storage.targetToInlineChatBlockIdMap[blockId] =
+                  chatBlockId;
+
+                this.editor
+                  .chain()
+                  .focus()
+                  .insertContentAt(chatPos, {
+                    type: this.name,
+                    attrs: {
+                      id: uuid(),
+                      targetBlockId: blockId,
+                      blockId: chatBlockId,
+                      authorId: this.options.authorId,
+                      authorName: this.options.authorName,
+                      hidden: false,
+                    },
+                  })
+                  .run();
+              }
+            });
+          } else {
+            doc.descendants((node, pos) => {
+              console.log('node', node);
+              if (node.attrs.blockId === chatBlockId) {
+                tr.setNodeMarkup(pos, undefined, {
+                  ...node.attrs,
+                  hidden: node.attrs.hidden === true ? false : true,
+                });
+              }
+            });
+          }
         },
 
       insertInlineChatInput:

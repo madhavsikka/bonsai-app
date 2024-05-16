@@ -20,7 +20,7 @@ export const NotificationDot = Extension.create<NotificationDotOptions>({
 
   addOptions() {
     return {
-      className: 'notification-dot',
+      className: 'notification-dot cursor-pointer',
     };
   },
 
@@ -76,7 +76,7 @@ export const NotificationDot = Extension.create<NotificationDotOptions>({
             if (node && node.type === schema.nodes.paragraph) {
               const blockId = node.attrs.blockId;
               if (blockId) {
-                this.editor.commands.insertInlineChatInput(blockId);
+                this.editor.commands.toggleInlineChatInput(blockId);
                 return true;
               }
             }

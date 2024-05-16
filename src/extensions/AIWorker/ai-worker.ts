@@ -87,22 +87,16 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
     worker.onmessage = (event: MessageEvent) => {
       console.log('Received message from worker:', event.data);
       event.data.response.forEach((block: any) => {
-        // this.editor.commands.insertOrReuseInlineChatAfterBlock(
-        //   block.blockId,
-        //   block.updatedText,
-        //   true
-        // );
-        // this.editor.storage.
         const blockId = block.blockId as string;
         const updatedText = block.updatedText as string;
-        // this.editor.commands.updateInlineChatMessagesInStorage(blockId, [
-        //   {
-        //     id: blockId,
-        //     role: ChatMessageRole.Bonsai,
-        //     content: updatedText,
-        //   },
-        // ]);
-        // this.editor.commands.addNotificationDot(block.blockId);
+        this.editor.commands.updateInlineChatMessagesInStorage(blockId, [
+          {
+            id: blockId,
+            role: ChatMessageRole.Bonsai,
+            content: updatedText,
+          },
+        ]);
+        this.editor.commands.addNotificationDot(block.blockId);
       });
     };
     this.options.worker = worker;
