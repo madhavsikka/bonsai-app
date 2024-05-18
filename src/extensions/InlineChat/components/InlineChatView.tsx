@@ -43,6 +43,12 @@ export interface InlineChatViewProps extends NodeViewWrapperProps {
   deleteNode: () => void;
 }
 
+export interface InlineChatMessage {
+  id: string;
+  author: string;
+  content: string;
+}
+
 export const InlineChatView = ({
   editor,
   node,
