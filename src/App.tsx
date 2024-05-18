@@ -6,6 +6,7 @@ import { PreferencesPage } from './pages/PreferencesPage';
 import useGlobalShortcuts from './hooks/shortcuts/useGlobalShortcuts';
 import { useDarkmode } from './hooks/useDarkMode';
 import { ConfigProvider } from './providers/ConfigProvider';
+import { SagePage } from './pages/SagePage';
 
 const AppContent = () => {
   useDarkmode();
@@ -16,6 +17,7 @@ const AppContent = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/leafs/:name" element={<LeafPage />} />
         <Route path="/preferences" element={<PreferencesPage />} />
+        <Route path="/sages" element={<SagePage />} />
       </Routes>
     </main>
   );

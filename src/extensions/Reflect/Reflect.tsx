@@ -11,6 +11,11 @@ export interface WorkerAIBlock {
   text: string;
 }
 
+export interface WorkerAIResponseBlock {
+  blockId: string;
+  updatedText: string;
+}
+
 const collectTextBlocks = (doc: JSONContent): string[] => {
   const blocks: string[] = [];
 

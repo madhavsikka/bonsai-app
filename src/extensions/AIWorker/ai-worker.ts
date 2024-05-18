@@ -1,5 +1,7 @@
 import { ChatMessageRole } from '@/hooks/ai/useChat';
 import { Extension, JSONContent } from '@tiptap/core';
+import { WorkerAIResponseBlock } from '../Reflect';
+import { WorkerAIResponse } from '@/workers/reflect';
 export const AIWorkerExtensionName = 'aiWorker';
 
 export interface WorkerAIExtensions {
@@ -63,6 +65,14 @@ const collectReflectBlocks = (doc: JSONContent): WorkerAIBlock[] => {
   return blocks;
 };
 
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    AIWorkerExtensionName: {
+      setWorkerExtensions(extensions: WorkerAIExtensions[]): ReturnType;
+    };
+  }
+}
+
 export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
   name: AIWorkerExtensionName,
 
@@ -85,18 +95,17 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
     );
 
     worker.onmessage = (event: MessageEvent) => {
-      console.log('Received message from worker:', event.data);
-      event.data.response.forEach((block: any) => {
-        const blockId = block.blockId as string;
-        const updatedText = block.updatedText as string;
+      const data = event.data as WorkerAIResponse;
+      data.response.forEach((block) => {
+        const { blockId, updatedText } = block;
         this.editor.commands.updateInlineChatMessagesInStorage(blockId, [
           {
             id: blockId,
-            role: ChatMessageRole.Bonsai,
+            role: data.name,
             content: updatedText,
           },
         ]);
-        this.editor.commands.addNotificationDot(block.blockId);
+        this.editor.commands.addNotificationDot([blockId]);
       });
     };
     this.options.worker = worker;
@@ -104,9 +113,6 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
     // Debounce the update function.
     this.options.debouncedUpdate = debounce(() => {
       const worker = this.options.worker;
-      const workerExtensions: WorkerAIExtensions[] =
-        this.options.workerExtensions;
-
       // Compare current blocks with previous blocks
       const currentBlocks = collectReflectBlocks(this.editor.getJSON());
       const hasChanged = (block: WorkerAIBlock) => {
@@ -117,13 +123,9 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
       };
       const changedBlocks = currentBlocks.filter(hasChanged);
 
-      // changedBlocks.forEach((block) => {
-      //   this.editor.commands.deleteInlineChat(block.blockId);
-      // });
-
       if (changedBlocks.length > 0) {
         this.options.previousBlocks = currentBlocks;
-        workerExtensions.forEach((workExt) => {
+        this.options.workerExtensions?.forEach((workExt) => {
           const { name, prompt } = workExt;
           worker?.postMessage({
             name: name,
@@ -136,9 +138,15 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
     }, 5000);
   },
 
-  addWorkerExtension(extension: WorkerAIExtensions) {
-    console.log('Adding Worker Extension:', extension);
-    this.options.workerExtensions.push(extension);
+  addCommands() {
+    return {
+      setWorkerExtensions:
+        (extensions: WorkerAIExtensions[]) =>
+        ({}) => {
+          this.options.workerExtensions = extensions;
+          return true;
+        },
+    };
   },
 
   onUpdate() {

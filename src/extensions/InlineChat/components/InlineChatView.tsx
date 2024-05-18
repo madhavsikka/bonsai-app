@@ -64,27 +64,6 @@ export const InlineChatView = ({
   const chatInput = useMemo(() => {
     const storedMessages = (editor.storage.inlineChat.messages[targetBlockId] ??
       []) as ChatMessage[];
-    console.log(
-      'storedMessages',
-      editor.storage.inlineChat.messages[targetBlockId],
-      targetBlockId
-    );
-    if (storedMessages.length > 0) {
-      if (storedMessages[0].role !== ChatMessageRole.System) {
-        return {
-          initialMessages: [
-            {
-              role: ChatMessageRole.System,
-              content: `You are a helpful AI writing assistant embedded inside a rich text editor. \nYour task is to answer user's questions and help them write better. Here is the document content: "${(
-                editor as Editor
-              ).getText()}".`,
-              id: uuid(),
-            },
-            ...storedMessages,
-          ],
-        };
-      }
-    }
     return { initialMessages: storedMessages };
   }, []);
 
@@ -133,7 +112,7 @@ export const InlineChatView = ({
         />
         <div className="flex flex-col p-1">
           {messages
-            .filter((m) => m.role === 'user' || m.role === 'bonsai')
+            .filter((m) => m.role !== 'system')
             .map((m) => (
               <div key={m.id} className="flex gap-2 items-start mb-4">
                 {m.role === 'bonsai' ? <BonsaiAvatar /> : <UserAvatar />}

@@ -1,51 +1,18 @@
 import { useEditor } from '@tiptap/react';
 import { ExtensionKit } from '../../extensions/extension-kit';
 import { useSidebar } from '../useSidebar';
-import { Editor, Extension } from '@tiptap/core';
+import { Editor } from '@tiptap/core';
 import { useDebouncedCallback } from 'use-debounce';
-import {
-  AIWorkerExtensionName,
-  WorkerAIExtensions,
-} from '@/extensions/AIWorker/ai-worker';
 import { useConfig } from '@/providers/ConfigProvider';
-
-export const createDynamicExtension = (options: WorkerAIExtensions) => {
-  return Extension.create({
-    name: options.name,
-
-    onCreate() {
-      const aiWorkerExtension: any =
-        this.editor.extensionManager.extensions.find(
-          (extension) => extension.name === AIWorkerExtensionName
-        );
-
-      if (aiWorkerExtension) {
-        const workerExtensions =
-          aiWorkerExtension.options.workerExtensions || [];
-        workerExtensions.push({
-          extensionName: this.name,
-          prompt: options.prompt,
-          interval: options.interval,
-        });
-        aiWorkerExtension.options.workerExtensions = workerExtensions;
-      } else {
-        console.error('AIWorkerExtension not found.');
-      }
-    },
-  });
-};
+import { useListSages } from '../sage/useSages';
+import { useEffect } from 'react';
+import { AIWorkerExtensionName } from '@/extensions/AIWorker/ai-worker';
 
 export interface useBlockEditorProps {
   initialContent?: string;
   onEditorUpdate?: (editor: Editor) => void;
   isEditable?: boolean;
 }
-
-const myDynamicExtension = createDynamicExtension({
-  name: 'myDynamicExtension',
-  prompt: 'Enter your prompt here',
-  interval: 5000,
-});
 
 const DEFAULT_RETURN = {
   editor: null,
@@ -68,16 +35,15 @@ export const useBlockEditor = ({
     onEditorUpdate?.(value);
   }, 1000);
 
+  const { sages } = useListSages();
+
   const editor = useEditor(
     {
       autofocus: true,
       content: initialContent || '',
-      extensions: [
-        ...ExtensionKit({
-          openAIAPIKey: config.openaiApiKey,
-        }),
-        myDynamicExtension,
-      ],
+      extensions: ExtensionKit({
+        openAIAPIKey: config.openaiApiKey,
+      }),
       onUpdate: ({ editor }) => {
         onDebouncedEditorUpdate(editor);
       },
@@ -93,6 +59,17 @@ export const useBlockEditor = ({
     },
     []
   );
+
+  useEffect(() => {
+    const exts = sages?.map((sage) => {
+      return {
+        name: sage.name,
+        prompt: sage.description,
+        interval: 5000,
+      };
+    });
+    editor?.commands.setWorkerExtensions(exts);
+  }, [sages, editor]);
 
   const characterCount = editor?.storage.characterCount || {
     characters: () => 0,

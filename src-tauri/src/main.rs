@@ -8,7 +8,7 @@ extern crate webkit2gtk;
 #[macro_use]
 extern crate objc;
 
-use bonsai_app::filesystem::{Config, Database, Leaf};
+use bonsai_app::filesystem::{Config, Database, Leaf, Sage};
 
 // -------------------------------------------------------
 
@@ -41,6 +41,50 @@ fn delete_leaf(db: tauri::State<Database>, name: String) -> Result<(), String> {
 fn search_leaves(db: tauri::State<Database>, query: String) -> Result<Vec<Leaf>, String> {
     db.search_leaves(&query).map_err(|e| e.to_string())
 }
+
+// -------------------------------------------------------
+
+#[tauri::command]
+fn create_sage(
+    db: tauri::State<Database>,
+    name: String,
+    description: String,
+) -> Result<(), String> {
+    db.create_sage(&name, &description)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn update_sage(
+    db: tauri::State<Database>,
+    name: String,
+    description: String,
+) -> Result<(), String> {
+    db.update_sage(&name, &description)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn read_sage(db: tauri::State<Database>, name: String) -> Result<Option<Sage>, String> {
+    db.read_sage(&name).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn list_sages(db: tauri::State<Database>) -> Result<Vec<Sage>, String> {
+    db.list_sages().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn delete_sage(db: tauri::State<Database>, name: String) -> Result<(), String> {
+    db.delete_sage(&name).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn search_sages(db: tauri::State<Database>, query: String) -> Result<Vec<Sage>, String> {
+    db.search_sages(&query).map_err(|e| e.to_string())
+}
+
+// -------------------------------------------------------
 
 #[tauri::command]
 fn upload_file(
@@ -111,7 +155,13 @@ fn main() {
             list_leaves,
             search_leaves,
             upload_file,
-            get_file
+            get_file,
+            create_sage,
+            read_sage,
+            delete_sage,
+            update_sage,
+            list_sages,
+            search_sages
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
