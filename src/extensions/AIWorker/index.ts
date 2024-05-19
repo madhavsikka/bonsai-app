@@ -1,1 +1,1 @@
-export { AIWorkerExtension } from './ai-worker';
+export { AIWorkerExtension } from './AIWorker';

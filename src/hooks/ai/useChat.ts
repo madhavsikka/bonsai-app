@@ -103,5 +103,6 @@ export const useChat = ({ initialMessages = [] }: useChatProps) => {
     input,
     handleInputChange,
     handleSubmit,
+    setMessages,
   };
 };

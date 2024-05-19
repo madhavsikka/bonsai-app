@@ -1,11 +1,17 @@
 import { CommandProps, ReactNodeViewRenderer } from '@tiptap/react';
 import { AIParagraphView } from './AIParagraphView';
 import Paragraph from '@tiptap/extension-paragraph';
+import { ChatMessage } from '@/hooks/ai/useChat';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     aiParagraph: {
       toggleAIChat: (blockId: string) => ReturnType;
+      pushAIChatMessage: (blockId: string, message: ChatMessage) => ReturnType;
+      setAIChatMessages: (
+        blockId: string,
+        messages: ChatMessage[]
+      ) => ReturnType;
     };
   }
 }
@@ -20,6 +26,18 @@ export const AIParagraph = Paragraph.extend({
         renderHTML: (attributes) => {
           return {
             'data-ai-chat-hidden': attributes['data-ai-chat-hidden'],
+          };
+        },
+      },
+      aiChatMessages: {
+        default: [],
+        parseHTML: (element) => {
+          const messages = element.getAttribute('data-ai-chat-messages');
+          return messages ? JSON.parse(messages) : [];
+        },
+        renderHTML: (attributes) => {
+          return {
+            'data-ai-chat-messages': JSON.stringify(attributes.aiChatMessages),
           };
         },
       },
@@ -53,6 +71,43 @@ export const AIParagraph = Paragraph.extend({
               tr.setNodeMarkup(pos, undefined, {
                 ...node.attrs,
                 aiChatHidden: !node.attrs.aiChatHidden,
+              });
+            }
+          });
+          return true;
+        },
+
+      pushAIChatMessage:
+        (blockId: string, message: ChatMessage) =>
+        ({ tr }: CommandProps) => {
+          const { doc } = this.editor.state;
+          doc.descendants((node, pos) => {
+            if (
+              node.type.name === 'paragraph' &&
+              node.attrs.blockId === blockId
+            ) {
+              const updatedMessages = [...node.attrs.aiChatMessages, message];
+              tr.setNodeMarkup(pos, undefined, {
+                ...node.attrs,
+                aiChatMessages: updatedMessages,
+              });
+            }
+          });
+          return true;
+        },
+
+      setAIChatMessages:
+        (blockId: string, messages: ChatMessage[]) =>
+        ({ tr }: CommandProps) => {
+          const { doc } = this.editor.state;
+          doc.descendants((node, pos) => {
+            if (
+              node.type.name === 'paragraph' &&
+              node.attrs.blockId === blockId
+            ) {
+              tr.setNodeMarkup(pos, undefined, {
+                ...node.attrs,
+                aiChatMessages: messages,
               });
             }
           });

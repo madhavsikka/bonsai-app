@@ -6,7 +6,6 @@ import { useDebouncedCallback } from 'use-debounce';
 import { useConfig } from '@/providers/ConfigProvider';
 import { useListSages } from '../sage/useSages';
 import { useEffect } from 'react';
-import { AIWorkerExtensionName } from '@/extensions/AIWorker/ai-worker';
 
 export interface useBlockEditorProps {
   initialContent?: string;

@@ -1,6 +1,4 @@
-import { ChatMessageRole } from '@/hooks/ai/useChat';
 import { Extension, JSONContent } from '@tiptap/core';
-import { WorkerAIResponseBlock } from '../Reflect';
 import { WorkerAIResponse } from '@/workers/reflect';
 export const AIWorkerExtensionName = 'aiWorker';
 
@@ -98,13 +96,11 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
       const data = event.data as WorkerAIResponse;
       data.response.forEach((block) => {
         const { blockId, updatedText } = block;
-        this.editor.commands.updateInlineChatMessagesInStorage(blockId, [
-          {
-            id: blockId,
-            role: data.name,
-            content: updatedText,
-          },
-        ]);
+        this.editor.commands.pushAIChatMessage(blockId, {
+          id: new Date().getTime().toString(),
+          role: data.name,
+          content: updatedText,
+        });
       });
     };
     this.options.worker = worker;
@@ -126,12 +122,12 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
         this.options.previousBlocks = currentBlocks;
         this.options.workerExtensions?.forEach((workExt) => {
           const { name, prompt } = workExt;
-          // worker?.postMessage({
-          //   name: name,
-          //   prompt: prompt,
-          //   blocks: changedBlocks,
-          //   openaiApiKey: this.options.openAIAPIKey,
-          // });
+          worker?.postMessage({
+            name: name,
+            prompt: prompt,
+            blocks: changedBlocks,
+            openaiApiKey: this.options.openAIAPIKey,
+          });
         });
       }
     }, 5000);

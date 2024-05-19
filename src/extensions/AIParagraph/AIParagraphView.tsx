@@ -11,16 +11,15 @@ import { Textarea } from '@/components/ui/Textarea';
 import wavedark from '@/assets/wave-dark.svg';
 import leaf from '@/assets/leaf-round.svg';
 
-import { useDarkmode } from '@/hooks/useDarkMode';
-import { ChatMessageRole, useChat } from '@/hooks/ai/useChat';
+import { ChatMessage, useChat } from '@/hooks/ai/useChat';
 import { Divider } from '@/components/ui/PopoverMenu';
 import { CrossCircledIcon } from '@radix-ui/react-icons';
 import { Node } from '@tiptap/pm/model';
 
-const UserAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
+const UserAvatar = () => {
   return (
     <img
-      src={isDarkMode ? wavedark : wavedark}
+      src={wavedark}
       alt="avatar"
       width={24}
       height={24}
@@ -29,10 +28,10 @@ const UserAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
   );
 };
 
-const BonsaiAvatar = ({ isDarkMode }: { isDarkMode: boolean }) => {
+const BonsaiAvatar = () => {
   return (
     <img
-      src={isDarkMode ? leaf : leaf}
+      src={leaf}
       alt="avatar"
       width={24}
       height={24}
@@ -48,37 +47,33 @@ export interface AIParagraphViewProps extends NodeViewWrapperProps {
   deleteNode: () => void;
 }
 
-export const AIParagraphView = ({
-  editor,
-  node,
-  getPos,
-  deleteNode,
-}: AIParagraphViewProps) => {
-  const { blockId, aiChatHidden } = node.attrs;
-  console.log('blockId and aiChatHidden:', blockId, aiChatHidden);
-  const { isDarkMode } = useDarkmode();
+export const AIParagraphView = ({ editor, node }: AIParagraphViewProps) => {
+  const { blockId, aiChatHidden, aiChatMessages } = node.attrs as {
+    blockId: string;
+    aiChatHidden: boolean;
+    aiChatMessages: ChatMessage[];
+  };
+
   const textareaId = useMemo(() => uuid(), []);
 
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
-    initialMessages: [
-      {
-        role: ChatMessageRole.System,
-        content: `You are a helpful AI writing assistant embedded inside a rich text editor. \nYour task is to answer user's questions and help them write better. Here is the document content: "${(
-          editor as Editor
-        ).getText()}".`,
-        id: uuid(),
-      },
-      ...(node.attrs.initialMessage
-        ? [
-            {
-              role: ChatMessageRole.Bonsai,
-              content: node.attrs.initialMessage,
-              id: uuid(),
-            },
-          ]
-        : []),
-    ],
-  });
+  const chatInput = useMemo(() => {
+    return { initialMessages: aiChatMessages };
+  }, [aiChatMessages]);
+
+  const { messages, input, handleInputChange, handleSubmit, setMessages } =
+    useChat(chatInput);
+
+  useEffect(() => {
+    const updatedMessages = aiChatMessages.map((msg) => {
+      const existingMessage = messages.find((m) => m.id === msg.id);
+      return existingMessage || msg;
+    });
+    setMessages(updatedMessages);
+  }, [aiChatMessages]);
+
+  useEffect(() => {
+    editor.commands.setAIChatMessages(blockId, messages);
+  }, [messages]);
 
   const handleTextAreaSubmit = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -110,14 +105,10 @@ export const AIParagraphView = ({
           />
           <div className="flex flex-col p-1">
             {messages
-              .filter((m) => m.role === 'user' || m.role === 'bonsai')
+              .filter((m) => m.role !== 'system')
               .map((m) => (
                 <div key={m.id} className="flex gap-2 items-start mb-4">
-                  {m.role === 'bonsai' ? (
-                    <BonsaiAvatar isDarkMode={isDarkMode} />
-                  ) : (
-                    <UserAvatar isDarkMode={isDarkMode} />
-                  )}
+                  {m.role === 'bonsai' ? <BonsaiAvatar /> : <UserAvatar />}
                   <div className="flex flex-col px-1 text-black/80 dark:text-white/80 text-xs font-semibold">
                     <span className="mb-1">{m.role}</span>
                     <div
