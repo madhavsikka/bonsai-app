@@ -1,5 +1,9 @@
-import { NodeViewWrapper, NodeViewWrapperProps } from '@tiptap/react';
-import { useCallback, useMemo } from 'react';
+import {
+  NodeViewContent,
+  NodeViewWrapper,
+  NodeViewWrapperProps,
+} from '@tiptap/react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
 import { Editor } from '@tiptap/core';
 import { Panel } from '@/components/ui/Panel';
@@ -50,7 +54,8 @@ export const AIParagraphView = ({
   getPos,
   deleteNode,
 }: AIParagraphViewProps) => {
-  const { blockId, chatHidden } = node.attrs;
+  const { blockId, aiChatHidden } = node.attrs;
+  console.log('blockId and aiChatHidden:', blockId, aiChatHidden);
   const { isDarkMode } = useDarkmode();
   const textareaId = useMemo(() => uuid(), []);
 
@@ -78,9 +83,8 @@ export const AIParagraphView = ({
   const handleTextAreaSubmit = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
-        handleSubmit();
-        // editor.commands.setHighlightedParagraphIds(['temp']);
         e.preventDefault();
+        handleSubmit();
       }
     },
     [handleSubmit]
@@ -88,13 +92,19 @@ export const AIParagraphView = ({
 
   return (
     <NodeViewWrapper data-block-id={blockId}>
-      <p contentEditable suppressContentEditableWarning>
-        {node.attrs.textContent}
-      </p>
-      {true && (
+      <div className="relative">
+        <span
+          className={`absolute left-0 top-0 transform -translate-x-6 translate-y-2.5 w-2 h-2 rounded-full ${
+            aiChatHidden ? 'bg-gray-400' : 'bg-green-500'
+          } hover:cursor-pointer`}
+          onClick={() => editor.commands.toggleAIChat(blockId)}
+        />
+        <NodeViewContent as="p" />
+      </div>
+      {!aiChatHidden && (
         <Panel noShadow className="w-full" contentEditable={false}>
           <CrossCircledIcon
-            onClick={() => deleteNode()}
+            onClick={() => editor.commands.toggleAIChat(blockId)}
             className="ml-auto hover:cursor-pointer"
             width={14}
           />

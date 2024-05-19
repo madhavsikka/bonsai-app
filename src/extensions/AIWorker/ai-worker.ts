@@ -105,7 +105,6 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
             content: updatedText,
           },
         ]);
-        this.editor.commands.addNotificationDot([blockId]);
       });
     };
     this.options.worker = worker;
@@ -127,12 +126,12 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
         this.options.previousBlocks = currentBlocks;
         this.options.workerExtensions?.forEach((workExt) => {
           const { name, prompt } = workExt;
-          worker?.postMessage({
-            name: name,
-            prompt: prompt,
-            blocks: changedBlocks,
-            openaiApiKey: this.options.openAIAPIKey,
-          });
+          // worker?.postMessage({
+          //   name: name,
+          //   prompt: prompt,
+          //   blocks: changedBlocks,
+          //   openaiApiKey: this.options.openAIAPIKey,
+          // });
         });
       }
     }, 5000);

@@ -58,7 +58,6 @@ export const Reflect = Extension.create<ReflectExtensionOptions>({
         const editor = this.editor;
         const reflectBlocks = collectReflectBlocks(editor.getJSON());
         const blockIds = reflectBlocks.map((block) => block.blockId);
-        editor.commands.addNotificationDot(blockIds);
         for (const block of reflectBlocks) {
           editor.commands.insertInlineChatAfterBlock(block.blockId);
         }

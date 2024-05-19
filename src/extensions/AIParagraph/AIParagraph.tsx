@@ -1,59 +1,63 @@
-import { ReactNodeViewRenderer, mergeAttributes, Node } from '@tiptap/react';
+import { CommandProps, ReactNodeViewRenderer } from '@tiptap/react';
 import { AIParagraphView } from './AIParagraphView';
+import Paragraph from '@tiptap/extension-paragraph';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     aiParagraph: {
-      setAIParagraph: () => ReturnType;
+      toggleAIChat: (blockId: string) => ReturnType;
     };
   }
 }
 
-export const AIParagraph = Node.create({
-  name: 'aiParagraph',
-
-  group: 'block',
-
-  content: 'inline*',
-
-  priority: 1000,
-
-  defining: true,
-
-  draggable: false,
-
-  parseHTML() {
-    return [
-      {
-        tag: 'p',
-      },
-    ];
-  },
-
-  addCommands() {
+export const AIParagraph = Paragraph.extend({
+  addAttributes() {
     return {
-      setAIParagraph:
-        () =>
-        ({ commands }) => {
-          return commands.insertContent({
-            type: this.name,
-            content: [],
-          });
+      aiChatHidden: {
+        default: false,
+        parseHTML: (element) =>
+          element.getAttribute('data-ai-chat-hidden') === 'true',
+        renderHTML: (attributes) => {
+          return {
+            'data-ai-chat-hidden': attributes['data-ai-chat-hidden'],
+          };
         },
+      },
+      blockId: {
+        default: null,
+        parseHTML: (element) => element.getAttribute('data-block-id'),
+        renderHTML: (attributes) => ({
+          'data-block-id': attributes.blockId,
+        }),
+      },
     };
-  },
-
-  addKeyboardShortcuts() {
-    return {
-      'Mod-l': () => this.editor.commands.setAIParagraph(),
-    };
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return ['p', mergeAttributes(HTMLAttributes), 0];
   },
 
   addNodeView() {
     return ReactNodeViewRenderer(AIParagraphView);
+  },
+
+  addCommands() {
+    return {
+      toggleAIChat:
+        (blockId: string) =>
+        ({ tr }: CommandProps) => {
+          const { doc } = this.editor.state;
+          doc.descendants((node, pos) => {
+            if (
+              node.type.name === 'paragraph' &&
+              node.attrs.blockId === blockId &&
+              node.textContent.length > 0
+            ) {
+              console.log('toggleAIChat found', blockId);
+              tr.setNodeMarkup(pos, undefined, {
+                ...node.attrs,
+                aiChatHidden: !node.attrs.aiChatHidden,
+              });
+            }
+          });
+          return true;
+        },
+    };
   },
 });

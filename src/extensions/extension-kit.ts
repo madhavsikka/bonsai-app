@@ -37,7 +37,6 @@ import {
   Image,
   ImageBlock,
   CustomHighlight,
-  NotificationDot,
   AIWorkerExtension,
   AIParagraph,
 } from './index';
@@ -82,7 +81,9 @@ export const ExtensionKit = ({ openAIAPIKey }: ExtensionKitProps) => [
     horizontalRule: false,
     blockquote: false,
     codeBlock: false,
+    paragraph: false,
   }),
+  AIParagraph,
   CodeBlockLowlight.configure({
     lowlight,
     defaultLanguage: null,
@@ -130,7 +131,6 @@ export const ExtensionKit = ({ openAIAPIKey }: ExtensionKitProps) => [
   // Reflect.configure({
   //   openAIAPIKey,
   // }),
-  NotificationDot,
   AIWorkerExtension.configure({
     openAIAPIKey,
   }),
