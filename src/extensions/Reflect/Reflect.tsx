@@ -10,7 +10,7 @@ interface ReflectExtensionOptions {
 export interface WorkerAIBlock {
   blockId: string;
   text: string;
-  aiChatMessages?: ChatMessage[];
+  aiChatMessages?: Record<string, ChatMessage[]>;
 }
 
 export interface WorkerAIResponseBlock {

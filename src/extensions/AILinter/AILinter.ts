@@ -25,8 +25,6 @@ function runAllLinterPlugins(
 ) {
   const decorations: [any?] = [];
 
-  console.log({ plugins });
-
   const results = plugins
     .map((RegisteredLinterPlugin) => {
       return new RegisteredLinterPlugin(doc).scan().getResults();

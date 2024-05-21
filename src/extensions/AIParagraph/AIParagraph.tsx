@@ -7,14 +7,17 @@ declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     aiParagraph: {
       toggleAIChat: (blockId: string) => ReturnType;
-      pushAIChatMessages: (
+      pushAIChatMessagesForGroup: (
         blockId: string,
+        groupId: string,
         messages: ChatMessage[]
       ) => ReturnType;
-      setAIChatMessages: (
+      setAIChatMessagesForGroup: (
         blockId: string,
+        groupId: string,
         messages: ChatMessage[]
       ) => ReturnType;
+      unsetAIChatMessages: (blockId: string) => ReturnType;
     };
   }
 }
@@ -34,11 +37,11 @@ export const AIParagraph = Paragraph.extend({
         },
       },
       aiChatMessages: {
-        default: [],
+        default: {},
         keepOnSplit: false,
         parseHTML: (element) => {
           const messages = element.getAttribute('data-ai-chat-messages');
-          return messages ? JSON.parse(messages) : [];
+          return messages ? JSON.parse(messages) : {};
         },
         renderHTML: (attributes) => {
           return {
@@ -82,8 +85,8 @@ export const AIParagraph = Paragraph.extend({
           return true;
         },
 
-      pushAIChatMessages:
-        (blockId: string, messages: ChatMessage[]) =>
+      pushAIChatMessagesForGroup:
+        (blockId: string, groupId: string, messages: ChatMessage[]) =>
         ({ tr }: CommandProps) => {
           const { doc } = this.editor.state;
           doc.descendants((node, pos) => {
@@ -91,10 +94,10 @@ export const AIParagraph = Paragraph.extend({
               node.type.name === 'paragraph' &&
               node.attrs.blockId === blockId
             ) {
-              const updatedMessages = [
+              const updatedMessages = {
                 ...node.attrs.aiChatMessages,
-                ...messages,
-              ];
+                [groupId]: messages,
+              };
               tr.setNodeMarkup(pos, undefined, {
                 ...node.attrs,
                 aiChatMessages: updatedMessages,
@@ -104,8 +107,8 @@ export const AIParagraph = Paragraph.extend({
           return true;
         },
 
-      setAIChatMessages:
-        (blockId: string, messages: ChatMessage[]) =>
+      setAIChatMessagesForGroup:
+        (blockId: string, groupId: string, messages: ChatMessage[]) =>
         ({ tr }: CommandProps) => {
           const { doc } = this.editor.state;
           doc.descendants((node, pos) => {
@@ -115,7 +118,28 @@ export const AIParagraph = Paragraph.extend({
             ) {
               tr.setNodeMarkup(pos, undefined, {
                 ...node.attrs,
-                aiChatMessages: messages,
+                aiChatMessages: {
+                  ...node.attrs.aiChatMessages,
+                  [groupId]: messages,
+                },
+              });
+            }
+          });
+          return true;
+        },
+
+      unsetAIChatMessages:
+        (blockId: string) =>
+        ({ tr }: CommandProps) => {
+          const { doc } = this.editor.state;
+          doc.descendants((node, pos) => {
+            if (
+              node.type.name === 'paragraph' &&
+              node.attrs.blockId === blockId
+            ) {
+              tr.setNodeMarkup(pos, undefined, {
+                ...node.attrs,
+                aiChatMessages: {},
               });
             }
           });

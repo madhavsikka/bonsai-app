@@ -103,7 +103,7 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
       const data = event.data as WorkerAIResponse;
       data.response.forEach((block) => {
         const { blockId, updatedText } = block;
-        this.editor.commands.pushAIChatMessages(blockId, [
+        this.editor.commands.pushAIChatMessagesForGroup(blockId, data.name, [
           {
             id: new Date().getTime().toString(),
             role: data.name,
@@ -128,7 +128,7 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
       const changedBlocks = currentBlocks.filter(hasChanged);
 
       changedBlocks.forEach((block) => {
-        this.editor.commands.setAIChatMessages(block.blockId, []);
+        this.editor.commands.unsetAIChatMessages(block.blockId);
       });
 
       if (changedBlocks.length > 0) {

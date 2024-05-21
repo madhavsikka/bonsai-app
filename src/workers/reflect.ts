@@ -57,10 +57,11 @@ export interface WorkerAIResponse {
 }
 
 self.onmessage = async (event: WorkerAIMessage) => {
-  const { name, openaiApiKey, blocks, prompt } = event.data;
+  const { name, openaiApiKey, blocks, prompt } =
+    event.data as WorkerAIMessagePayload;
+
   const model = new ChatOpenAI({
     openAIApiKey: openaiApiKey,
-    modelName: 'gpt-4o',
   });
   const modelWithTools = model.bind({
     tools: [enhancedContentTool],
@@ -70,11 +71,12 @@ self.onmessage = async (event: WorkerAIMessage) => {
   blocks.forEach(async (block) => {
     const { blockId, text, aiChatMessages } = block;
 
-    console.log('aichatmessages', aiChatMessages);
+    const groupAiChatMessages = aiChatMessages?.[name] ?? [];
+    console.log('aichatmessages reflect', aiChatMessages);
     const chatPromptMessages = [
       ['system', prompt],
       ['human', 'Here is my content: {content}'],
-      ...(aiChatMessages?.map((message) => [
+      ...(groupAiChatMessages?.map((message) => [
         message.role === 'user'
           ? 'human'
           : message.role === 'system'
@@ -94,7 +96,7 @@ self.onmessage = async (event: WorkerAIMessage) => {
     const response = chainResponse?.[0]?.args
       ?.enhancedParagraphs as WorkerAIResponseBlock[];
 
-    console.log('Received message from worker:', response);
+    console.log('Received message from worker:', name, response);
     self.postMessage({ name, response });
   });
 };
