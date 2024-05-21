@@ -7,7 +7,10 @@ declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     aiParagraph: {
       toggleAIChat: (blockId: string) => ReturnType;
-      pushAIChatMessage: (blockId: string, message: ChatMessage) => ReturnType;
+      pushAIChatMessages: (
+        blockId: string,
+        messages: ChatMessage[]
+      ) => ReturnType;
       setAIChatMessages: (
         blockId: string,
         messages: ChatMessage[]
@@ -20,7 +23,8 @@ export const AIParagraph = Paragraph.extend({
   addAttributes() {
     return {
       aiChatHidden: {
-        default: false,
+        default: true,
+        keepOnSplit: false,
         parseHTML: (element) =>
           element.getAttribute('data-ai-chat-hidden') === 'true',
         renderHTML: (attributes) => {
@@ -31,6 +35,7 @@ export const AIParagraph = Paragraph.extend({
       },
       aiChatMessages: {
         default: [],
+        keepOnSplit: false,
         parseHTML: (element) => {
           const messages = element.getAttribute('data-ai-chat-messages');
           return messages ? JSON.parse(messages) : [];
@@ -43,6 +48,7 @@ export const AIParagraph = Paragraph.extend({
       },
       blockId: {
         default: null,
+        keepOnSplit: false,
         parseHTML: (element) => element.getAttribute('data-block-id'),
         renderHTML: (attributes) => ({
           'data-block-id': attributes.blockId,
@@ -67,7 +73,6 @@ export const AIParagraph = Paragraph.extend({
               node.attrs.blockId === blockId &&
               node.textContent.length > 0
             ) {
-              console.log('toggleAIChat found', blockId);
               tr.setNodeMarkup(pos, undefined, {
                 ...node.attrs,
                 aiChatHidden: !node.attrs.aiChatHidden,
@@ -77,8 +82,8 @@ export const AIParagraph = Paragraph.extend({
           return true;
         },
 
-      pushAIChatMessage:
-        (blockId: string, message: ChatMessage) =>
+      pushAIChatMessages:
+        (blockId: string, messages: ChatMessage[]) =>
         ({ tr }: CommandProps) => {
           const { doc } = this.editor.state;
           doc.descendants((node, pos) => {
@@ -86,7 +91,10 @@ export const AIParagraph = Paragraph.extend({
               node.type.name === 'paragraph' &&
               node.attrs.blockId === blockId
             ) {
-              const updatedMessages = [...node.attrs.aiChatMessages, message];
+              const updatedMessages = [
+                ...node.attrs.aiChatMessages,
+                ...messages,
+              ];
               tr.setNodeMarkup(pos, undefined, {
                 ...node.attrs,
                 aiChatMessages: updatedMessages,

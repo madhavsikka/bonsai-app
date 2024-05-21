@@ -40,13 +40,15 @@ const enhancedContentTool = {
   },
 };
 
+export interface WorkerAIMessagePayload {
+  name: string;
+  prompt: string;
+  openaiApiKey: string;
+  blocks: WorkerAIBlock[];
+}
+
 export interface WorkerAIMessage extends MessageEvent {
-  data: {
-    name: string;
-    prompt: string;
-    openaiApiKey: string;
-    blocks: WorkerAIBlock;
-  };
+  data: WorkerAIMessagePayload;
 }
 
 export interface WorkerAIResponse {
@@ -62,18 +64,34 @@ self.onmessage = async (event: WorkerAIMessage) => {
     tool_choice: enhancedContentTool,
   });
 
-  const chatPrompt = ChatPromptTemplate.fromMessages([
-    ['system', prompt],
-    ['human', 'Here is my content: {content}'],
-  ]);
+  blocks.forEach(async (block) => {
+    const { blockId, text, aiChatMessages } = block;
 
-  const outputParser = new JsonOutputToolsParser();
-  const chain = chatPrompt.pipe(modelWithTools).pipe(outputParser);
-  const chainResponse: any = await chain.invoke({
-    content: JSON.stringify(blocks),
+    console.log('aichatmessages', aiChatMessages);
+    const chatPromptMessages = [
+      ['system', prompt],
+      ['human', 'Here is my content: {content}'],
+      ...(aiChatMessages?.map((message) => [
+        message.role === 'user'
+          ? 'human'
+          : message.role === 'system'
+          ? 'system'
+          : 'ai',
+        message.content,
+      ]) ?? []),
+    ];
+
+    const chatPrompt = ChatPromptTemplate.fromMessages(chatPromptMessages);
+
+    const outputParser = new JsonOutputToolsParser();
+    const chain = chatPrompt.pipe(modelWithTools).pipe(outputParser);
+    const chainResponse: any = await chain.invoke({
+      content: JSON.stringify({ blockId, text }),
+    });
+    const response = chainResponse?.[0]?.args
+      ?.enhancedParagraphs as WorkerAIResponseBlock[];
+
+    console.log('Received message from worker:', response);
+    self.postMessage({ name, response });
   });
-  const response = chainResponse?.[0]?.args
-    ?.enhancedParagraphs as WorkerAIResponseBlock[];
-
-  self.postMessage({ name, response });
 };

@@ -97,7 +97,7 @@ export const AIParagraphView = ({ editor, node }: AIParagraphViewProps) => {
         <NodeViewContent as="p" />
       </div>
       {!aiChatHidden && (
-        <Panel noShadow className="w-full" contentEditable={false}>
+        <Panel noShadow className="w-full mt-4" contentEditable={false}>
           <CrossCircledIcon
             onClick={() => editor.commands.toggleAIChat(blockId)}
             className="ml-auto hover:cursor-pointer"

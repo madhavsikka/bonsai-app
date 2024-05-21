@@ -1,3 +1,4 @@
+import { ChatMessage } from '@/hooks/ai/useChat';
 import { Extension, JSONContent } from '@tiptap/core';
 
 interface ReflectExtensionOptions {
@@ -9,6 +10,7 @@ interface ReflectExtensionOptions {
 export interface WorkerAIBlock {
   blockId: string;
   text: string;
+  aiChatMessages?: ChatMessage[];
 }
 
 export interface WorkerAIResponseBlock {

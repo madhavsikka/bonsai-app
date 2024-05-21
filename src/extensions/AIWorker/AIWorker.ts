@@ -1,5 +1,10 @@
 import { Extension, JSONContent } from '@tiptap/core';
-import { WorkerAIResponse } from '@/workers/reflect';
+import {
+  WorkerAIMessage,
+  WorkerAIMessagePayload,
+  WorkerAIResponse,
+} from '@/workers/reflect';
+import { ChatMessage } from '@/hooks/ai/useChat';
 export const AIWorkerExtensionName = 'aiWorker';
 
 export interface WorkerAIExtensions {
@@ -11,6 +16,7 @@ export interface WorkerAIExtensions {
 export interface WorkerAIBlock {
   blockId: string;
   text: string;
+  aiChatMessages: ChatMessage[];
 }
 
 interface AIWorkerExtensionOptions {
@@ -55,6 +61,7 @@ const collectReflectBlocks = (doc: JSONContent): WorkerAIBlock[] => {
       blocks.push({
         blockId: doc.attrs.blockId,
         text: text.trim(),
+        aiChatMessages: doc.attrs?.aiChatMessages ?? [],
       });
     }
   }
@@ -96,11 +103,13 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
       const data = event.data as WorkerAIResponse;
       data.response.forEach((block) => {
         const { blockId, updatedText } = block;
-        this.editor.commands.pushAIChatMessage(blockId, {
-          id: new Date().getTime().toString(),
-          role: data.name,
-          content: updatedText,
-        });
+        this.editor.commands.pushAIChatMessages(blockId, [
+          {
+            id: new Date().getTime().toString(),
+            role: data.name,
+            content: updatedText,
+          },
+        ]);
       });
     };
     this.options.worker = worker;
@@ -118,16 +127,21 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
       };
       const changedBlocks = currentBlocks.filter(hasChanged);
 
+      changedBlocks.forEach((block) => {
+        this.editor.commands.setAIChatMessages(block.blockId, []);
+      });
+
       if (changedBlocks.length > 0) {
         this.options.previousBlocks = currentBlocks;
         this.options.workerExtensions?.forEach((workExt) => {
           const { name, prompt } = workExt;
-          worker?.postMessage({
+          const workerAIMessagePayload: WorkerAIMessagePayload = {
             name: name,
             prompt: prompt,
             blocks: changedBlocks,
-            openaiApiKey: this.options.openAIAPIKey,
-          });
+            openaiApiKey: this.options.openAIAPIKey ?? '',
+          };
+          worker?.postMessage(workerAIMessagePayload);
         });
       }
     }, 5000);
