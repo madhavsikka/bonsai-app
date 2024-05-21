@@ -58,7 +58,10 @@ export interface WorkerAIResponse {
 
 self.onmessage = async (event: WorkerAIMessage) => {
   const { name, openaiApiKey, blocks, prompt } = event.data;
-  const model = new ChatOpenAI({ openAIApiKey: openaiApiKey });
+  const model = new ChatOpenAI({
+    openAIApiKey: openaiApiKey,
+    modelName: 'gpt-4o',
+  });
   const modelWithTools = model.bind({
     tools: [enhancedContentTool],
     tool_choice: enhancedContentTool,

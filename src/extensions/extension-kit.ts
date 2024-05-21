@@ -39,6 +39,8 @@ import {
   CustomHighlight,
   AIWorkerExtension,
   AIParagraph,
+  AILinter,
+  BadWords,
 } from './index';
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import { lowlight } from 'lowlight';
@@ -65,9 +67,6 @@ export const ExtensionKit = ({ openAIAPIKey }: ExtensionKitProps) => [
   Selection,
   Heading.configure({
     levels: [1, 2, 3, 4, 5, 6],
-    HTMLAttributes: {
-      // class: 'text-primary-foreground',
-    },
   }),
   TrailingNode,
   ImageBlock,
@@ -128,11 +127,11 @@ export const ExtensionKit = ({ openAIAPIKey }: ExtensionKitProps) => [
   InlineChat,
   BlockID,
   CustomHighlight,
-  // Reflect.configure({
-  //   openAIAPIKey,
-  // }),
   AIWorkerExtension.configure({
     openAIAPIKey,
+  }),
+  AILinter.configure({
+    plugins: [BadWords],
   }),
 ];
 

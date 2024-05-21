@@ -47,3 +47,4 @@ export { Reflect } from './Reflect';
 export { Image } from './Image';
 export { AIWorkerExtension } from './AIWorker';
 export { AIParagraph } from './AIParagraph';
+export { AILinter, BadWords } from './AILinter';
