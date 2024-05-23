@@ -6,6 +6,7 @@ import wavedark from '@/assets/wave-dark.svg';
 import leaf from '@/assets/leaf-round.svg';
 import { ChatMessage, useChat } from '@/hooks/ai/useChat';
 import { Divider } from '@/components/ui/PopoverMenu';
+import { Node } from '@tiptap/pm/model';
 
 const UserAvatar = () => {
   return (
@@ -33,6 +34,7 @@ const BonsaiAvatar = () => {
 
 export interface AIParagraphViewGroupProps {
   editor: Editor;
+  node: Node;
   blockId: string;
   groupId: string;
   aiChatMessages: ChatMessage[];
@@ -40,6 +42,7 @@ export interface AIParagraphViewGroupProps {
 
 export const AIParagraphViewGroup = ({
   editor,
+  node,
   blockId,
   groupId,
   aiChatMessages,

@@ -1,9 +1,5 @@
 import { Extension, JSONContent } from '@tiptap/core';
-import {
-  WorkerAIMessage,
-  WorkerAIMessagePayload,
-  WorkerAIResponse,
-} from '@/workers/reflect';
+import { WorkerAIMessagePayload, WorkerAIResponse } from '@/workers/reflect';
 import { ChatMessage } from '@/hooks/ai/useChat';
 export const AIWorkerExtensionName = 'aiWorker';
 

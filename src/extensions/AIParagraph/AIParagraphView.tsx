@@ -42,7 +42,7 @@ export const AIParagraphView = ({ editor, node }: AIParagraphViewProps) => {
             defaultValue={Object.keys(aiChatMessages)?.[0]}
             className="m-2 flex flex-col justify-center items-center w-full"
           >
-            <TabsList className="mb-4 bg-background text-foreground max-w-fit">
+            <TabsList className="mb-2 bg-background text-foreground">
               {Object.keys(aiChatMessages).map((group) => (
                 <TabsTrigger
                   value={group}
@@ -58,6 +58,7 @@ export const AIParagraphView = ({ editor, node }: AIParagraphViewProps) => {
               <TabsContent value={group} key={group} className="w-full">
                 <AIParagraphViewGroup
                   editor={editor}
+                  node={node}
                   blockId={blockId}
                   groupId={group}
                   aiChatMessages={messages}
