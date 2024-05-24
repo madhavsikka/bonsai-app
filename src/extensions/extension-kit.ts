@@ -42,6 +42,7 @@ import {
   AILinter,
   BadWords,
 } from './index';
+import { Markdown } from 'tiptap-markdown';
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import { lowlight } from 'lowlight';
 
@@ -133,6 +134,7 @@ export const ExtensionKit = ({ openAIAPIKey }: ExtensionKitProps) => [
   AILinter.configure({
     plugins: [BadWords],
   }),
+  Markdown,
 ];
 
 export default ExtensionKit;

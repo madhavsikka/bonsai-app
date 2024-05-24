@@ -83,6 +83,7 @@
     "tailwindcss-animate": "^1.0.7",
     "tauri-plugin-sql-api": "github:tauri-apps/tauri-plugin-sql#v1",
     "tippy.js": "^6.3.7",
+    "tiptap-markdown": "^0.8.10",
     "use-debounce": "^10.0.0",
     "uuid": "^9.0.1",
     "vaul": "^0.8.9"
