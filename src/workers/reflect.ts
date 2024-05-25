@@ -62,6 +62,7 @@ self.onmessage = async (event: WorkerAIMessage) => {
 
   const model = new ChatOpenAI({
     openAIApiKey: openaiApiKey,
+    modelName: 'gpt-4o',
   });
   const modelWithTools = model.bind({
     tools: [enhancedContentTool],
@@ -72,7 +73,6 @@ self.onmessage = async (event: WorkerAIMessage) => {
     const { blockId, text, aiChatMessages } = block;
 
     const groupAiChatMessages = aiChatMessages?.[name] ?? [];
-    console.log('aichatmessages reflect', aiChatMessages);
     const chatPromptMessages = [
       ['system', prompt],
       ['human', 'Here is my content: {content}'],

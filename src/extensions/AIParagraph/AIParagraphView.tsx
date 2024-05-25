@@ -10,6 +10,7 @@ import { ChatMessage } from '@/hooks/ai/useChat';
 import { Node } from '@tiptap/pm/model';
 import { AIParagraphViewGroup } from './AIParagraphViewGroup';
 import { Divider } from '@/components/ui/PopoverMenu';
+import { useMemo } from 'react';
 
 export interface AIParagraphViewProps extends NodeViewWrapperProps {
   editor: Editor;
@@ -25,21 +26,36 @@ export const AIParagraphView = ({ editor, node }: AIParagraphViewProps) => {
     aiChatMessages: Record<string, ChatMessage[]>;
   };
 
+  const sortedAIChatMessages = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(aiChatMessages).sort(([a], [b]) => a.localeCompare(b))
+      ),
+    [aiChatMessages]
+  );
+
+  const isAIChatHidden =
+    aiChatHidden || Object.keys(aiChatMessages).length === 0;
+
   return (
     <NodeViewWrapper data-block-id={blockId}>
       <div className="relative">
         <span
           className={`absolute left-0 top-0 transform -translate-x-6 translate-y-2.5 w-2 h-2 rounded-full ${
-            aiChatHidden ? 'bg-gray-400' : 'bg-green-500'
+            aiChatHidden ? 'bg-gray-400' : 'bg-green-500 animate-pulse'
           } hover:cursor-pointer`}
           onClick={() => editor.commands.toggleAIChat(blockId)}
         />
-        <NodeViewContent as="p" />
       </div>
-      {!aiChatHidden && (
-        <Panel noShadow className="w-full mt-4" contentEditable={false}>
+      <NodeViewContent as="p" />
+      {!isAIChatHidden && (
+        <Panel
+          noShadow
+          className="w-full mt-4 flex flex-col justify-center items-center"
+          contentEditable={false}
+        >
           <Tabs
-            defaultValue={Object.keys(aiChatMessages)?.[0]}
+            defaultValue={Object.keys(sortedAIChatMessages)[0]}
             className="m-2 flex flex-col justify-center items-center w-full"
           >
             <TabsList className="mb-2 bg-background text-foreground">
@@ -54,7 +70,7 @@ export const AIParagraphView = ({ editor, node }: AIParagraphViewProps) => {
               ))}
             </TabsList>
             <Divider />
-            {Object.entries(aiChatMessages).map(([group, messages]) => (
+            {Object.entries(sortedAIChatMessages).map(([group, messages]) => (
               <TabsContent value={group} key={group} className="w-full">
                 <AIParagraphViewGroup
                   editor={editor}

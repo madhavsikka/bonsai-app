@@ -143,7 +143,7 @@ fn set_config(db: tauri::State<Database>, config: Config) -> Result<(), String> 
 
 fn main() {
     tauri::Builder::default()
-        .manage(Database::new("bonsai_db").unwrap())
+        .manage(Database::new("bonsai").unwrap())
         .invoke_handler(tauri::generate_handler![
             zoom_window,
             get_config,

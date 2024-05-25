@@ -77,7 +77,6 @@ export const InlineChatView = ({
     useChat(chatInput);
 
   useEffect(() => {
-    console.log('messages', messages);
     editor.storage.inlineChat.messages[targetBlockId] = messages;
   }, [messages]);
 

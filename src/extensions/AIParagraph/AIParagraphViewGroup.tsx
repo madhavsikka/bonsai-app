@@ -79,7 +79,7 @@ export const AIParagraphViewGroup = ({
   );
 
   return (
-    <div className="flex flex-col p-1">
+    <div className="flex flex-col px-3 justify-center items-center">
       {messages
         .filter((m) => m.role !== 'system')
         .map((m) => (
@@ -102,7 +102,7 @@ export const AIParagraphViewGroup = ({
         onChange={handleInputChange}
         placeholder={'Write here, bonsai has context of this document...'}
         required
-        className="mb-2 text-xs font-normal outline-none resize-none h-[40px]"
+        className="text-xs font-normal outline-none resize-none p-4"
         onKeyDown={handleTextAreaSubmit}
       />
     </div>

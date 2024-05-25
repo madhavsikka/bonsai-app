@@ -2,6 +2,8 @@ import { CommandProps, ReactNodeViewRenderer } from '@tiptap/react';
 import { AIParagraphView } from './AIParagraphView';
 import Paragraph from '@tiptap/extension-paragraph';
 import { ChatMessage } from '@/hooks/ai/useChat';
+import { Plugin } from 'prosemirror-state';
+import { Decoration, DecorationSet } from 'prosemirror-view';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {

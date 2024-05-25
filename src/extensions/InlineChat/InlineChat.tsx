@@ -170,8 +170,6 @@ export const InlineChat = Node.create({
           const chatBlockId =
             this.storage.targetToInlineChatBlockIdMap[blockId];
 
-          console.log('chatBlock', this.storage.messages, blockId);
-
           if (!chatBlockId) {
             doc.descendants((node, pos) => {
               if (
@@ -203,7 +201,6 @@ export const InlineChat = Node.create({
             });
           } else {
             doc.descendants((node, pos) => {
-              console.log('node', node);
               if (node.attrs.blockId === chatBlockId) {
                 tr.setNodeMarkup(pos, undefined, {
                   ...node.attrs,
