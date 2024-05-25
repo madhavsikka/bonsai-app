@@ -1,9 +1,8 @@
-import { EditorContent, PureEditorContent } from '@tiptap/react';
+import { EditorContent } from '@tiptap/react';
 import { useEffect, useRef } from 'react';
 import { LinkMenu } from './menus';
 import { useBlockEditor } from '../../hooks/editor/useEditor';
 import { Sidebar } from './sidebar/Sidebar';
-// import ImageBlockMenu from '@/extensions/ImageBlock/components/ImageBlockMenu';
 import { ColumnsMenu } from '@/extensions/MultiColumn/menus';
 import { TableColumnMenu, TableRowMenu } from '@/extensions/Table/menus';
 import { TiptapProps } from './types';
@@ -17,7 +16,6 @@ export const BlockEditor = ({
   isEditable,
 }: TiptapProps) => {
   const menuContainerRef = useRef(null);
-  const editorRef = useRef<PureEditorContent | null>(null);
 
   const { editor, leftSidebar, characterCount } = useBlockEditor({
     initialContent,
@@ -49,17 +47,12 @@ export const BlockEditor = ({
           isSidebarOpen={leftSidebar.isOpen}
           toggleSidebar={leftSidebar.toggle}
         />
-        <EditorContent
-          editor={editor}
-          ref={editorRef}
-          className="flex-1 overflow-y-auto"
-        />
+        <EditorContent editor={editor} className="flex-1 overflow-y-auto" />
         <LinkMenu editor={editor} appendTo={menuContainerRef} />
         <TextMenu editor={editor} />
         <ColumnsMenu editor={editor} appendTo={menuContainerRef} />
         <TableRowMenu editor={editor} appendTo={menuContainerRef} />
         <TableColumnMenu editor={editor} appendTo={menuContainerRef} />
-        {/* <ImageBlockMenu editor={editor} appendTo={menuContainerRef} /> */}
       </div>
     </div>
   );

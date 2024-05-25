@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import wavedark from '@/assets/wave-dark.svg';
 import leaf from '@/assets/leaf-round.svg';
 
-import { ChatMessage, ChatMessageRole, useChat } from '@/hooks/ai/useChat';
+import { ChatMessage, useChat } from '@/hooks/ai/useChat';
 import { Divider } from '@/components/ui/PopoverMenu';
 import { CrossCircledIcon } from '@radix-ui/react-icons';
 import { Node } from '@tiptap/pm/model';

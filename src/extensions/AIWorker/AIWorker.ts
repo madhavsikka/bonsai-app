@@ -1,18 +1,13 @@
 import { Extension, JSONContent } from '@tiptap/core';
 import { WorkerAIMessagePayload, WorkerAIResponse } from '@/workers/reflect';
-import { ChatMessage } from '@/hooks/ai/useChat';
+import { ChatMessageRole } from '@/hooks/ai/useChat';
+import { WorkerAIBlock } from '../Reflect';
 export const AIWorkerExtensionName = 'aiWorker';
 
 export interface WorkerAIExtensions {
   name: string;
   prompt: string;
   interval: number;
-}
-
-export interface WorkerAIBlock {
-  blockId: string;
-  text: string;
-  aiChatMessages: ChatMessage[];
 }
 
 interface AIWorkerExtensionOptions {
@@ -102,7 +97,7 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
         this.editor.commands.pushAIChatMessagesForGroup(blockId, data.name, [
           {
             id: new Date().getTime().toString(),
-            role: data.name,
+            role: data.name as ChatMessageRole,
             content: updatedText,
           },
         ]);
@@ -110,10 +105,9 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
     };
     this.options.worker = worker;
 
-    // Debounce the update function.
     this.options.debouncedUpdate = debounce(() => {
       const worker = this.options.worker;
-      // Compare current blocks with previous blocks
+
       const currentBlocks = collectReflectBlocks(this.editor.getJSON());
       const hasChanged = (block: WorkerAIBlock) => {
         const prevBlock = this.options.previousBlocks.find(
@@ -121,7 +115,7 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
         );
         return !prevBlock || prevBlock.text !== block.text;
       };
-      const changedBlocks = currentBlocks.filter(hasChanged);
+      const changedBlocks: WorkerAIBlock[] = currentBlocks.filter(hasChanged);
 
       changedBlocks.forEach((block) => {
         this.editor.commands.unsetAIChatMessages(block.blockId);
@@ -137,6 +131,7 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
             blocks: changedBlocks,
             openaiApiKey: this.options.openAIAPIKey ?? '',
           };
+          console.log('Sending data to worker:', workerAIMessagePayload);
           worker?.postMessage(workerAIMessagePayload);
         });
       }

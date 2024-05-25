@@ -3,7 +3,6 @@ import { ReactNodeViewRenderer } from '@tiptap/react';
 import { v4 as uuid } from 'uuid';
 import { InlineChatView } from './components/InlineChatView';
 import { ChatMessage } from '@/hooks/ai/useChat';
-import { message } from '@tauri-apps/api/dialog';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -154,18 +153,19 @@ export const InlineChat = Node.create({
 
       updateInlineChatMessagesInStorage:
         (blockId: string, updatedMessages: ChatMessage[]) =>
-        ({ tr, dispatch }: CommandProps) => {
+        ({}: CommandProps) => {
           const chatMessages = this.storage.messages as Record<
             string,
             ChatMessage[]
           >;
 
           chatMessages[blockId] = updatedMessages;
+          return true;
         },
 
       toggleInlineChatInput:
         (blockId: string) =>
-        ({ chain, tr }: CommandProps) => {
+        ({ tr }: CommandProps) => {
           const { doc } = this.editor.state;
           const chatBlockId =
             this.storage.targetToInlineChatBlockIdMap[blockId];
@@ -209,6 +209,7 @@ export const InlineChat = Node.create({
               }
             });
           }
+          return true;
         },
 
       insertInlineChatInput:
@@ -265,7 +266,7 @@ export const InlineChat = Node.create({
 
       deleteInlineChat:
         (blockId: string) =>
-        ({ chain, state, view }: CommandProps) => {
+        ({ state, view }: CommandProps) => {
           const { tr } = state;
           const { doc } = tr;
 

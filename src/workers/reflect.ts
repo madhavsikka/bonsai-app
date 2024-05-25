@@ -60,6 +60,8 @@ self.onmessage = async (event: WorkerAIMessage) => {
   const { name, openaiApiKey, blocks, prompt } =
     event.data as WorkerAIMessagePayload;
 
+  console.log('Received data in reflect.ts:', event.data);
+
   const model = new ChatOpenAI({
     openAIApiKey: openaiApiKey,
     modelName: 'gpt-4o',
@@ -84,7 +86,7 @@ self.onmessage = async (event: WorkerAIMessage) => {
           : 'ai',
         message.content,
       ]) ?? []),
-    ];
+    ] as [string, string][];
 
     const chatPrompt = ChatPromptTemplate.fromMessages(chatPromptMessages);
 

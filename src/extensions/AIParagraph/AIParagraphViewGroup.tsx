@@ -42,7 +42,6 @@ export interface AIParagraphViewGroupProps {
 
 export const AIParagraphViewGroup = ({
   editor,
-  node,
   blockId,
   groupId,
   aiChatMessages,

@@ -9,16 +9,6 @@ interface IconDivElement extends HTMLDivElement {
   issue?: Issue;
 }
 
-function renderIcon(issue: Issue) {
-  const icon: IconDivElement = document.createElement('div');
-
-  icon.className = 'lint-icon';
-  icon.title = issue.message;
-  icon.issue = issue;
-
-  return icon;
-}
-
 function runAllLinterPlugins(
   doc: ProsemirrorNode,
   plugins: Array<typeof LinterPlugin>

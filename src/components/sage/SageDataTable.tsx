@@ -29,7 +29,6 @@ import {
 
 import { SageDialog } from './SageDialog';
 import { LeafAvatar } from '../avatar/LeafAvatar';
-import { useNavigate } from 'react-router-dom';
 import { useCallback, useState } from 'react';
 import { Sage } from '@/types/sage';
 import { useDeleteSage } from '@/hooks/sage/useSages';

@@ -59,7 +59,6 @@ export const Reflect = Extension.create<ReflectExtensionOptions>({
       [this.options.shortcut]: () => {
         const editor = this.editor;
         const reflectBlocks = collectReflectBlocks(editor.getJSON());
-        const blockIds = reflectBlocks.map((block) => block.blockId);
         for (const block of reflectBlocks) {
           editor.commands.insertInlineChatAfterBlock(block.blockId);
         }
