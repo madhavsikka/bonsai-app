@@ -1,4 +1,6 @@
 export interface Sage {
   name: string;
-  prompt: string;
+  description: string;
+  createdAt: string;
+  modifiedAt: string;
 }

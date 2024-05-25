@@ -149,6 +149,24 @@
 
 .ProseMirror {
   .custom-highlight {
-    background-color: yellow;
+    background-color: rgba(255, 255, 0, 0.2);
+    border-radius: 4px;
+    padding: 2px 4px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  }
+
+  .custom-highlight:hover {
+    background-color: rgba(255, 255, 0, 0.3);
+  }
+}
+
+.ProseMirror {
+  .ai-highlight {
+    background-color: rgba(255, 255, 0, 0.2);
+    border-radius: 4px;
+    padding: 2px 4px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
   }
 }

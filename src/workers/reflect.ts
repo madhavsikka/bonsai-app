@@ -1,6 +1,7 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { JsonOutputToolsParser } from 'langchain/output_parsers';
+import { WorkerAIBlock, WorkerAIResponseBlock } from '@/extensions/Reflect';
 
 const properties = {
   enhancedParagraphs: {
@@ -39,26 +40,65 @@ const enhancedContentTool = {
   },
 };
 
-self.onmessage = async (event: MessageEvent) => {
-  const model = new ChatOpenAI({ openAIApiKey: event.data.key });
+export interface WorkerAIMessagePayload {
+  name: string;
+  prompt: string;
+  openaiApiKey: string;
+  blocks: WorkerAIBlock[];
+}
+
+export interface WorkerAIMessage extends MessageEvent {
+  data: WorkerAIMessagePayload;
+}
+
+export interface WorkerAIResponse {
+  name: string;
+  response: WorkerAIResponseBlock[];
+}
+
+self.onmessage = async (event: WorkerAIMessage) => {
+  const { name, openaiApiKey, blocks, prompt } =
+    event.data as WorkerAIMessagePayload;
+
+  console.log('Received data in reflect.ts:', event.data);
+
+  const model = new ChatOpenAI({
+    openAIApiKey: openaiApiKey,
+    modelName: 'gpt-4o',
+  });
   const modelWithTools = model.bind({
     tools: [enhancedContentTool],
     tool_choice: enhancedContentTool,
   });
 
-  const prompt = ChatPromptTemplate.fromMessages([
-    [
-      'system',
-      "You are a helpful writing assistant. Your job is to improve the user's writing by suggesting enhancements in the content. Only suggest enhancements if they are relevant and helpful. If the content is already good, don't suggest any changes.",
-    ],
-    ['human', 'Here is my content: {content}'],
-  ]);
+  blocks.forEach(async (block) => {
+    const { blockId, text, aiChatMessages } = block;
 
-  const outputParser = new JsonOutputToolsParser();
-  const chain = prompt.pipe(modelWithTools).pipe(outputParser);
-  const response: any = await chain.invoke({
-    content: JSON.stringify(event.data.blocks),
+    const groupAiChatMessages = aiChatMessages?.[name] ?? [];
+    const chatPromptMessages = [
+      ['system', prompt],
+      ['human', 'Here is my content: {content}'],
+      ...(groupAiChatMessages?.map((message) => [
+        message.role === 'user'
+          ? 'human'
+          : message.role === 'system'
+          ? 'system'
+          : 'ai',
+        message.content,
+      ]) ?? []),
+    ] as [string, string][];
+
+    const chatPrompt = ChatPromptTemplate.fromMessages(chatPromptMessages);
+
+    const outputParser = new JsonOutputToolsParser();
+    const chain = chatPrompt.pipe(modelWithTools).pipe(outputParser);
+    const chainResponse: any = await chain.invoke({
+      content: JSON.stringify({ blockId, text }),
+    });
+    const response = chainResponse?.[0]?.args
+      ?.enhancedParagraphs as WorkerAIResponseBlock[];
+
+    console.log('Received message from worker:', name, response);
+    self.postMessage({ name, response });
   });
-
-  self.postMessage(response?.[0].args.enhancedParagraphs);
 };

@@ -37,8 +37,12 @@ import {
   Image,
   ImageBlock,
   CustomHighlight,
-  NotificationDot,
+  AIWorkerExtension,
+  AIParagraph,
+  AILinter,
+  BadWords,
 } from './index';
+import { Markdown } from 'tiptap-markdown';
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import { lowlight } from 'lowlight';
 
@@ -53,7 +57,7 @@ const DocumentWithTitle = Document.extend({
   // content: 'heading block*',
 });
 
-export const ExtensionKit = ({}: ExtensionKitProps) => [
+export const ExtensionKit = ({ openAIAPIKey }: ExtensionKitProps) => [
   DocumentWithTitle,
   Columns,
   TaskList,
@@ -64,9 +68,6 @@ export const ExtensionKit = ({}: ExtensionKitProps) => [
   Selection,
   Heading.configure({
     levels: [1, 2, 3, 4, 5, 6],
-    HTMLAttributes: {
-      // class: 'text-primary-foreground',
-    },
   }),
   TrailingNode,
   ImageBlock,
@@ -80,7 +81,9 @@ export const ExtensionKit = ({}: ExtensionKitProps) => [
     horizontalRule: false,
     blockquote: false,
     codeBlock: false,
+    paragraph: false,
   }),
+  AIParagraph,
   CodeBlockLowlight.configure({
     lowlight,
     defaultLanguage: null,
@@ -125,10 +128,13 @@ export const ExtensionKit = ({}: ExtensionKitProps) => [
   InlineChat,
   BlockID,
   CustomHighlight,
-  // Reflect.configure({
-  //   openAIAPIKey,
-  // }),
-  NotificationDot,
+  AIWorkerExtension.configure({
+    openAIAPIKey,
+  }),
+  AILinter.configure({
+    plugins: [BadWords],
+  }),
+  Markdown,
 ];
 
 export default ExtensionKit;

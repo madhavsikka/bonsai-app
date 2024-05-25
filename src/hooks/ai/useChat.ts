@@ -19,18 +19,19 @@ export interface ChatMessage {
   role: ChatMessageRole;
   content: string;
 }
+
 export interface useChatProps {
   initialMessages?: ChatMessage[];
 }
 
 const chatMessageToLangchainMessage = (message: ChatMessage): HumanMessage => {
   switch (message.role) {
-    case ChatMessageRole.Bonsai:
-      return new AIMessage({ content: message.content });
     case ChatMessageRole.User:
       return new HumanMessage({ content: message.content });
     case ChatMessageRole.System:
       return new SystemMessage({ content: message.content });
+    default:
+      return new AIMessage({ content: message.content });
   }
 };
 
@@ -70,8 +71,16 @@ export const useChat = ({ initialMessages = [] }: useChatProps) => {
   const handleSubmit = useCallback(() => {
     const updatedMessages = [
       ...messages,
-      { id: uuid(), role: ChatMessageRole.User, content: input },
-      { id: uuid(), role: ChatMessageRole.Bonsai, content: '' },
+      {
+        id: uuid(),
+        role: ChatMessageRole.User,
+        content: input,
+      },
+      {
+        id: uuid(),
+        role: ChatMessageRole.Bonsai,
+        content: '',
+      },
     ];
     setMessages(updatedMessages);
     setInput('');
@@ -94,5 +103,6 @@ export const useChat = ({ initialMessages = [] }: useChatProps) => {
     input,
     handleInputChange,
     handleSubmit,
+    setMessages,
   };
 };

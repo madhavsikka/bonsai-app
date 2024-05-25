@@ -1,3 +1,4 @@
+import { ChatMessage } from '@/hooks/ai/useChat';
 import { Extension, JSONContent } from '@tiptap/core';
 
 interface ReflectExtensionOptions {
@@ -6,9 +7,15 @@ interface ReflectExtensionOptions {
   openAIAPIKey?: string;
 }
 
-interface ReflectBlock {
+export interface WorkerAIBlock {
   blockId: string;
   text: string;
+  aiChatMessages?: Record<string, ChatMessage[]>;
+}
+
+export interface WorkerAIResponseBlock {
+  blockId: string;
+  updatedText: string;
 }
 
 const collectTextBlocks = (doc: JSONContent): string[] => {
@@ -22,8 +29,8 @@ const collectTextBlocks = (doc: JSONContent): string[] => {
   return blocks;
 };
 
-const collectReflectBlocks = (doc: JSONContent): ReflectBlock[] => {
-  const blocks: ReflectBlock[] = [];
+const collectReflectBlocks = (doc: JSONContent): WorkerAIBlock[] => {
+  const blocks: WorkerAIBlock[] = [];
 
   if (doc.attrs?.blockId) {
     blocks.push({
@@ -52,12 +59,9 @@ export const Reflect = Extension.create<ReflectExtensionOptions>({
       [this.options.shortcut]: () => {
         const editor = this.editor;
         const reflectBlocks = collectReflectBlocks(editor.getJSON());
-        const blockIds = reflectBlocks.map((block) => block.blockId);
-        editor.commands.addNotificationDot(blockIds);
         for (const block of reflectBlocks) {
           editor.commands.insertInlineChatAfterBlock(block.blockId);
         }
-        return true;
 
         const worker = new Worker(
           new URL('@/workers/reflect.ts', import.meta.url),

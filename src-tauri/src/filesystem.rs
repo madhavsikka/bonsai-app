@@ -20,6 +20,15 @@ pub struct Leaf {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct Sage {
+    name: String,
+    description: String,
+    created_at: String,
+    modified_at: String,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Config {
     openai_api_key: String,
     theme: String,
@@ -121,6 +130,93 @@ impl Database {
         }
         Ok(leaves)
     }
+
+    // -------------------------------------------------------
+
+    fn load_sages(&self) -> io::Result<Vec<Sage>> {
+        let sages_dir = self.root_dir.join("sages");
+        let sages_file = sages_dir.join("sages.json");
+        if sages_file.exists() {
+            let sages_content = fs::read_to_string(&sages_file)?;
+            let sages: Vec<Sage> = serde_json::from_str(&sages_content)?;
+            Ok(sages)
+        } else {
+            Ok(Vec::new())
+        }
+    }
+
+    fn save_sages(&self, sages: &[Sage]) -> io::Result<()> {
+        let sages_dir = self.root_dir.join("sages");
+        fs::create_dir_all(&sages_dir)?;
+        let sages_file = sages_dir.join("sages.json");
+        let sages_content = serde_json::to_string_pretty(sages)?;
+        let mut file = File::create(sages_file)?;
+        file.write_all(sages_content.as_bytes())?;
+        Ok(())
+    }
+
+    pub fn create_sage(&self, name: &str, description: &str) -> io::Result<()> {
+        let mut sages = self.load_sages()?;
+        if sages.iter().any(|s| s.name == name) {
+            return Err(io::Error::new(
+                io::ErrorKind::AlreadyExists,
+                "Sage with the same name already exists",
+            ));
+        }
+        let now = iso8601(&std::time::SystemTime::now());
+        let sage = Sage {
+            name: name.to_string(),
+            description: description.to_string(),
+            created_at: now.clone(),
+            modified_at: now,
+        };
+        sages.push(sage);
+        self.save_sages(&sages)
+    }
+
+    pub fn read_sage(&self, name: &str) -> io::Result<Option<Sage>> {
+        let sages = self.load_sages()?;
+        let sage = sages.into_iter().find(|s| s.name == name);
+        Ok(sage)
+    }
+
+    pub fn list_sages(&self) -> io::Result<Vec<Sage>> {
+        self.load_sages()
+    }
+
+    pub fn delete_sage(&self, name: &str) -> io::Result<()> {
+        let mut sages = self.load_sages()?;
+        let initial_length = sages.len();
+        sages.retain(|s| s.name != name);
+        if sages.len() == initial_length {
+            return Err(io::Error::new(io::ErrorKind::NotFound, "Sage not found"));
+        }
+        self.save_sages(&sages)
+    }
+
+    pub fn update_sage(&self, name: &str, description: &str) -> io::Result<()> {
+        let mut sages = self.load_sages()?;
+        if let Some(sage) = sages.iter_mut().find(|s| s.name == name) {
+            sage.description = description.to_string();
+            sage.modified_at = iso8601(&std::time::SystemTime::now());
+            self.save_sages(&sages)?;
+        } else {
+            return Err(io::Error::new(io::ErrorKind::NotFound, "Sage not found"));
+        }
+        Ok(())
+    }
+
+    pub fn search_sages(&self, query: &str) -> io::Result<Vec<Sage>> {
+        let sages = self.load_sages()?;
+        let query_lowercase = query.to_lowercase();
+        let filtered_sages = sages
+            .into_iter()
+            .filter(|s| s.name.to_lowercase().contains(&query_lowercase))
+            .collect();
+        Ok(filtered_sages)
+    }
+
+    // -------------------------------------------------------
 
     pub fn set_config(&self, config: &Config) -> io::Result<()> {
         let config_dir = config_dir().expect("Failed to get config directory");
