@@ -82,7 +82,7 @@ export const AIParagraphViewGroup = ({
       {messages
         .filter((m) => m.role !== 'system')
         .map((m) => (
-          <div key={m.id} className="flex gap-2 items-start mb-4">
+          <div key={m.id} className="flex gap-2 items-start mb-4 w-full">
             {m.role === 'bonsai' ? <BonsaiAvatar /> : <UserAvatar />}
             <div className="flex flex-col px-1 text-black/80 dark:text-white/80 text-xs font-semibold">
               <span className="mb-1">{m.role}</span>
