@@ -4,9 +4,13 @@ import { Editor } from '@tiptap/core';
 import { Textarea } from '@/components/ui/Textarea';
 import wavedark from '@/assets/wave-dark.svg';
 import leaf from '@/assets/leaf-round.svg';
-import { ChatMessage, useChat } from '@/hooks/ai/useChat';
+import { ChatMessage, ChatMessageRole, useChat } from '@/hooks/ai/useChat';
 import { Divider } from '@/components/ui/PopoverMenu';
 import { Node } from '@tiptap/pm/model';
+import {
+  AIWorkerExtensionName,
+  WorkerAIExtensions,
+} from '../AIWorker/AIWorker';
 
 const UserAvatar = () => {
   return (
@@ -44,12 +48,33 @@ export const AIParagraphViewGroup = ({
   editor,
   blockId,
   groupId,
+  node,
   aiChatMessages,
 }: AIParagraphViewGroupProps) => {
   const textareaId = useMemo(() => uuid(), []);
 
   const chatInput = useMemo(() => {
-    return { initialMessages: aiChatMessages };
+    const templateMessages: ChatMessage[] = [];
+
+    // Add system message.
+    if (aiChatMessages?.[0].role !== ChatMessageRole.System) {
+      const workerExts: WorkerAIExtensions[] =
+        editor.storage[AIWorkerExtensionName]?.workerExtensions;
+      const groupPrompt = workerExts?.find(
+        (ext) => ext.name === groupId
+      )?.prompt;
+
+      if (groupPrompt) {
+        const content = `${groupPrompt}. Here is the current paragraph's content: ${node.textContent}`;
+        templateMessages.push({
+          id: uuid(),
+          role: ChatMessageRole.System,
+          content,
+        });
+      }
+    }
+
+    return { initialMessages: [...templateMessages, ...aiChatMessages] };
   }, [aiChatMessages]);
 
   const { messages, input, handleInputChange, handleSubmit, setMessages } =

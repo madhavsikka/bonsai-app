@@ -64,7 +64,7 @@ self.onmessage = async (event: WorkerAIMessage) => {
 
   const model = new ChatOpenAI({
     openAIApiKey: openaiApiKey,
-    modelName: 'gpt-4o',
+    modelName: 'gpt-3.5-turbo',
   });
   const modelWithTools = model.bind({
     tools: [enhancedContentTool],
