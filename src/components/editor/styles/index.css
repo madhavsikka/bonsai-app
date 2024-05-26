@@ -169,4 +169,18 @@
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
   }
+
+  .ai-chat-transition {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  }
+
+  .ai-chat-hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  .ai-chat-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

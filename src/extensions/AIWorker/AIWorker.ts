@@ -12,13 +12,16 @@ export interface WorkerAIExtensions {
 
 interface AIWorkerExtensionOptions {
   openAIAPIKey?: string;
+}
+
+interface AIWorkerExtensionStorage {
   worker: Worker | null;
   workerExtensions: WorkerAIExtensions[];
   debouncedUpdate: (() => void) | undefined;
   previousBlocks: WorkerAIBlock[];
 }
 
-function debounce(func: (...args: any[]) => void, delay: number) {
+export function debounce(func: (...args: any[]) => void, delay: number) {
   let timeoutId: NodeJS.Timeout | null = null;
 
   return (...args: any[]) => {
@@ -74,12 +77,17 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
 
   addOptions() {
     return {
-      worker: null,
       openAIAPIKey: '',
+    };
+  },
+
+  addStorage() {
+    return {
+      worker: null,
       workerExtensions: [] as WorkerAIExtensions[],
       debouncedUpdate: undefined,
       previousBlocks: [],
-    };
+    } as AIWorkerExtensionStorage;
   },
 
   onCreate() {
@@ -103,15 +111,15 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
         ]);
       });
     };
-    this.options.worker = worker;
+    this.storage.worker = worker;
 
-    this.options.debouncedUpdate = debounce(() => {
-      const worker = this.options.worker;
+    this.storage.debouncedUpdate = debounce(() => {
+      const worker = this.storage.worker;
 
       const currentBlocks = collectReflectBlocks(this.editor.getJSON());
       const hasChanged = (block: WorkerAIBlock) => {
-        const prevBlock = this.options.previousBlocks.find(
-          (prevBlock) => prevBlock.blockId === block.blockId
+        const prevBlock = this.storage.previousBlocks.find(
+          (prevBlock: WorkerAIBlock) => prevBlock.blockId === block.blockId
         );
         return !prevBlock || prevBlock.text !== block.text;
       };
@@ -122,18 +130,19 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
       });
 
       if (changedBlocks.length > 0) {
-        this.options.previousBlocks = currentBlocks;
-        this.options.workerExtensions?.forEach((workExt) => {
-          const { name, prompt } = workExt;
-          const workerAIMessagePayload: WorkerAIMessagePayload = {
-            name: name,
-            prompt: prompt,
-            blocks: changedBlocks,
-            openaiApiKey: this.options.openAIAPIKey ?? '',
-          };
-          console.log('Sending data to worker:', workerAIMessagePayload);
-          worker?.postMessage(workerAIMessagePayload);
-        });
+        this.storage.previousBlocks = currentBlocks;
+        this.storage.workerExtensions?.forEach(
+          (workExt: WorkerAIExtensions) => {
+            const { name, prompt } = workExt;
+            const workerAIMessagePayload: WorkerAIMessagePayload = {
+              name: name,
+              prompt: prompt,
+              blocks: changedBlocks,
+              openaiApiKey: this.options.openAIAPIKey ?? '',
+            };
+            worker?.postMessage(workerAIMessagePayload);
+          }
+        );
       }
     }, 5000);
   },
@@ -143,22 +152,22 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
       setWorkerExtensions:
         (extensions: WorkerAIExtensions[]) =>
         ({}) => {
-          this.options.workerExtensions = extensions;
+          this.storage.workerExtensions = extensions;
           return true;
         },
     };
   },
 
   onUpdate() {
-    this.options.debouncedUpdate?.();
+    this.storage.debouncedUpdate?.();
   },
 
   onDestroy() {
-    this.options.workerExtensions.forEach((workExt: WorkerAIExtensions) => {
+    this.storage.workerExtensions.forEach((workExt: WorkerAIExtensions) => {
       clearInterval(workExt.interval);
     });
-    if (this.options.worker) {
-      this.options.worker.terminate();
+    if (this.storage.worker) {
+      this.storage.worker.terminate();
     }
   },
 });
