@@ -1,14 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-#[cfg(target_os = "linux")]
-extern crate webkit2gtk;
-
-#[cfg(target_os = "macos")]
-#[macro_use]
-extern crate objc;
-
 use bonsai_app::filesystem::{Config, Database, Leaf, Sage};
+use tauri::Manager;
 
 // -------------------------------------------------------
 
@@ -104,32 +98,6 @@ fn get_file(db: tauri::State<Database>, file_name: String) -> Result<Vec<u8>, St
 // -------------------------------------------------------
 
 #[tauri::command]
-fn zoom_window(window: tauri::Window, scale_factor: f64) {
-    let _ = window.with_webview(move |webview| {
-        #[cfg(target_os = "linux")]
-        {
-            // see https://docs.rs/webkit2gtk/0.18.2/webkit2gtk/struct.WebView.html
-            // and https://docs.rs/webkit2gtk/0.18.2/webkit2gtk/trait.WebViewExt.html
-            use webkit2gtk::traits::WebViewExt;
-            webview.inner().set_zoom_level(scale_factor);
-        }
-
-        #[cfg(windows)]
-        unsafe {
-            // see https://docs.rs/webview2-com/0.19.1/webview2_com/Microsoft/Web/WebView2/Win32/struct.ICoreWebView2Controller.html
-            webview.controller().SetZoomFactor(scale_factor).unwrap();
-        }
-
-        #[cfg(target_os = "macos")]
-        unsafe {
-            let () = msg_send![webview.inner(), setPageZoom: scale_factor];
-        }
-    });
-}
-
-// -------------------------------------------------------
-
-#[tauri::command]
 fn get_config(db: tauri::State<Database>) -> Result<Config, String> {
     db.get_config().map_err(|e| e.to_string())
 }
@@ -143,9 +111,18 @@ fn set_config(db: tauri::State<Database>, config: Config) -> Result<(), String> 
 
 fn main() {
     tauri::Builder::default()
-        .manage(Database::new("bonsai").unwrap())
+        .setup(|app| {
+            let app_data_dir = app
+                .path()
+                .app_data_dir()
+                .expect("failed to get app data dir");
+            let db = Database::new(app_data_dir).unwrap();
+            app.manage(db);
+            Ok(())
+        })
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
-            zoom_window,
             get_config,
             set_config,
             create_leaf,

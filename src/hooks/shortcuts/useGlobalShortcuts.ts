@@ -1,5 +1,9 @@
 import { useEffect } from 'react';
-import { globalShortcut } from '@tauri-apps/api';
+import {
+  register,
+  isRegistered,
+  unregister,
+} from '@tauri-apps/plugin-global-shortcut';
 import { useNavigate } from 'react-router-dom';
 import { useZoom } from '../useZoom';
 
@@ -14,38 +18,34 @@ const useGlobalShortcuts = () => {
 
   useEffect(() => {
     const registerShortcuts = async () => {
-      const isCtrlLeftRegistered = await globalShortcut.isRegistered(
-        COMMAND_OR_CONTROL_LEFT
-      );
+      const isCtrlLeftRegistered = await isRegistered(COMMAND_OR_CONTROL_LEFT);
       if (!isCtrlLeftRegistered) {
-        await globalShortcut.register(COMMAND_OR_CONTROL_LEFT, () => {
+        await register(COMMAND_OR_CONTROL_LEFT, () => {
           navigate(-1);
         });
       }
 
-      const isCtrlRightRegistered = await globalShortcut.isRegistered(
+      const isCtrlRightRegistered = await isRegistered(
         COMMAND_OR_CONTROL_RIGHT
       );
       if (!isCtrlRightRegistered) {
-        await globalShortcut.register(COMMAND_OR_CONTROL_RIGHT, () => {
+        await register(COMMAND_OR_CONTROL_RIGHT, () => {
           navigate(1);
         });
       }
 
-      const isCtrlPlusRegistered = await globalShortcut.isRegistered(
-        COMMAND_OR_CONTROL_PLUS
-      );
+      const isCtrlPlusRegistered = await isRegistered(COMMAND_OR_CONTROL_PLUS);
       if (!isCtrlPlusRegistered) {
-        await globalShortcut.register(COMMAND_OR_CONTROL_PLUS, () => {
+        await register(COMMAND_OR_CONTROL_PLUS, () => {
           handleZoomIn();
         });
       }
 
-      const isCtrlMinusRegistered = await globalShortcut.isRegistered(
+      const isCtrlMinusRegistered = await isRegistered(
         COMMAND_OR_CONTROL_MINUS
       );
       if (!isCtrlMinusRegistered) {
-        await globalShortcut.register(COMMAND_OR_CONTROL_MINUS, () => {
+        await register(COMMAND_OR_CONTROL_MINUS, () => {
           handleZoomOut();
         });
       }
@@ -54,10 +54,10 @@ const useGlobalShortcuts = () => {
     registerShortcuts();
 
     return () => {
-      globalShortcut.unregister(COMMAND_OR_CONTROL_LEFT);
-      globalShortcut.unregister(COMMAND_OR_CONTROL_RIGHT);
-      globalShortcut.unregister(COMMAND_OR_CONTROL_PLUS);
-      globalShortcut.unregister(COMMAND_OR_CONTROL_MINUS);
+      unregister(COMMAND_OR_CONTROL_LEFT);
+      unregister(COMMAND_OR_CONTROL_RIGHT);
+      unregister(COMMAND_OR_CONTROL_PLUS);
+      unregister(COMMAND_OR_CONTROL_MINUS);
     };
   }, [navigate]);
 };

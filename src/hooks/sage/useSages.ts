@@ -1,6 +1,6 @@
 import { Sage } from '@/types/sage';
 import { useState, useCallback, useEffect } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import { useDebouncedCallback } from 'use-debounce';
 
 export const useCreateSage = () => {
