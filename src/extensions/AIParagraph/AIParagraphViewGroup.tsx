@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
 import { Editor } from '@tiptap/core';
-import { Textarea } from '@/components/ui/Textarea';
+import { UITextarea } from '@/components/ui/Textarea';
 import wavedark from '@/assets/wave-dark.svg';
 import leaf from '@/assets/leaf-round.svg';
 import { ChatMessage, ChatMessageRole, useChat } from '@/hooks/ai/useChat';
@@ -119,7 +119,7 @@ export const AIParagraphViewGroup = ({
           </div>
         ))}
       {messages.length > 0 && <Divider />}
-      <Textarea
+      <UITextarea
         ref={(input) => input}
         id={textareaId}
         value={input}

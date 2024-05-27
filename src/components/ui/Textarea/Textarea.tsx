@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
-export const Textarea = forwardRef<
+export const UITextarea = forwardRef<
   HTMLTextAreaElement,
   React.TextareaHTMLAttributes<HTMLTextAreaElement>
 >(({ className, ...rest }, ref) => {
@@ -14,4 +14,4 @@ export const Textarea = forwardRef<
   return <textarea className={textAreaClassName} ref={ref} {...rest} />;
 });
 
-Textarea.displayName = 'Textarea';
+UITextarea.displayName = 'UITextarea';

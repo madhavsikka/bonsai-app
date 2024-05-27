@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import { Editor } from '@tiptap/core';
 import { Panel } from '@/components/ui/Panel';
-import { Textarea } from '@/components/ui/Textarea';
+import { UITextarea } from '@/components/ui/Textarea';
 import wavedark from '@/assets/wave-dark.svg';
 import leaf from '@/assets/leaf-round.svg';
 
@@ -131,7 +131,7 @@ export const InlineChatView = ({
               </div>
             ))}
           {messages.length > 0 && <Divider />}
-          <Textarea
+          <UITextarea
             ref={(input) => input && input.focus()}
             id={textareaId}
             value={input}
