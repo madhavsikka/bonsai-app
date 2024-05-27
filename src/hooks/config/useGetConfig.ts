@@ -1,5 +1,5 @@
 import { Config } from '@/types/config';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import { useCallback, useState, useEffect } from 'react';
 
 export const useGetConfig = () => {

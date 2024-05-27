@@ -2,6 +2,8 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+const mobile = !!/android|ios/.exec(process.env.TAURI_ENV_PLATFORM);
+
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
   plugins: [react()],
@@ -12,6 +14,8 @@ export default defineConfig(() => ({
   clearScreen: false,
   // 2. tauri expects a fixed port, fail if that port is not available
   server: {
+    host: mobile ? '0.0.0.0' : false,
+    hmr: mobile,
     port: 1420,
     strictPort: true,
     watch: {
