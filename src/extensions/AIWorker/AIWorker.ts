@@ -49,7 +49,7 @@ const collectTextBlocks = (doc: JSONContent): string[] => {
 const collectReflectBlocks = (doc: JSONContent): WorkerAIBlock[] => {
   const blocks: WorkerAIBlock[] = [];
 
-  if (doc.attrs?.blockId) {
+  if (doc.attrs?.blockId && doc.type === 'paragraph') {
     const text = collectTextBlocks(doc).join(' ');
     if (text.trim().length > 0) {
       blocks.push({

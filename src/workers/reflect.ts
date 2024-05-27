@@ -60,12 +60,11 @@ self.onmessage = async (event: WorkerAIMessage) => {
   const { name, openaiApiKey, blocks, prompt } =
     event.data as WorkerAIMessagePayload;
 
-  console.log('Received data in reflect.ts:', event.data);
-
   const model = new ChatOpenAI({
     openAIApiKey: openaiApiKey,
-    modelName: 'gpt-3.5-turbo',
+    modelName: 'gpt-4o',
   });
+
   const modelWithTools = model.bind({
     tools: [enhancedContentTool],
     tool_choice: enhancedContentTool,
