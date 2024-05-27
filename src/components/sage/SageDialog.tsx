@@ -13,9 +13,9 @@ import {
 import { Label } from '@/components/ui/label';
 import { useCallback, useEffect, useState } from 'react';
 import { PlusCircledIcon } from '@radix-ui/react-icons';
-import { Textarea } from '../ui/textarea';
 import { useCreateSage, useUpdateSage } from '@/hooks/sage/useSages';
 import { Sage } from '@/types/sage';
+import { InputTextArea } from '../ui/InputTextArea';
 
 export const SageDialog = ({
   onRefreshSages,
@@ -99,7 +99,7 @@ export const SageDialog = ({
             <Label htmlFor="description" className="text-right">
               Description
             </Label>
-            <Textarea
+            <InputTextArea
               id="description"
               value={sageDescription}
               placeholder="You are an expert in English grammar and literature. Help me correct my mistakes."
