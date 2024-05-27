@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { Editor } from '@tiptap/core';
 import { UITextarea } from '@/components/ui/Textarea';
 import wavedark from '@/assets/wave-dark.svg';
-import leaf from '@/assets/leaf-round.svg';
+import stardark from '@/assets/star-dark.svg';
 import { ChatMessage, ChatMessageRole, useChat } from '@/hooks/ai/useChat';
 import { Divider } from '@/components/ui/PopoverMenu';
 import { Node } from '@tiptap/pm/model';
@@ -17,24 +17,43 @@ const UserAvatar = () => {
     <img
       src={wavedark}
       alt="avatar"
-      width={24}
-      height={24}
-      style={{ maxWidth: '24px', borderRadius: '6px' }}
+      width={20}
+      height={20}
+      style={{
+        maxWidth: '20px',
+        borderRadius: '4px',
+        marginTop: '2px',
+      }}
     />
   );
 };
 
-const BonsaiAvatar = () => {
+const AIAvatar = () => {
   return (
     <img
-      src={leaf}
+      src={stardark}
       alt="avatar"
-      width={24}
-      height={24}
-      style={{ maxWidth: '24px', borderRadius: '6px' }}
+      width={20}
+      height={20}
+      style={{ maxWidth: '20px', borderRadius: '4px', marginTop: '2px' }}
     />
   );
 };
+
+function toCamelCase(str: string): string {
+  // Split the string into words
+  const words = str.split(/[-_\s]+/);
+
+  // Capitalize the first letter of each word
+  const camelCaseWords = words.map((word) => {
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  });
+
+  // Join the words to form the camel case string
+  const camelCaseStr = camelCaseWords.join('');
+
+  return camelCaseStr;
+}
 
 export interface AIParagraphViewGroupProps {
   editor: Editor;
@@ -108,9 +127,11 @@ export const AIParagraphViewGroup = ({
         .filter((m) => m.role !== 'system')
         .map((m) => (
           <div key={m.id} className="flex gap-2 items-start mb-4 w-full">
-            {m.role === 'bonsai' ? <BonsaiAvatar /> : <UserAvatar />}
+            {m.role === 'user' ? <UserAvatar /> : <AIAvatar />}
             <div className="flex flex-col px-1 text-black/80 dark:text-white/80 text-xs font-semibold">
-              <span className="mb-1">{m.role}</span>
+              <span className="mb-1">
+                {m.role === 'user' ? 'You' : toCamelCase(groupId)}
+              </span>
               <div
                 dangerouslySetInnerHTML={{ __html: m.content }}
                 className="font-normal"
