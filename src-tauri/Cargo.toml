@@ -12,7 +12,7 @@ tauri-build = { version = "2.0.0-rc", features = [] }
 
 [lib]
 name = "app_lib"
-crate-type = ["staticlib", "cdylib", "rlib", "lib"]
+crate-type = ["staticlib", "cdylib", "rlib"]
 
 [dependencies]
 tauri = { version = "2.0.0-rc", features = [ "protocol-asset"] }
@@ -23,8 +23,6 @@ dirs = "5.0.1"
 chrono = "0.4.38"
 time = "0.3.36"
 tauri-plugin-shell = "2.0.0-rc.0"
-
-
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
