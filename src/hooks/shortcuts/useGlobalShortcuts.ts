@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
-import { globalShortcut } from '@tauri-apps/api';
+import {  } from '@tauri-apps/api';
 import { useNavigate } from 'react-router-dom';
 import { useZoom } from '../useZoom';
+import * as globalShortcut from "@tauri-apps/plugin-global-shortcut"
 
 const COMMAND_OR_CONTROL_LEFT = 'CommandOrControl+Left';
 const COMMAND_OR_CONTROL_RIGHT = 'CommandOrControl+Right';
