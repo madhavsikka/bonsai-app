@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::PathBuf;
-use tauri::api::path::config_dir;
 
 pub struct Database {
     root_dir: PathBuf,
@@ -40,9 +39,8 @@ fn iso8601(st: &std::time::SystemTime) -> String {
 }
 
 impl Database {
-    pub fn new(name: &str) -> io::Result<Self> {
-        let home_dir = dirs::home_dir().expect("Failed to get home directory");
-        let root_dir = home_dir.join(name);
+    pub fn new(dir: PathBuf) -> io::Result<Self> {
+        let root_dir = dir.join("bonsai");
         fs::create_dir_all(&root_dir)?;
         Ok(Self { root_dir })
     }
@@ -219,10 +217,9 @@ impl Database {
     // -------------------------------------------------------
 
     pub fn set_config(&self, config: &Config) -> io::Result<()> {
-        let config_dir = config_dir().expect("Failed to get config directory");
-        let bonsai_dir = config_dir.join("bonsai");
-        fs::create_dir_all(&bonsai_dir)?;
-        let config_path = bonsai_dir.join("config.json");
+        let config_dir = self.root_dir.join("config");
+        fs::create_dir_all(&config_dir)?;
+        let config_path = config_dir.join("config.json");
         let config_content = serde_json::to_string_pretty(config)?;
         let mut file = File::create(config_path)?;
         file.write_all(config_content.as_bytes())?;
@@ -230,9 +227,9 @@ impl Database {
     }
 
     pub fn get_config(&self) -> io::Result<Config> {
-        let config_dir = config_dir().expect("Failed to get config directory");
-        let bonsai_dir = config_dir.join("bonsai");
-        let config_path = bonsai_dir.join("config.json");
+        let config_dir = self.root_dir.join("config");
+        fs::create_dir_all(&config_dir)?;
+        let config_path = config_dir.join("config.json");
         if config_path.exists() {
             let config_content = fs::read_to_string(&config_path)?;
             let config: Config = serde_json::from_str(&config_content)?;

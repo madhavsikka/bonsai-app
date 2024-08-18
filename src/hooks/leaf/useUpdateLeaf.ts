@@ -1,6 +1,6 @@
 import { Leaf } from '@/types/leaf';
 import { useState, useCallback } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 
 export const useUpdateLeaf = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

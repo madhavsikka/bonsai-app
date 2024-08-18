@@ -1,5 +1,5 @@
 import { DragEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { convertFileSrc, invoke } from '@tauri-apps/api/tauri';
+import { convertFileSrc, invoke } from '@tauri-apps/api/core';
 
 export const useUploader = ({
   onUpload,
