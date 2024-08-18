@@ -6,6 +6,5 @@
     "linux"
   ],
   "permissions": [
-    "global-shortcut:default"
   ]
 }
