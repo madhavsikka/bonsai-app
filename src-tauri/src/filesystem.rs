@@ -55,14 +55,13 @@ impl Database {
     pub fn read_leaf(&self, name: &str) -> io::Result<Leaf> {
         let full_path = self.root_dir.join(name);
         let content = fs::read_to_string(&full_path)?;
-        let metadata = fs::metadata(&full_path)?;
-        let created_at = iso8601(&metadata.created()?);
-        let modified_at = iso8601(&metadata.modified()?);
+        // TODO: Fix time for cross platform compatibility
+        let now = iso8601(&std::time::SystemTime::now());
         Ok(Leaf {
             name: name.to_string(),
             content,
-            created_at,
-            modified_at,
+            created_at: now.clone(),
+            modified_at: now.clone(),
         })
     }
 
@@ -76,14 +75,13 @@ impl Database {
                 let file_name = entry.file_name();
                 let file_name = file_name.to_str().unwrap().to_string();
                 let file_content = fs::read_to_string(&file_path)?;
-                let metadata = fs::metadata(&file_path)?;
-                let created_at = iso8601(&metadata.created()?);
-                let modified_at = iso8601(&metadata.modified()?);
+                // TODO: Fix time for cross platform compatibility
+                let now = iso8601(&std::time::SystemTime::now());
                 leaves.push(Leaf {
                     name: file_name,
                     content: file_content,
-                    created_at,
-                    modified_at,
+                    created_at: now.clone(),
+                    modified_at: now.clone(),
                 });
             }
         }
@@ -115,14 +113,13 @@ impl Database {
             if file_name_lowercase.contains(&query_lowercase) {
                 let file_path = entry.path();
                 let file_content = fs::read_to_string(&file_path)?;
-                let metadata = fs::metadata(&file_path)?;
-                let created_at = iso8601(&metadata.created()?);
-                let modified_at = iso8601(&metadata.modified()?);
+                // TODO: Fix time for cross platform compatibility
+                let now = iso8601(&std::time::SystemTime::now());
                 leaves.push(Leaf {
                     name: file_name,
                     content: file_content,
-                    created_at,
-                    modified_at,
+                    created_at: now.clone(),
+                    modified_at: now.clone(),
                 });
             }
         }
