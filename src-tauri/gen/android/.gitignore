@@ -1,4 +1,5 @@
 *.iml
+*.apk
 .gradle
 /local.properties
 /.idea/caches
@@ -14,6 +15,7 @@ build
 .cxx
 local.properties
 key.properties
+keystore.properties
 
 /.tauri
 /tauri.settings.gradle
