@@ -91,7 +91,7 @@
     "vaul": "^0.8.9"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.0.0-rc.3",
+    "@tauri-apps/cli": "^2.0.2",
     "@types/diff": "^5.2.1",
     "@types/node": "^20.12.12",
     "@types/react": "^18.3.2",
