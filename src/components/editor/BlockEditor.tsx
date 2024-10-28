@@ -1,5 +1,5 @@
 import { EditorContent } from '@tiptap/react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { LinkMenu } from './menus';
 import { useBlockEditor } from '../../hooks/editor/useEditor';
 import { Sidebar } from './sidebar/Sidebar';
@@ -16,8 +16,9 @@ export const BlockEditor = ({
   isEditable,
 }: TiptapProps) => {
   const menuContainerRef = useRef(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const { editor, leftSidebar, characterCount } = useBlockEditor({
+  const { editor, characterCount } = useBlockEditor({
     initialContent,
     isEditable,
     onEditorUpdate,
@@ -29,23 +30,22 @@ export const BlockEditor = ({
     }
   }, [editor]);
 
+  const handleSidebarToggle = useCallback(() => {
+    setIsSidebarOpen(prev => !prev);
+  }, []);
+
   if (!editor) {
     return null;
   }
 
   return (
     <div className="flex h-full" ref={menuContainerRef}>
-      <Sidebar
-        isOpen={leftSidebar.isOpen}
-        onClose={leftSidebar.close}
-        editor={editor}
-      />
       <div className="relative flex flex-col flex-1 h-full overflow-hidden">
         <EditorHeader
           characters={characterCount.characters()}
           words={characterCount.words()}
-          isSidebarOpen={leftSidebar.isOpen}
-          toggleSidebar={leftSidebar.toggle}
+          isSidebarOpen={isSidebarOpen}
+          toggleSidebar={handleSidebarToggle}
         />
         <EditorContent editor={editor} className="flex-1 overflow-y-auto" />
         <LinkMenu editor={editor} appendTo={menuContainerRef} />
@@ -54,6 +54,11 @@ export const BlockEditor = ({
         <TableRowMenu editor={editor} appendTo={menuContainerRef} />
         <TableColumnMenu editor={editor} appendTo={menuContainerRef} />
       </div>
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={handleSidebarToggle}
+        editor={editor}
+      />
     </div>
   );
 };
