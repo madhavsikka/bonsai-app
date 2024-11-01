@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ChatOpenAI, ChatOpenAICallOptions } from '@langchain/openai';
+import { ChatOllama } from '@langchain/ollama';
 import {
   HumanMessage,
   AIMessage,
@@ -39,17 +40,21 @@ export const useChat = ({ initialMessages = [] }: useChatProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState<string>('');
   const [chatModel, setChatModel] =
-    useState<ChatOpenAI<ChatOpenAICallOptions>>();
+    useState<ChatOpenAI<ChatOpenAICallOptions> | ChatOllama>();
   const { config, isLoading } = useGetConfig();
 
   useEffect(() => {
     const initChat = async () => {
-      const openaiApiKey = config?.openaiApiKey ?? '';
+      // const openaiApiKey = config?.openaiApiKey ?? '';
       try {
-        const newChat = new ChatOpenAI({
-          maxTokens: 250,
-          streaming: true,
-          openAIApiKey: openaiApiKey,
+        // const newChat = new ChatOpenAI({
+        //   maxTokens: 250,
+        //   streaming: true,
+        //   openAIApiKey: openaiApiKey,
+        // });
+        const newChat = new ChatOllama({
+          model: 'smollm2',
+          temperature: 0,
         });
         setChatModel(newChat);
       } catch (error) {
@@ -85,6 +90,7 @@ export const useChat = ({ initialMessages = [] }: useChatProps) => {
     setMessages(updatedMessages);
     setInput('');
 
+    // @ts-ignore
     chatModel?.invoke(updatedMessages.map(chatMessageToLangchainMessage), {
       callbacks: [
         {

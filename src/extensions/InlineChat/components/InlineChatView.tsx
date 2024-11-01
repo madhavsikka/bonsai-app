@@ -96,7 +96,6 @@ export const InlineChatView = ({
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         handleSubmit();
-        // editor.commands.setHighlightedParagraphIds(['temp']);
         e.preventDefault();
       }
     },
