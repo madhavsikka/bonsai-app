@@ -1,6 +1,7 @@
 use sqlx::{sqlite::{SqliteConnectOptions, SqlitePool}, Row, Error as SqlxError};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::path::PathBuf;
+use chrono::Utc;
 
 pub struct SqlDatabase {
     pool: SqlitePool,
@@ -20,7 +21,9 @@ pub trait Entity: Serialize + DeserializeOwned {
 pub struct Leaf {
     name: String,
     content: String,
+    #[serde(default)]
     created_at: String,
+    #[serde(default)]
     modified_at: String,
 }
 
@@ -29,7 +32,9 @@ pub struct Leaf {
 pub struct Sage {
     name: String,
     description: String,
+    #[serde(default)]
     created_at: String,
+    #[serde(default)]
     modified_at: String,
 }
 
@@ -38,6 +43,31 @@ pub struct Sage {
 pub struct Config {
     openai_api_key: String,
     theme: String,
+}
+
+pub trait TimeStamped {
+    fn set_created_at(&mut self, timestamp: String);
+    fn set_modified_at(&mut self, timestamp: String);
+}
+
+// Implement TimeStamped for Leaf
+impl TimeStamped for Leaf {
+    fn set_created_at(&mut self, timestamp: String) {
+        self.created_at = timestamp;
+    }
+    fn set_modified_at(&mut self, timestamp: String) {
+        self.modified_at = timestamp;
+    }
+}
+
+// Implement TimeStamped for Sage
+impl TimeStamped for Sage {
+    fn set_created_at(&mut self, timestamp: String) {
+        self.created_at = timestamp;
+    }
+    fn set_modified_at(&mut self, timestamp: String) {
+        self.modified_at = timestamp;
+    }
 }
 
 impl Entity for Leaf {
@@ -125,14 +155,19 @@ impl SqlDatabase {
         Ok(Self { pool })
     }
 
-    pub async fn create<T: Entity>(&self, entity: &T) -> Result<(), SqlxError> {
+    pub async fn create<T: Entity + TimeStamped>(&self, mut entity: T) -> Result<(), SqlxError> {
+        let now = Utc::now().to_rfc3339();
+        entity.set_created_at(now.clone());
+        entity.set_modified_at(now);
+
         let params = entity.to_params();
         let columns = params.iter()
             .map(|(name, _)| name.as_str())
             .collect::<Vec<_>>()
             .join(", ");
-        let placeholders = params.iter()
-            .map(|(name, _)| format!(":{}", name))
+        // Use ? placeholders instead of :name
+        let placeholders = std::iter::repeat("?")
+            .take(params.len())
             .collect::<Vec<_>>()
             .join(", ");
             
@@ -179,24 +214,30 @@ impl SqlDatabase {
         Ok(entities)
     }
 
-    pub async fn update<T: Entity>(&self, entity: &T) -> Result<(), SqlxError> {
+    pub async fn update<T: Entity + TimeStamped>(&self, mut entity: T) -> Result<(), SqlxError> {
+        let now = Utc::now().to_rfc3339();
+        entity.set_modified_at(now);
+
         let params = entity.to_params();
         let set_clause = params.iter()
             .skip(1)  // Skip the ID field
-            .map(|(name, _)| format!("{} = :{}", name, name))
+            .map(|(name, _)| format!("{} = ?", name))
             .collect::<Vec<_>>()
             .join(", ");
             
         let sql = format!(
-            "UPDATE {} SET {} WHERE name = :name",
+            "UPDATE {} SET {} WHERE name = ?",
             T::TABLE_NAME,
             set_clause
         );
 
         let mut query = sqlx::query(&sql);
-        for (_, value) in params {
+        // Bind all values except the ID first
+        for (_, value) in params.iter().skip(1) {
             query = query.bind(value);
         }
+        // Bind the ID (name) last for the WHERE clause
+        query = query.bind(&params[0].1);
         
         query.execute(&self.pool).await?;
         Ok(())

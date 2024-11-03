@@ -12,7 +12,10 @@ export const useListLeafs = (deps: any[] = []) => {
       try {
         setLoading(true);
         // @ts-ignore
-        const res = (await invoke('list_leaves', { path: '' })) as Leaf[];
+        // const res = (await invoke('list_leaves', { path: '' })) as Leaf[];
+        const res = (await invoke('sql_list_entities', {
+          entityType: 'leaf',
+        })) as Leaf[];
         setLeafs(res);
       } catch (e: any) {
         console.error(e);

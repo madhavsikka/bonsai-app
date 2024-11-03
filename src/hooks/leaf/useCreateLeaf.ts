@@ -9,9 +9,16 @@ export const useCreateLeaf = () => {
   const createLeaf = useCallback(async (newLeaf: Partial<Leaf>) => {
     try {
       setIsSubmitting(true);
-      await invoke('create_leaf', {
-        name: newLeaf.name,
-        content: newLeaf.content ? newLeaf.content : `<h1>${newLeaf.name}</h1>`,
+      // await invoke('create_leaf', {
+      //   name: newLeaf.name,
+      //   content: newLeaf.content ? newLeaf.content : `<h1>${newLeaf.name}</h1>`,
+      // });
+      await invoke('sql_create_entity', {
+        entityType: 'leaf',
+        entity: {
+          name: newLeaf.name,
+          content: newLeaf.content ? newLeaf.content : `<h1>${newLeaf.name}</h1>`,
+        }
       });
     } catch (e: any) {
       console.error(e);

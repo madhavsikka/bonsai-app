@@ -12,7 +12,11 @@ export const useGetLeaf = ({ name }: { name: string }) => {
       try {
         setLoading(true);
         // @ts-ignore
-        const res = (await invoke('read_leaf', { name })) as Leaf;
+        // const res = (await invoke('read_leaf', { name })) as Leaf;
+        const res = (await invoke('sql_read_entity', {
+          entityType: 'leaf',
+          id: name
+        })) as Leaf;
         setLeaf(res);
       } catch (e: any) {
         setError(e);
