@@ -49,7 +49,7 @@ export const Sidebar = memo(
                 onItemClick={handlePotentialClose}
                 editor={editor}
               /> */}
-              <SideBarChat initialMessages={[]} />
+              <SideBarChat editor={editor} />
             </div>
           </div>
         </div>

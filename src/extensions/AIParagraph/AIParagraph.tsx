@@ -53,7 +53,6 @@ export const AIParagraph = Paragraph.extend<AIParagraphOptions>({
         default: true,
         keepOnSplit: false,
         parseHTML: (element) => {
-          console.log('parseHTML', element);
           return {
             'data-ai-chat-hidden':
               element.getAttribute('data-ai-chat-hidden') === 'true',
