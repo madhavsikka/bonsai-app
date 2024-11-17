@@ -3,6 +3,7 @@
 
 pub mod db;
 pub mod filesystem;
+pub mod ollama;
 
 use filesystem::{Config, Database, Leaf, Sage};
 use tauri::Manager;
