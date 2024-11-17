@@ -52,9 +52,9 @@ export const CommandK = () => {
                 return (
                   <CommandItem
                     forceMount
-                    key={leaf.name}
+                    key={leaf.id}
                     onSelect={() => {
-                      navigate(`/leafs/${leaf.name}`);
+                      navigate(`/leafs/${leaf.id}`);
                     }}
                     className="cursor-pointer"
                   >

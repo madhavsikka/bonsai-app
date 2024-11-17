@@ -7,9 +7,14 @@ use sqlx::{
     Error as SqlxError, Row,
 };
 use std::path::PathBuf;
+use uuid::Uuid;
 
 pub struct SqlDatabase {
     pool: SqlitePool,
+}
+
+fn generate_uuid() -> String {
+    Uuid::new_v4().to_string()
 }
 
 // Trait for database entities
@@ -26,7 +31,11 @@ pub trait Entity: Serialize + DeserializeOwned {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Leaf {
+    #[serde(default = "generate_uuid")]
+    id: String,
+    #[serde(default)]
     name: String,
+    #[serde(default)]
     content: String,
     #[serde(default)]
     created_at: String,
@@ -37,7 +46,11 @@ pub struct Leaf {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Sage {
+    #[serde(default = "generate_uuid")]
+    id: String,
+    #[serde(default)]
     name: String,
+    #[serde(default)]
     description: String,
     #[serde(default)]
     created_at: String,
@@ -54,6 +67,8 @@ pub struct Config {
 
 #[derive(Deserialize, Serialize)]
 pub struct Embedding {
+    #[serde(default = "generate_uuid")]
+    id: String,
     object_id: String,
     object_type: String,
     embedding: Vec<f32>,
@@ -88,18 +103,20 @@ impl Entity for Leaf {
     const TABLE_NAME: &'static str = "leaves";
     const CREATE_TABLE: &'static str = "
         CREATE TABLE IF NOT EXISTS leaves (
-            name TEXT PRIMARY KEY,
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
             content TEXT NOT NULL,
             created_at TEXT NOT NULL,
             modified_at TEXT NOT NULL
         )";
 
     fn get_id(&self) -> &str {
-        &self.name
+        &self.id
     }
 
     fn from_row(row: sqlx::sqlite::SqliteRow) -> Result<Self, SqlxError> {
         Ok(Self {
+            id: row.get("id"),
             name: row.get("name"),
             content: row.get("content"),
             created_at: row.get("created_at"),
@@ -129,18 +146,20 @@ impl Entity for Sage {
     const TABLE_NAME: &'static str = "sages";
     const CREATE_TABLE: &'static str = "
         CREATE TABLE IF NOT EXISTS sages (
-            name TEXT PRIMARY KEY,
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
             description TEXT NOT NULL,
             created_at TEXT NOT NULL,
             modified_at TEXT NOT NULL
         )";
 
     fn get_id(&self) -> &str {
-        &self.name
+        &self.id
     }
 
     fn from_row(row: sqlx::sqlite::SqliteRow) -> Result<Self, SqlxError> {
         Ok(Self {
+            id: row.get("id"),
             name: row.get("name"),
             description: row.get("description"),
             created_at: row.get("created_at"),
@@ -179,7 +198,7 @@ impl Entity for Embedding {
         )";
 
     fn get_id(&self) -> &str {
-        &self.object_id
+        &self.id
     }
 
     fn from_row(row: sqlx::sqlite::SqliteRow) -> Result<Self, SqlxError> {
@@ -193,6 +212,7 @@ impl Entity for Embedding {
         };
 
         Ok(Self {
+            id: row.get("id"),
             object_id: row.get("object_id"),
             object_type: row.get("object_type"),
             embedding,
@@ -243,22 +263,30 @@ impl SqlDatabase {
         Ok(Self { pool })
     }
 
-    pub async fn create<T: Entity + TimeStamped>(&self, mut entity: T) -> Result<(), SqlxError> {
+    pub async fn create<T: Entity + TimeStamped>(
+        &self,
+        mut entity: T,
+    ) -> Result<String, SqlxError> {
         let now = Utc::now().to_rfc3339();
         entity.set_created_at(now.clone());
         entity.set_modified_at(now);
 
         let params = entity.to_params();
-        let columns = params
-            .iter()
-            .map(|(name, _)| name.as_str())
-            .collect::<Vec<_>>()
-            .join(", ");
-        // Use ? placeholders instead of :name
-        let placeholders = std::iter::repeat("?")
-            .take(params.len())
-            .collect::<Vec<_>>()
-            .join(", ");
+        let columns = format!(
+            "id, {}",
+            params
+                .iter()
+                .map(|(name, _)| name.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
+        );
+        let placeholders = format!(
+            "?, {}",
+            std::iter::repeat("?")
+                .take(params.len())
+                .collect::<Vec<_>>()
+                .join(", ")
+        );
 
         let sql = format!(
             "INSERT INTO {} ({}) VALUES ({})",
@@ -268,6 +296,7 @@ impl SqlDatabase {
         );
 
         let mut query = sqlx::query(&sql);
+        query = query.bind(entity.get_id());
         for (_, value) in params {
             query = query.bind(value);
         }
@@ -275,17 +304,17 @@ impl SqlDatabase {
         query.execute(&self.pool).await?;
 
         self.store_embedding(
-            entity.get_id(),
+            entity.get_id().to_string(),
             T::get_object_type(),
             &entity.get_embedding_text(),
         )
         .await?;
 
-        Ok(())
+        Ok(entity.get_id().to_string())
     }
 
     pub async fn read<T: Entity>(&self, id: &str) -> Result<Option<T>, SqlxError> {
-        let sql = format!("SELECT * FROM {} WHERE name = ?", T::TABLE_NAME);
+        let sql = format!("SELECT * FROM {} WHERE id = ?", T::TABLE_NAME);
         let row = sqlx::query(&sql)
             .bind(id)
             .fetch_optional(&self.pool)
@@ -314,52 +343,68 @@ impl SqlDatabase {
         entity.set_modified_at(now);
 
         let params = entity.to_params();
-        let set_clause = params
-            .iter()
-            .skip(1) // Skip the ID field
-            .map(|(name, _)| format!("{} = ?", name))
-            .collect::<Vec<_>>()
-            .join(", ");
+        let non_empty_params: Vec<_> = params
+            .into_iter()
+            .filter(|(_, value)| !value.is_empty())
+            .collect();
 
-        let sql = format!("UPDATE {} SET {} WHERE name = ?", T::TABLE_NAME, set_clause);
+        if !non_empty_params.is_empty() {
+            let set_clause = non_empty_params
+                .iter()
+                .map(|(name, _)| format!("{} = ?", name))
+                .collect::<Vec<_>>()
+                .join(", ");
 
-        let mut query = sqlx::query(&sql);
-        // Bind all values except the ID first
-        for (_, value) in params.iter().skip(1) {
-            query = query.bind(value);
+            let sql = format!("UPDATE {} SET {} WHERE id = ?", T::TABLE_NAME, set_clause);
+
+            let mut query = sqlx::query(&sql);
+            // Bind all non-empty values
+            for (_, value) in &non_empty_params {
+                query = query.bind(value);
+            }
+            // Bind the ID last for the WHERE clause
+            query = query.bind(entity.get_id());
+
+            query.execute(&self.pool).await?;
+
+            self.store_embedding(
+                entity.get_id().to_string(),
+                T::get_object_type(),
+                &entity.get_embedding_text(),
+            )
+            .await?;
         }
-        // Bind the ID (name) last for the WHERE clause
-        query = query.bind(&params[0].1);
-
-        query.execute(&self.pool).await?;
-
-        self.store_embedding(
-            entity.get_id(),
-            T::get_object_type(),
-            &entity.get_embedding_text(),
-        )
-        .await?;
 
         Ok(())
     }
 
     pub async fn delete<T: Entity>(&self, id: &str) -> Result<(), SqlxError> {
-        let sql = format!("DELETE FROM {} WHERE name = ?", T::TABLE_NAME);
-        sqlx::query(&sql).bind(id).execute(&self.pool).await?;
-
-        let sql = "DELETE FROM embeddings WHERE object_id = ? AND object_type = ?";
+        // First delete from embedding_metadata to remove the reference
+        let sql = "DELETE FROM embedding_metadata WHERE object_id = ? AND object_type = ?";
         sqlx::query(sql)
             .bind(id)
             .bind(T::get_object_type())
             .execute(&self.pool)
             .await?;
 
+        // Then delete from the embeddings virtual table using the rowid
+        let sql = "DELETE FROM embeddings WHERE rowid IN (SELECT rowid FROM embedding_metadata WHERE object_id = ? AND object_type = ?)";
+        sqlx::query(sql)
+            .bind(id)
+            .bind(T::get_object_type())
+            .execute(&self.pool)
+            .await?;
+
+        // Finally delete from the main entity table
+        let sql = format!("DELETE FROM {} WHERE id = ?", T::TABLE_NAME);
+        sqlx::query(&sql).bind(id).execute(&self.pool).await?;
+
         Ok(())
     }
 
     pub async fn store_embedding(
         &self,
-        object_id: &str,
+        object_id: String,
         object_type: &str,
         text: &str,
     ) -> Result<(), SqlxError> {
@@ -378,14 +423,15 @@ impl SqlDatabase {
         // First, delete any existing embedding for this object
         let delete_embeddings = "DELETE FROM embeddings WHERE rowid IN (SELECT rowid FROM embedding_metadata WHERE object_id = ? AND object_type = ?)";
         sqlx::query(delete_embeddings)
-            .bind(object_id)
+            .bind(object_id.clone())
             .bind(object_type)
             .execute(&self.pool)
             .await?;
 
-        let delete_embedding_metadata = "DELETE FROM embedding_metadata WHERE object_id = ? AND object_type = ?";
+        let delete_embedding_metadata =
+            "DELETE FROM embedding_metadata WHERE object_id = ? AND object_type = ?";
         sqlx::query(delete_embedding_metadata)
-            .bind(object_id)
+            .bind(object_id.clone())
             .bind(object_type)
             .execute(&self.pool)
             .await?;
@@ -404,11 +450,11 @@ impl SqlDatabase {
                 return Err(e);
             }
         };
-        
-        let last_id = row.last_insert_rowid();
-        println!("Inserted new embedding for {}", object_id);
 
-        let metadata_sql = "INSERT INTO embedding_metadata (rowid, object_id, object_type) VALUES (?, ?, ?)";
+        let last_id = row.last_insert_rowid();
+
+        let metadata_sql =
+            "INSERT INTO embedding_metadata (rowid, object_id, object_type) VALUES (?, ?, ?)";
         sqlx::query(metadata_sql)
             .bind(last_id)
             .bind(object_id)

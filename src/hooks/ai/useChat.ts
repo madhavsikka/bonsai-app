@@ -53,7 +53,7 @@ export const useChat = ({ initialMessages = [] }: useChatProps) => {
         //   openAIApiKey: openaiApiKey,
         // });
         const newChat = new ChatOllama({
-          model: 'smollm2',
+          model: 'gemma2:2b',
           temperature: 0,
         });
         setChatModel(newChat);

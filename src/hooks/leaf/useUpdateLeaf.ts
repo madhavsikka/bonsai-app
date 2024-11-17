@@ -8,11 +8,8 @@ export const useUpdateLeaf = () => {
 
   const updateLeaf = useCallback(async (updatedLeaf: Partial<Leaf>) => {
     try {
+      console.log({ updatedLeaf });
       setIsSubmitting(true);
-      // await invoke('update_leaf', {
-      //   name: updatedLeaf.name,
-      //   content: updatedLeaf.content ?? '',
-      // });
       await invoke('sql_update_entity', {
         entityType: 'leaf',
         entity: updatedLeaf,

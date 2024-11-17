@@ -22,9 +22,11 @@ export const CreateLeafDialog = () => {
   const [leafName, setLeafName] = useState('');
 
   const handleCreateLeaf = useCallback(async () => {
-    await createLeaf({ name: leafName, content: '' });
-    navigate(`/leafs/${leafName}`);
-  }, [leafName]);
+    const leafId = await createLeaf({ name: leafName, content: '' });
+    if (leafId) {
+      navigate(`/leafs/${leafId}`);
+    }
+  }, [leafName, navigate, createLeaf]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {

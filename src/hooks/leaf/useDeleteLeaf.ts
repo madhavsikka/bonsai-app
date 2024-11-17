@@ -5,13 +5,12 @@ export const useDeleteLeaf = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | undefined>(undefined);
 
-  const deleteLeaf = async (name: string) => {
+  const deleteLeaf = async (id: string) => {
     try {
       setLoading(true);
-      // await invoke('delete_leaf', { name });
       await invoke('sql_delete_entity', {
         entityType: 'leaf',
-        id: name
+        id: id
       });
     } catch (e: any) {
       setError(e);

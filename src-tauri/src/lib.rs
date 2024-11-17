@@ -17,7 +17,7 @@ async fn sql_create_entity(
     db: tauri::State<'_, SqlDatabase>,
     entity_type: &str,
     entity: serde_json::Value
-) -> Result<(), String> {
+) -> Result<String, String> {
     match entity_type {
         "leaf" => {
             let leaf: SqlLeaf = serde_json::from_value(entity).map_err(|e| e.to_string())?;

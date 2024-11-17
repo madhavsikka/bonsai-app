@@ -2,7 +2,7 @@ import { Leaf } from '@/types/leaf';
 import { invoke } from '@tauri-apps/api/core';
 import { useEffect, useState } from 'react';
 
-export const useGetLeaf = ({ name }: { name: string }) => {
+export const useGetLeaf = ({ id }: { id: string }) => {
   const [leaf, setLeaf] = useState<Leaf>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | undefined>(undefined);
@@ -11,11 +11,9 @@ export const useGetLeaf = ({ name }: { name: string }) => {
     const fetchLeafs = async () => {
       try {
         setLoading(true);
-        // @ts-ignore
-        // const res = (await invoke('read_leaf', { name })) as Leaf;
         const res = (await invoke('sql_read_entity', {
           entityType: 'leaf',
-          id: name
+          id: id
         })) as Leaf;
         setLeaf(res);
       } catch (e: any) {
@@ -25,8 +23,8 @@ export const useGetLeaf = ({ name }: { name: string }) => {
       }
     };
 
-    if (name) fetchLeafs();
-  }, [name]);
+    if (id) fetchLeafs();
+  }, [id]);
 
   return { leaf, loading, error };
 };
