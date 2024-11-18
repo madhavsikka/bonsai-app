@@ -63,8 +63,8 @@ export const LeafDataTable = ({
   const { deleteLeaf } = useDeleteLeaf();
 
   const handleDeleteLeaf = useCallback(
-    async (leafName: string) => {
-      await deleteLeaf(leafName);
+    async (id: string) => {
+      await deleteLeaf(id);
       onRefreshLeaves();
     },
     [deleteLeaf, onRefreshLeaves]
@@ -112,16 +112,16 @@ export const LeafDataTable = ({
               </TableHeader>
               <TableBody>
                 {leafs.map((leaf) => (
-                  <TableRow key={leaf.name}>
+                  <TableRow key={leaf.id}>
                     <TableCell
                       className="hidden sm:table-cell cursor-pointer"
-                      onClick={() => navigate(`/leafs/${leaf.name}`)}
+                      onClick={() => navigate(`/leafs/${leaf.id}`)}
                     >
                       <LeafAvatar />
                     </TableCell>
                     <TableCell
                       className="font-medium hover:underline cursor-pointer"
-                      onClick={() => navigate(`/leafs/${leaf.name}`)}
+                      onClick={() => navigate(`/leafs/${leaf.id}`)}
                     >
                       {leaf.name}
                     </TableCell>
@@ -141,7 +141,7 @@ export const LeafDataTable = ({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => handleDeleteLeaf(leaf.name)}
+                            onClick={() => handleDeleteLeaf(leaf.id)}
                             className="cursor-pointer"
                           >
                             Delete

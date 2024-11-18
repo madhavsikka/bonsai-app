@@ -1,11 +1,104 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+pub mod db;
 pub mod filesystem;
+pub mod ollama;
 
 use filesystem::{Config, Database, Leaf, Sage};
 use tauri::Manager;
+use db::{SqlDatabase, Leaf as SqlLeaf, Sage as SqlSage};
 
+
+// -------------------------------------------------------
+
+#[tauri::command]
+async fn sql_create_entity(
+    db: tauri::State<'_, SqlDatabase>,
+    entity_type: &str,
+    entity: serde_json::Value
+) -> Result<String, String> {
+    match entity_type {
+        "leaf" => {
+            let leaf: SqlLeaf = serde_json::from_value(entity).map_err(|e| e.to_string())?;
+            db.create::<SqlLeaf>(leaf).await.map_err(|e| e.to_string())
+        },
+        "sage" => {
+            let sage: SqlSage = serde_json::from_value(entity).map_err(|e| e.to_string())?;
+            db.create::<SqlSage>(sage).await.map_err(|e| e.to_string())
+        },
+        _ => Err("Invalid entity type".to_string())
+    }
+}
+
+#[tauri::command]
+async fn sql_read_entity(
+    db: tauri::State<'_, SqlDatabase>,
+    entity_type: &str,
+    id: &str,
+) -> Result<Option<serde_json::Value>, String> {
+    match entity_type {
+        "leaf" => {
+            let result = db.read::<SqlLeaf>(id).await.map_err(|e| e.to_string())?;
+            Ok(result.map(|leaf| serde_json::to_value(leaf).unwrap()))
+        },
+        "sage" => {
+            let result = db.read::<SqlSage>(id).await.map_err(|e| e.to_string())?;
+            Ok(result.map(|sage| serde_json::to_value(sage).unwrap()))
+        },
+        _ => Err("Invalid entity type".to_string())
+    }
+}
+
+#[tauri::command]
+async fn sql_update_entity(
+    db: tauri::State<'_, SqlDatabase>,
+    entity_type: &str,
+    entity: serde_json::Value
+) -> Result<(), String> {
+    match entity_type {
+        "leaf" => {
+            let leaf: SqlLeaf = serde_json::from_value(entity).map_err(|e| e.to_string())?;
+            db.update::<SqlLeaf>(leaf).await.map_err(|e| e.to_string())
+        },
+        "sage" => {
+            let sage: SqlSage = serde_json::from_value(entity).map_err(|e| e.to_string())?;
+            db.update::<SqlSage>(sage).await.map_err(|e| e.to_string())
+        },
+        _ => Err("Invalid entity type".to_string())
+    }
+}
+
+#[tauri::command]
+async fn sql_list_entities(
+    db: tauri::State<'_, SqlDatabase>,
+    entity_type: &str,
+) -> Result<Vec<serde_json::Value>, String> {
+    match entity_type {
+        "leaf" => {
+            let leaves = db.list::<SqlLeaf>().await.map_err(|e| e.to_string())?;
+            Ok(leaves.into_iter().map(|leaf| serde_json::to_value(leaf).unwrap()).collect())
+        },
+        "sage" => {
+            let sages = db.list::<SqlSage>().await.map_err(|e| e.to_string())?;
+            Ok(sages.into_iter().map(|sage| serde_json::to_value(sage).unwrap()).collect())
+        },
+        _ => Err("Invalid entity type".to_string())
+    }
+}
+
+#[tauri::command]
+async fn sql_delete_entity(
+    db: tauri::State<'_, SqlDatabase>,
+    entity_type: &str,
+    id: &str,
+) -> Result<(), String> {
+    match entity_type {
+        "leaf" => db.delete::<SqlLeaf>(id).await.map_err(|e| e.to_string()),
+        "sage" => db.delete::<SqlSage>(id).await.map_err(|e| e.to_string()),
+        _ => Err("Invalid entity type".to_string())
+    }
+}
 
 // -------------------------------------------------------
 
@@ -120,8 +213,16 @@ pub fn run() {
             .path()
             .app_data_dir()
             .expect("failed to get app data dir");
-        let db = Database::new(app_data_dir).unwrap();
+        let db = Database::new(app_data_dir.clone()).unwrap();
         app.manage(db);
+
+        // Use blocking to handle the async SqlDatabase initialization
+        let sql_db = tokio::runtime::Runtime::new()
+        .unwrap()
+        .block_on(SqlDatabase::new(app_data_dir))
+            .unwrap();
+        app.manage(sql_db);
+
         Ok(())
     })
         .plugin(tauri_plugin_shell::init())
@@ -141,7 +242,12 @@ pub fn run() {
             delete_sage,
             update_sage,
             list_sages,
-            search_sages
+            search_sages,
+            sql_create_entity,
+            sql_read_entity,
+            sql_update_entity,
+            sql_list_entities,
+            sql_delete_entity
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

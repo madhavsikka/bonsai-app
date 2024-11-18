@@ -13,7 +13,7 @@ const AppContent = () => {
     <main className="w-full h-full">
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/leafs/:name" element={<LeafPage />} />
+        <Route path="/leafs/:id" element={<LeafPage />} />
         <Route path="/preferences" element={<PreferencesPage />} />
         <Route path="/sages" element={<SagePage />} />
       </Routes>

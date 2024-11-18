@@ -10,8 +10,8 @@ export const LeafGrid = () => {
       {/* <Button onClick={() => createLeaf({ title: 'test', body: 'test' })} /> */}
       {!loading &&
         leafs.map((leaf) => (
-          <Link to={`/leafs/${leaf.name}`} key={leaf.name}>
-            <LeafCard leaf={leaf} key={leaf.name} />
+          <Link to={`/leafs/${leaf.id}`} key={leaf.id}>
+            <LeafCard leaf={leaf} key={leaf.id} />
           </Link>
         ))}
     </div>

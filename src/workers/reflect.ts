@@ -90,6 +90,7 @@ self.onmessage = async (event: WorkerAIMessage) => {
     const chatPrompt = ChatPromptTemplate.fromMessages(chatPromptMessages);
 
     const outputParser = new JsonOutputToolsParser();
+    // @ts-ignore
     const chain = chatPrompt.pipe(modelWithTools).pipe(outputParser);
     const chainResponse: any = await chain.invoke({
       content: JSON.stringify({ blockId, text }),
