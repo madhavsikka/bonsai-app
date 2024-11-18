@@ -1,4 +1,3 @@
-import { Panel } from "@/components/ui/Panel";
 import wavedark from "@/assets/wave-dark.svg";
 import leaf from "@/assets/leaf-round.svg";
 import { useMemo } from "react";
