@@ -44,7 +44,7 @@ export const Sidebar = memo(
         </Toolbar.Button>
         <div className={windowClassName}>
           <div className="w-full h-full overflow-hidden">
-            <div className="w-full h-full p-6 overflow-auto">
+            <div className="w-full h-full p-6 overflow-auto flex flex-col">
               {/* <TableOfContents
                 onItemClick={handlePotentialClose}
                 editor={editor}

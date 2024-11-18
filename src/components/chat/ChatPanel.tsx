@@ -45,8 +45,8 @@ const ChatPanel = ({
   const textareaId = useMemo(() => uuid(), []);
 
   return (
-    <Panel noShadow className="w-full">
-      <div className="flex flex-col p-1">
+    <div className="flex flex-col p-1 flex-grow h-full">
+      <div className="flex-grow overflow-y-auto">
         {messages
           .filter((m) => m.role !== "system")
           .map((m) => (
@@ -61,7 +61,9 @@ const ChatPanel = ({
               </div>
             </div>
           ))}
-        {messages.length > 0 && <Divider />}
+      </div>
+      {messages.length > 0 && <Divider />}
+      <div className="mt-auto">
         <UITextarea
           ref={(input) => input && input.focus()}
           id={textareaId}
@@ -78,7 +80,7 @@ const ChatPanel = ({
           }}
         />
       </div>
-    </Panel>
+    </div>
   );
 };
 

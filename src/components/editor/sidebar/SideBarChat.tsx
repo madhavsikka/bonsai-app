@@ -1,7 +1,7 @@
 import ChatPanel from "@/components/chat/ChatPanel";
 import { ChatMessage, useChat } from "@/hooks/ai/useChat";
 import { Editor } from "@tiptap/react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 const SideBarChat = ({ editor }: { editor: Editor }) => {
   const targetBlockId = useMemo(() => {
@@ -18,10 +18,10 @@ const SideBarChat = ({ editor }: { editor: Editor }) => {
 
   const { messages, input, handleInputChange, handleSubmit } = useChat(chatInput);
 
-  useEffect(() => {
-    console.log("setting messages for block", targetBlockId, messages);
-    editor.storage.inlineChat.messages[targetBlockId] = messages;
-  }, [messages]);
+  // useEffect(() => {
+  //   console.log("setting messages for block", targetBlockId, messages);
+  //   editor.storage.inlineChat.messages[targetBlockId] = messages;
+  // }, [messages]);
 
   return (
     <ChatPanel
