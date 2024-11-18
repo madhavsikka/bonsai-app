@@ -36,7 +36,7 @@
         ],
         "enable": true
       },
-      "csp": "default-src *; img-src * asset: https://asset.localhost;; connect-src ipc: http://ipc.localhost"
+      "csp": "default-src *; img-src * asset: https://asset.localhost;; connect-src ipc: http://ipc.localhost http://127.0.0.1:11434"
     }
   }
 }
