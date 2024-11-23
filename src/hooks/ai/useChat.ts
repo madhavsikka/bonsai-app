@@ -19,6 +19,12 @@ export interface ChatMessage {
   id: string;
   role: ChatMessageRole;
   content: string;
+  artifacts?: ChatArtifact[];
+}
+
+export interface ChatArtifact {
+  id: string;
+  content: string;
 }
 
 export interface useChatProps {
@@ -28,7 +34,7 @@ export interface useChatProps {
 const chatMessageToLangchainMessage = (message: ChatMessage): HumanMessage => {
   switch (message.role) {
     case ChatMessageRole.User:
-      return new HumanMessage({ content: message.content });
+      return new HumanMessage({ content: `\`\`\`${message.artifacts?.map(artifact => artifact.content).join('\n')}\`\`\`\n\n${message.content}` });
     case ChatMessageRole.System:
       return new SystemMessage({ content: message.content });
     default:
@@ -39,6 +45,7 @@ const chatMessageToLangchainMessage = (message: ChatMessage): HumanMessage => {
 export const useChat = ({ initialMessages = [] }: useChatProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState<string>('');
+  const [inputArtifacts, setInputArtifacts] = useState<ChatArtifact[]>([]);
   const [chatModel, setChatModel] =
     useState<ChatOpenAI<ChatOpenAICallOptions> | ChatOllama>();
   const { config, isLoading } = useGetConfig();
@@ -80,15 +87,18 @@ export const useChat = ({ initialMessages = [] }: useChatProps) => {
         id: uuid(),
         role: ChatMessageRole.User,
         content: input,
+        artifacts: inputArtifacts,
       },
       {
         id: uuid(),
         role: ChatMessageRole.Bonsai,
         content: '',
+        artifacts: [],
       },
     ];
     setMessages(updatedMessages);
     setInput('');
+    setInputArtifacts([]);
 
     // @ts-ignore
     chatModel?.invoke(updatedMessages.map(chatMessageToLangchainMessage), {
@@ -102,7 +112,7 @@ export const useChat = ({ initialMessages = [] }: useChatProps) => {
         },
       ],
     });
-  }, [messages, input]);
+  }, [messages, input, inputArtifacts]);
 
   return {
     messages,
@@ -110,5 +120,7 @@ export const useChat = ({ initialMessages = [] }: useChatProps) => {
     handleInputChange,
     handleSubmit,
     setMessages,
+    setInputArtifacts,
+    inputArtifacts,
   };
 };

@@ -1,22 +1,37 @@
 import ChatPanel from "@/components/chat/ChatPanel";
-import { ChatMessage, useChat } from "@/hooks/ai/useChat";
+import { ChatArtifact, ChatMessage } from "@/hooks/ai/useChat";
 import { Editor } from "@tiptap/react";
-import { useMemo } from "react";
 
-const SideBarChat = ({ editor }: { editor: Editor }) => {
-  const targetBlockId = useMemo(() => {
-    const { selection } = editor.state;
-    const node = selection.$anchor.parent;
-    return node.attrs.blockId || null;
-  }, [editor.state.selection]);
+const SideBarChat = ({
+  // @ts-ignore
+  editor,
+  messages,
+  handleSubmit,
+  handleInputChange,
+  input,
+  inputArtifacts,
+}: {
+  editor: Editor;
+  messages: ChatMessage[];
+  handleSubmit: (input: string) => void;
+  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  input: string;
+  inputArtifacts: ChatArtifact[];
+}) => {
+  // const targetBlockId = useMemo(() => {
+  //   const { selection } = editor.state;
+  //   const node = selection.$anchor.parent;
+  //   return node.attrs.blockId || null;
+  // }, [editor.state.selection]);
 
-  const chatInput = useMemo(() => {
-    const storedMessages = (editor.storage.inlineChat.messages[targetBlockId] ??
-      []) as ChatMessage[];
-    return { initialMessages: storedMessages };
-  }, [targetBlockId]);
+  // const chatInput = useMemo(() => {
+    // const storedMessages = (editor.storage.inlineChat.messages[targetBlockId] ??
+    //   []) as ChatMessage[];
+  //   return { initialMessages: initialMessages };
+  // }, [initialMessages]);
 
-  const { messages, input, handleInputChange, handleSubmit } = useChat(chatInput);
+  // const { messages, input, handleInputChange, handleSubmit } =
+  //   useChat(chatInput);
 
   // useEffect(() => {
   //   console.log("setting messages for block", targetBlockId, messages);
@@ -27,6 +42,7 @@ const SideBarChat = ({ editor }: { editor: Editor }) => {
     <ChatPanel
       messages={messages}
       onSubmit={handleSubmit}
+      inputArtifacts={inputArtifacts}
       onInputChange={(value: string) =>
         handleInputChange({
           target: { value },

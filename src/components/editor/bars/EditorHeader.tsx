@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import { EditorButton } from "@/components/ui/EditorButton";
 import { cn } from "@/lib/utils";
+import { Icon } from "@/components/ui/Icon";
 
 export type EditorHeaderProps = {
   isSidebarOpen?: boolean;
@@ -10,7 +11,7 @@ export type EditorHeaderProps = {
   words: number;
 };
 
-export const EditorHeader = ({}: EditorHeaderProps) => {
+export const EditorHeader = ({ isSidebarOpen, toggleSidebar }: EditorHeaderProps) => {
   const navigate = useNavigate();
   return (
     <div
@@ -22,6 +23,9 @@ export const EditorHeader = ({}: EditorHeaderProps) => {
     >
       <EditorButton variant="ghost" className="p-1 m-0">
         <ArrowLeftIcon className="m-0" onClick={() => navigate(-1)} />
+      </EditorButton>
+      <EditorButton variant="ghost" className="p-1 m-0" onClick={toggleSidebar}>
+        <Icon name={isSidebarOpen ? "PanelRightClose" : "PanelRight"} />
       </EditorButton>
       {/* <div className="flex flex-row gap-x-1.5 items-center">
         <EditorInfo characters={characters} words={words} />

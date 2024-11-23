@@ -1,61 +1,43 @@
-import { cn } from '@/lib/utils';
-import { memo, useCallback } from 'react';
-import { Editor } from '@tiptap/react';
-import { Icon } from "@/components/ui/Icon";
-import { Toolbar } from "@/components/ui/Toolbar";
-import SideBarChat from './SideBarChat';
+import { memo } from "react";
+import { Editor } from "@tiptap/react";
+import SideBarChat from "./SideBarChat";
+import { ChatArtifact, ChatMessage } from "@/hooks/ai/useChat";
 
 export const Sidebar = memo(
   ({
-    // @ts-ignore
     editor,
-    isOpen,
-    onClose,
+    messages,
+    handleSubmit,
+    handleInputChange,
+    input,
+    inputArtifacts,
   }: {
     editor: Editor;
     isOpen?: boolean;
     onClose: () => void;
+    messages: ChatMessage[];
+    handleSubmit: (input: string) => void;
+    handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    input: string;
+    inputArtifacts: ChatArtifact[];
   }) => {
-    // @ts-ignore
-    const handlePotentialClose = useCallback(() => {
-      if (window.innerWidth < 1024) {
-        onClose();
-      }
-    }, [onClose]);
-
-    const windowClassName = cn(
-      'absolute top-0 right-0 bg-white lg:bg-white/30 lg:backdrop-blur-xl h-full lg:h-auto lg:relative z-[999] w-0',
-      'dark:bg-black lg:dark:bg-black/30',
-      !isOpen && 'border-l-transparent',
-      isOpen && 'w-96 border-l border-l-neutral-200 dark:border-l-neutral-800'
-    );
-
     return (
-      <>
-        <Toolbar.Button
-          tooltip={isOpen ? "Close sidebar" : "Open sidebar"}
-          onClick={onClose}
-          className={cn(
-            "fixed right-6 top-3 z-[999]",
-            isOpen && "right-[calc(24rem+1.5rem)]" 
-          )}
-        >
-          <Icon name={isOpen ? "PanelRightClose" : "PanelRight"} />
-        </Toolbar.Button>
-        <div className={windowClassName}>
-          <div className="w-full h-full overflow-hidden">
-            <div className="w-full h-full p-6 overflow-auto flex flex-col">
-              {/* <TableOfContents
-                onItemClick={handlePotentialClose}
-                editor={editor}
-              /> */}
-              <SideBarChat editor={editor} />
-            </div>
+      <div className="flex flex-col h-full">
+        <div className="w-full h-full overflow-hidden flex-grow flex">
+          <div className="w-full h-full p-6 overflow-auto flex flex-col flex-grow">
+            <SideBarChat
+              editor={editor}
+              messages={messages}
+              handleSubmit={handleSubmit}
+              handleInputChange={handleInputChange}
+              input={input}
+              inputArtifacts={inputArtifacts}
+            />
           </div>
         </div>
-      </>
+      </div>
     );
   }
 );
 
-Sidebar.displayName = 'TableOfContentSidepanel';
+Sidebar.displayName = "TableOfContentSidepanel";

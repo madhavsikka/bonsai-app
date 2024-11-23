@@ -1,30 +1,28 @@
-import { DropdownButton } from '@/components/ui/Dropdown';
-import { Icon } from '@/components/ui/Icon';
-import { Surface } from '@/components/ui/Surface';
-import { Toolbar } from '@/components/ui/Toolbar';
-import * as Dropdown from '@radix-ui/react-dropdown-menu';
+import { DropdownButton } from "@/components/ui/Dropdown";
+import { Icon } from "@/components/ui/Icon";
+import { Surface } from "@/components/ui/Surface";
+import { Toolbar } from "@/components/ui/Toolbar";
+import * as Dropdown from "@radix-ui/react-dropdown-menu";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export type AIDropdownProps = {
-  onSimplify: () => void;
-  onFixSpelling: () => void;
-  onMakeShorter: () => void;
-  onMakeLonger: () => void;
-  onEmojify: () => void;
-  onTldr: () => void;
-  onTranslate: (language: string) => void;
-  onTone: (tone: string) => void;
-  onCompleteSentence: () => void;
+  onAddToChat: () => void;
 };
 
-export const AIDropdown = ({
-  onCompleteSentence,
-  onEmojify,
-  onFixSpelling,
-  onMakeLonger,
-  onMakeShorter,
-  onSimplify,
-  onTldr,
-}: AIDropdownProps) => {
+export const AIDropdown = ({ onAddToChat }: AIDropdownProps) => {
+  useHotkeys(
+    "mod+shift+l",
+    (e: KeyboardEvent) => {
+      e.preventDefault();
+      onAddToChat();
+    },
+    {
+      enableOnFormTags: true,
+      preventDefault: true,
+      enableOnContentEditable: true,
+    }
+  );
+
   return (
     <Dropdown.Root>
       <Dropdown.Trigger asChild>
@@ -39,46 +37,10 @@ export const AIDropdown = ({
       </Dropdown.Trigger>
       <Dropdown.Content asChild>
         <Surface className="p-2 min-w-[10rem]">
-          <Dropdown.Item onClick={onSimplify}>
+          <Dropdown.Item onClick={onAddToChat}>
             <DropdownButton>
               <Icon name="CircleSlash" />
-              Simplify
-            </DropdownButton>
-          </Dropdown.Item>
-          <Dropdown.Item onClick={onFixSpelling}>
-            <DropdownButton>
-              <Icon name="Eraser" />
-              Fix spelling & grammar
-            </DropdownButton>
-          </Dropdown.Item>
-          <Dropdown.Item onClick={onMakeShorter}>
-            <DropdownButton>
-              <Icon name="ArrowLeftToLine" />
-              Make shorter
-            </DropdownButton>
-          </Dropdown.Item>
-          <Dropdown.Item onClick={onMakeLonger}>
-            <DropdownButton>
-              <Icon name="ArrowRightToLine" />
-              Make longer
-            </DropdownButton>
-          </Dropdown.Item>
-          <Dropdown.Item onClick={onTldr}>
-            <DropdownButton>
-              <Icon name="MoreHorizontal" />
-              Tl;dr:
-            </DropdownButton>
-          </Dropdown.Item>
-          <Dropdown.Item onClick={onEmojify}>
-            <DropdownButton>
-              <Icon name="SmilePlus" />
-              Emojify
-            </DropdownButton>
-          </Dropdown.Item>
-          <Dropdown.Item onClick={onCompleteSentence}>
-            <DropdownButton>
-              <Icon name="PenLine" />
-              Complete sentence
+              Add to Chat
             </DropdownButton>
           </Dropdown.Item>
         </Surface>
