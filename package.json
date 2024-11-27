@@ -85,6 +85,7 @@
     "react-resizable-panels": "^1.0.10",
     "react-router-dom": "^6.23.1",
     "rehype-highlight": "^7.0.1",
+    "remark-gfm": "^4.0.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "tauri-plugin-sql-api": "github:tauri-apps/tauri-plugin-sql#v1",

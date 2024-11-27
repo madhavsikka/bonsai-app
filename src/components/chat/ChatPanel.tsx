@@ -8,7 +8,7 @@ import { v4 as uuid } from "uuid";
 import { ChatArtifact, ChatMessage } from "@/hooks/ai/useChat";
 import "highlight.js/styles/github-dark.css";
 import { Divider } from "../ui/PopoverMenu";
-
+import remarkGfm from "remark-gfm";
 const UserAvatar = () => {
   return (
     <img
@@ -61,8 +61,9 @@ const ChatPanel = ({
                   {m.role.charAt(0).toUpperCase() + m.role.slice(1)}
                 </span>
                 <ReactMarkdown
-                  className="font-light prose dark:prose-invert max-w-none break-words overflow-hidden leading-relaxed"
+  className="font-light prose dark:prose-invert max-w-none break-words overflow-hidden leading-relaxed [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&>p]:mb-4 [&>ul]:mb-4 [&>ol]:mb-4"
                   rehypePlugins={[rehypeHighlight]}
+                  remarkPlugins={[remarkGfm]}
                 >
                   {m.content}
                 </ReactMarkdown>
