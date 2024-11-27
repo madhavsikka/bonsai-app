@@ -2,16 +2,16 @@ import {
   NodeViewContent,
   NodeViewWrapper,
   NodeViewWrapperProps,
-} from '@tiptap/react';
-import { Editor } from '@tiptap/core';
-import { Panel } from '@/components/ui/Panel';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChatMessage } from '@/hooks/ai/useChat';
-import { Node } from '@tiptap/pm/model';
-import { AIParagraphViewGroup } from './AIParagraphViewGroup';
-import { Divider } from '@/components/ui/PopoverMenu';
-import { useMemo } from 'react';
-import { ChevronDown } from 'lucide-react';
+} from "@tiptap/react";
+import { Editor } from "@tiptap/core";
+import { Panel } from "@/components/ui/Panel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChatMessage } from "@/hooks/ai/useChat";
+import { Node } from "@tiptap/pm/model";
+import { AIParagraphViewGroup } from "./AIParagraphViewGroup";
+import { Divider } from "@/components/ui/PopoverMenu";
+import { useMemo } from "react";
+import { ChevronDown } from "lucide-react";
 
 export interface AIParagraphViewProps extends NodeViewWrapperProps {
   editor: Editor;
@@ -27,11 +27,8 @@ export const AIParagraphView = ({ editor, node }: AIParagraphViewProps) => {
     aiChatMessages: Record<string, ChatMessage[]>;
   };
 
-  const sortedAIChatMessages = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(aiChatMessages).sort(([a], [b]) => a.localeCompare(b))
-      ),
+  const sortedKeys = useMemo(
+    () => Object.keys(aiChatMessages).sort((a, b) => a.localeCompare(b)),
     [aiChatMessages]
   );
 
@@ -46,7 +43,7 @@ export const AIParagraphView = ({ editor, node }: AIParagraphViewProps) => {
         {canShowAIChat && (
           <ChevronDown
             className={`absolute left-0 top-0 transform -translate-x-8 translate-y-1.5 w-4 h-4 animate-pulse ${
-              aiChatHidden ? 'rotate-0' : 'rotate-180'
+              aiChatHidden ? "rotate-0" : "rotate-180"
             } hover:cursor-pointer`}
             onClick={() => editor.commands.toggleAIChat(blockId)}
           />
@@ -55,7 +52,7 @@ export const AIParagraphView = ({ editor, node }: AIParagraphViewProps) => {
       <NodeViewContent as="p" />
       <div
         className={`ai-chat-transition ${
-          isAIChatHidden ? 'ai-chat-hidden' : 'ai-chat-visible'
+          isAIChatHidden ? "ai-chat-hidden" : "ai-chat-visible"
         }`}
       >
         {!isAIChatHidden && (
@@ -65,11 +62,11 @@ export const AIParagraphView = ({ editor, node }: AIParagraphViewProps) => {
             contentEditable={false}
           >
             <Tabs
-              defaultValue={Object.keys(sortedAIChatMessages)[0]}
+              defaultValue={sortedKeys[0]}
               className="m-2 flex flex-col justify-center items-center w-full"
             >
               <TabsList className="mb-2 bg-background text-foreground">
-                {Object.keys(aiChatMessages).map((group) => (
+                {sortedKeys.map((group) => (
                   <TabsTrigger
                     value={group}
                     key={group}
@@ -80,14 +77,14 @@ export const AIParagraphView = ({ editor, node }: AIParagraphViewProps) => {
                 ))}
               </TabsList>
               <Divider />
-              {Object.entries(sortedAIChatMessages).map(([group, messages]) => (
+              {sortedKeys.map((group) => (
                 <TabsContent value={group} key={group} className="w-full">
                   <AIParagraphViewGroup
                     editor={editor}
                     node={node}
                     blockId={blockId}
                     groupId={group}
-                    aiChatMessages={messages}
+                    aiChatMessages={aiChatMessages[group]}
                   />
                 </TabsContent>
               ))}

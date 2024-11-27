@@ -447,7 +447,7 @@ impl SqlDatabase {
             Ok(r) => r,
             Err(e) => {
                 println!("Error inserting embedding: {:?}", e);
-                return Err(e);
+                return Ok(()); // Ignore the error and continue
             }
         };
 

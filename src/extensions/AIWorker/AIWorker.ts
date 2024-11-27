@@ -100,16 +100,18 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
 
     worker.onmessage = (event: MessageEvent) => {
       const data = event.data as WorkerAIResponse;
-      data.response.forEach((block) => {
-        const { blockId, updatedText } = block;
-        this.editor.commands.pushAIChatMessagesForGroup(blockId, data.name, [
-          {
-            id: new Date().getTime().toString(),
-            role: data.name as ChatMessageRole,
-            content: updatedText,
-          },
-        ]);
-      });
+      if (data.response && Array.isArray(data.response)) {
+        data.response.forEach((block) => {
+          const { blockId, text } = block;
+          this.editor.commands.pushAIChatMessagesForGroup(blockId, data.name, [
+            {
+              id: new Date().getTime().toString(),
+              role: data.name as ChatMessageRole,
+              content: text,
+            },
+          ]);
+        });
+      }
     };
     this.storage.worker = worker;
 
@@ -151,10 +153,10 @@ export const AIWorkerExtension = Extension.create<AIWorkerExtensionOptions>({
     return {
       setWorkerExtensions:
         (extensions: WorkerAIExtensions[]) =>
-        ({}) => {
-          this.storage.workerExtensions = extensions;
-          return true;
-        },
+          ({ }) => {
+            this.storage.workerExtensions = extensions;
+            return true;
+          },
     };
   },
 

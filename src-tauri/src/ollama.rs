@@ -4,7 +4,7 @@ pub async fn get_ollama_embedding(text: &str) -> Result<Vec<f32>, Box<dyn std::e
     let ollama = Ollama::default();
     
     let request = GenerateEmbeddingsRequest::new(
-        "gemma2:2b".to_string(),
+        "llama3.2:3b".to_string(),
         text.to_string().into()
     );
     

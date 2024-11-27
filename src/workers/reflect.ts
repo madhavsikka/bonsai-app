@@ -1,7 +1,6 @@
-import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { JsonOutputToolsParser } from 'langchain/output_parsers';
 import { WorkerAIBlock, WorkerAIResponseBlock } from '@/extensions/Reflect';
+import { ChatOllama } from '@langchain/ollama';
 
 const properties = {
   enhancedParagraphs: {
@@ -14,12 +13,12 @@ const properties = {
           type: 'string',
           description: 'The block id of the paragraph',
         },
-        updatedText: {
+        text: {
           type: 'string',
           description: 'The updated text of the paragraph',
         },
       },
-      required: ['blockId', 'updatedText'],
+      required: ['blockId', 'text'],
     },
   },
 };
@@ -57,20 +56,24 @@ export interface WorkerAIResponse {
 }
 
 self.onmessage = async (event: WorkerAIMessage) => {
-  const { name, openaiApiKey, blocks, prompt } =
+  const { name, blocks, prompt } =
     event.data as WorkerAIMessagePayload;
 
-  const model = new ChatOpenAI({
-    openAIApiKey: openaiApiKey,
-    modelName: 'gpt-4o',
+  // const model = new ChatOpenAI({
+  //   openAIApiKey: openaiApiKey,
+  //   modelName: 'gpt-4o',
+  // });
+
+  const model = new ChatOllama({
+    model: 'llama3.2:3b',
+    temperature: 0,
   });
 
   const modelWithTools = model.bind({
     tools: [enhancedContentTool],
-    tool_choice: enhancedContentTool,
   });
 
-  blocks.forEach(async (block) => {
+  const processBlocks = blocks.map(async (block) => {
     const { blockId, text, aiChatMessages } = block;
 
     const groupAiChatMessages = aiChatMessages?.[name] ?? [];
@@ -81,24 +84,49 @@ self.onmessage = async (event: WorkerAIMessage) => {
         message.role === 'user'
           ? 'human'
           : message.role === 'system'
-          ? 'system'
-          : 'ai',
-        message.content,
+            ? 'system'
+            : 'ai',
+        message.content ?? '',
       ]) ?? []),
     ] as [string, string][];
 
     const chatPrompt = ChatPromptTemplate.fromMessages(chatPromptMessages);
-
-    const outputParser = new JsonOutputToolsParser();
-    // @ts-ignore
-    const chain = chatPrompt.pipe(modelWithTools).pipe(outputParser);
+    const chain = chatPrompt.pipe(modelWithTools);
     const chainResponse: any = await chain.invoke({
       content: JSON.stringify({ blockId, text }),
     });
-    const response = chainResponse?.[0]?.args
-      ?.enhancedParagraphs as WorkerAIResponseBlock[];
 
-    console.log('Received message from worker:', name, response);
-    self.postMessage({ name, response });
+    let response: WorkerAIResponseBlock[] = [];
+    const toolArgs = chainResponse?.tool_calls?.[0]?.args;
+
+    if (!toolArgs) {
+      console.warn('No tool arguments received from the model');
+      return [];
+    }
+
+    if (typeof toolArgs === 'string') {
+      try {
+        response = JSON.parse(toolArgs).enhancedParagraphs;
+      } catch (e) {
+        console.error('Failed to parse string tool arguments:', e);
+        return [];
+      }
+    } else if (toolArgs.enhancedParagraphs) {
+      if (typeof toolArgs.enhancedParagraphs === 'string') {
+        try {
+          response = JSON.parse(toolArgs.enhancedParagraphs ?? '[]');
+        } catch (e) {
+          console.error('Failed to parse enhancedParagraphs string:', e);
+          return [];
+        }
+      } else {
+        response = toolArgs.enhancedParagraphs;
+      }
+    }
+
+    // Ensure response is always an array
+    return Array.isArray(response) ? response : [];
   });
+  const allResponses = (await Promise.all(processBlocks)).flat();
+  self.postMessage({ name, response: allResponses });
 };
