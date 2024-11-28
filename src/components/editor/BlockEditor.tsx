@@ -1,5 +1,5 @@
 import { EditorContent } from "@tiptap/react";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { LinkMenu } from "./menus";
 import {
   ResizableHandle,
@@ -14,7 +14,7 @@ import { TiptapProps } from "./types";
 import { TextMenu } from "./menus/TextMenu";
 import { EditorHeader } from "./bars/EditorHeader";
 import "./styles/index.css";
-import { useChat } from "@/hooks/ai/useChat";
+import { ChatMessage, ChatMessageRole, useChat } from "@/hooks/ai/useChat";
 import { v4 as uuidv4 } from "uuid";
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -32,6 +32,19 @@ export const BlockEditor = ({
     onEditorUpdate,
   });
 
+  const useChatInitialMessages = useMemo(() => {
+    const content: ChatMessage[] = [
+      {
+        id: uuidv4(),
+        role: ChatMessageRole.System,
+        content: `Here is the entire content of the document: ${
+          editor?.getText() ?? ""
+        }. Please respond to the user's message in a helpful and engaging way.`,
+      },
+    ];
+    return { initialMessages: content };
+  }, [editor]);
+
   const {
     messages,
     input,
@@ -39,9 +52,7 @@ export const BlockEditor = ({
     handleSubmit,
     setInputArtifacts,
     inputArtifacts,
-  } = useChat({
-    initialMessages: [],
-  });
+  } = useChat(useChatInitialMessages);
 
   const onAddToChat = useCallback(() => {
     const currentSelection = editor?.state.selection;
