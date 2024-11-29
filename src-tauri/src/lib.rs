@@ -4,6 +4,7 @@
 pub mod db;
 pub mod filesystem;
 pub mod ollama;
+use tauri_plugin_shell::ShellExt; 
 
 use filesystem::{Config, Database, Leaf, Sage};
 use tauri::Manager;
@@ -222,6 +223,40 @@ pub fn run() {
         .block_on(SqlDatabase::new(app_data_dir))
             .unwrap();
         app.manage(sql_db);
+
+        let app_handle = app.handle();
+        tauri::async_runtime::block_on(async move {
+            let mut api_command = app_handle.shell().sidecar("api")
+                .expect("failed to create api sidecar command");
+            
+            api_command = api_command
+                .args(&["serve"])
+                .env("API_PORT", "3000"); // You might want to make this configurable
+
+            let (mut rx, _child) = api_command.spawn()
+                .expect("failed to spawn api sidecar");
+
+            // Spawn a task to handle sidecar output
+            tauri::async_runtime::spawn(async move {
+                while let Some(event) = rx.recv().await {
+                    match event {
+                        tauri_plugin_shell::process::CommandEvent::Stdout(line) => {
+                            println!("[api][stdout] {}", String::from_utf8_lossy(&line));
+                        }
+                        tauri_plugin_shell::process::CommandEvent::Stderr(line) => {
+                            println!("[api][stderr] {}", String::from_utf8_lossy(&line));
+                        }
+                        tauri_plugin_shell::process::CommandEvent::Error(err) => {
+                            println!("[api][error] {}", err);
+                        }
+                        tauri_plugin_shell::process::CommandEvent::Terminated(status) => {
+                            println!("[api][terminated] status: {:?}", status);
+                        }
+                        _ => {}
+                    }
+                }
+            });
+        });
 
         Ok(())
     })
