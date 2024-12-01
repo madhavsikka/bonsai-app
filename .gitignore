@@ -26,3 +26,9 @@ dist-ssr
 # env files
 .env.development
 .env
+
+# Python
+__pycache__
+
+# Python venv
+env

@@ -4,11 +4,12 @@
 pub mod db;
 pub mod filesystem;
 pub mod ollama;
+use std::sync::{Arc, Mutex};
+use tauri_plugin_shell::ShellExt;
 
+use db::{Leaf as SqlLeaf, Sage as SqlSage, SqlDatabase};
 use filesystem::{Config, Database, Leaf, Sage};
 use tauri::Manager;
-use db::{SqlDatabase, Leaf as SqlLeaf, Sage as SqlSage};
-
 
 // -------------------------------------------------------
 
@@ -16,18 +17,18 @@ use db::{SqlDatabase, Leaf as SqlLeaf, Sage as SqlSage};
 async fn sql_create_entity(
     db: tauri::State<'_, SqlDatabase>,
     entity_type: &str,
-    entity: serde_json::Value
+    entity: serde_json::Value,
 ) -> Result<String, String> {
     match entity_type {
         "leaf" => {
             let leaf: SqlLeaf = serde_json::from_value(entity).map_err(|e| e.to_string())?;
             db.create::<SqlLeaf>(leaf).await.map_err(|e| e.to_string())
-        },
+        }
         "sage" => {
             let sage: SqlSage = serde_json::from_value(entity).map_err(|e| e.to_string())?;
             db.create::<SqlSage>(sage).await.map_err(|e| e.to_string())
-        },
-        _ => Err("Invalid entity type".to_string())
+        }
+        _ => Err("Invalid entity type".to_string()),
     }
 }
 
@@ -41,12 +42,12 @@ async fn sql_read_entity(
         "leaf" => {
             let result = db.read::<SqlLeaf>(id).await.map_err(|e| e.to_string())?;
             Ok(result.map(|leaf| serde_json::to_value(leaf).unwrap()))
-        },
+        }
         "sage" => {
             let result = db.read::<SqlSage>(id).await.map_err(|e| e.to_string())?;
             Ok(result.map(|sage| serde_json::to_value(sage).unwrap()))
-        },
-        _ => Err("Invalid entity type".to_string())
+        }
+        _ => Err("Invalid entity type".to_string()),
     }
 }
 
@@ -54,18 +55,18 @@ async fn sql_read_entity(
 async fn sql_update_entity(
     db: tauri::State<'_, SqlDatabase>,
     entity_type: &str,
-    entity: serde_json::Value
+    entity: serde_json::Value,
 ) -> Result<(), String> {
     match entity_type {
         "leaf" => {
             let leaf: SqlLeaf = serde_json::from_value(entity).map_err(|e| e.to_string())?;
             db.update::<SqlLeaf>(leaf).await.map_err(|e| e.to_string())
-        },
+        }
         "sage" => {
             let sage: SqlSage = serde_json::from_value(entity).map_err(|e| e.to_string())?;
             db.update::<SqlSage>(sage).await.map_err(|e| e.to_string())
-        },
-        _ => Err("Invalid entity type".to_string())
+        }
+        _ => Err("Invalid entity type".to_string()),
     }
 }
 
@@ -77,13 +78,19 @@ async fn sql_list_entities(
     match entity_type {
         "leaf" => {
             let leaves = db.list::<SqlLeaf>().await.map_err(|e| e.to_string())?;
-            Ok(leaves.into_iter().map(|leaf| serde_json::to_value(leaf).unwrap()).collect())
-        },
+            Ok(leaves
+                .into_iter()
+                .map(|leaf| serde_json::to_value(leaf).unwrap())
+                .collect())
+        }
         "sage" => {
             let sages = db.list::<SqlSage>().await.map_err(|e| e.to_string())?;
-            Ok(sages.into_iter().map(|sage| serde_json::to_value(sage).unwrap()).collect())
-        },
-        _ => Err("Invalid entity type".to_string())
+            Ok(sages
+                .into_iter()
+                .map(|sage| serde_json::to_value(sage).unwrap())
+                .collect())
+        }
+        _ => Err("Invalid entity type".to_string()),
     }
 }
 
@@ -96,7 +103,7 @@ async fn sql_delete_entity(
     match entity_type {
         "leaf" => db.delete::<SqlLeaf>(id).await.map_err(|e| e.to_string()),
         "sage" => db.delete::<SqlSage>(id).await.map_err(|e| e.to_string()),
-        _ => Err("Invalid entity type".to_string())
+        _ => Err("Invalid entity type".to_string()),
     }
 }
 
@@ -208,23 +215,69 @@ fn set_config(db: tauri::State<Database>, config: Config) -> Result<(), String> 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-    .setup(|app| {
-        let app_data_dir = app
-            .path()
-            .app_data_dir()
-            .expect("failed to get app data dir");
-        let db = Database::new(app_data_dir.clone()).unwrap();
-        app.manage(db);
+        .setup(|app| {
+            let app_data_dir = app
+                .path()
+                .app_data_dir()
+                .expect("failed to get app data dir");
+            let db = Database::new(app_data_dir.clone()).unwrap();
+            app.manage(db);
 
-        // Use blocking to handle the async SqlDatabase initialization
-        let sql_db = tokio::runtime::Runtime::new()
-        .unwrap()
-        .block_on(SqlDatabase::new(app_data_dir))
-            .unwrap();
-        app.manage(sql_db);
+            // Use blocking to handle the async SqlDatabase initialization
+            let sql_db = tokio::runtime::Runtime::new()
+                .unwrap()
+                .block_on(SqlDatabase::new(app_data_dir))
+                .unwrap();
+            app.manage(sql_db);
 
-        Ok(())
-    })
+            let app_handle = app.handle();
+            let app_handle_clone = app.handle().clone();
+            let app_handle_for_window = app_handle_clone.clone();
+            let window = app_handle_for_window.get_webview_window("main").unwrap();
+
+            tauri::async_runtime::block_on(async move {
+                let mut api_command = app_handle
+                    .shell()
+                    .sidecar("api")
+                    .expect("failed to create api sidecar command");
+
+                api_command = api_command.args(&["serve"]).env("API_PORT", "3000");
+
+                let (mut _rx, sidecar_command) =
+                    api_command.spawn().expect("failed to spawn api sidecar");
+
+                let child = Arc::new(Mutex::new(Some(sidecar_command)));
+                let child_clone = Arc::clone(&child);
+
+                window.on_window_event(move |event| match event {
+                    tauri::WindowEvent::CloseRequested { .. } | tauri::WindowEvent::Destroyed => {
+                        println!(
+                            "Window {} event received",
+                            if matches!(event, tauri::WindowEvent::CloseRequested { .. }) {
+                                "CloseRequested"
+                            } else {
+                                "Destroyed"
+                            }
+                        );
+                        let mut child_lock = child_clone.lock().unwrap();
+                        if let Some(mut child_process) = child_lock.take() {
+                            if let Err(e) =
+                                child_process.write("Exit message from Rust\n".as_bytes())
+                            {
+                                println!("Failed to send to stdin of Python: {}", e);
+                            }
+
+                            if let Err(e) = child_process.kill() {
+                                eprintln!("Failed to kill main process: {}", e);
+                            }
+                        }
+                    }
+                    _ => {}
+                });
+
+                Ok(())
+            })
+        })
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             get_config,
