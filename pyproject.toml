@@ -10,6 +10,8 @@ python = ">=3.12,<3.14"
 pyinstaller = "^6.10.0"
 fastapi = { extras = ["standard"], version = "^0.115.0" }
 colorama = "^0.4.6"
+langgraph = "^0.2.53"
+langchain-ollama = "^0.2.0"
 
 [build-system]
 requires = ["poetry-core"]
