@@ -1,43 +1,6 @@
-import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { WorkerAIBlock, WorkerAIResponseBlock } from '@/extensions/Reflect';
 import { ChatOllama } from '@langchain/ollama';
-
-const properties = {
-  enhancedParagraphs: {
-    type: 'array',
-    description: 'An array of enhanced paragraphs',
-    items: {
-      type: 'object',
-      properties: {
-        blockId: {
-          type: 'string',
-          description: 'The block id of the paragraph',
-        },
-        text: {
-          type: 'string',
-          description: 'The updated text of the paragraph',
-        },
-      },
-      required: ['blockId', 'text'],
-    },
-  },
-};
-
-const enhancedContentTool = {
-  type: 'function' as const,
-  function: {
-    name: 'enhanced_content',
-    description:
-      'Returns an array of enhanced paragraphs with their block ids and updated content.',
-    parameters: {
-      $schema: 'http://json-schema.org/draft-07/schema#',
-      title: 'Enhanced Content',
-      type: 'object',
-      properties,
-      required: ['enhancedParagraphs'],
-    },
-  },
-};
+import { END, START, StateGraph } from '@langchain/langgraph/web';
 
 export interface WorkerAIMessagePayload {
   name: string;
@@ -55,78 +18,95 @@ export interface WorkerAIResponse {
   response: WorkerAIResponseBlock[];
 }
 
-self.onmessage = async (event: WorkerAIMessage) => {
-  const { name, blocks, prompt } =
-    event.data as WorkerAIMessagePayload;
+// Define the state interface
+interface GraphState {
+  blocks: WorkerAIBlock[];
+  name: string;
+  prompt: string;
+  response: WorkerAIResponseBlock[];
+}
 
-  // const model = new ChatOpenAI({
-  //   openAIApiKey: openaiApiKey,
-  //   modelName: 'gpt-4o',
-  // });
+// Define state channels
+const graphState = {
+  blocks: {
+    value: (x: WorkerAIBlock[], y?: WorkerAIBlock[]) => y ?? x,
+    default: () => [],
+  },
+  name: {
+    value: (x: string, y?: string) => y ?? x,
+    default: () => '',
+  },
+  prompt: {
+    value: (x: string, y?: string) => y ?? x,
+    default: () => '',
+  },
+  response: {
+    value: (x: WorkerAIResponseBlock[], y?: WorkerAIResponseBlock[]) => y ?? x,
+    default: () => [],
+  },
+};
 
+const generateNode = async (state: GraphState) => {
   const model = new ChatOllama({
     model: 'llama3.2:3b',
     temperature: 0,
   });
 
-  const modelWithTools = model.bind({
-    tools: [enhancedContentTool],
-  });
+  const modelWithTools = model.bind({});
 
-  const processBlocks = blocks.map(async (block) => {
-    const { blockId, text, aiChatMessages } = block;
+  const processedBlocks = await Promise.all(
+    state.blocks.map(async (block) => {
+      const { blockId, text } = block;
 
-    const groupAiChatMessages = aiChatMessages?.[name] ?? [];
-    const chatPromptMessages = [
-      ['system', prompt],
-      ['human', 'Here is my content: {content}'],
-      ...(groupAiChatMessages?.map((message) => [
-        message.role === 'user'
-          ? 'human'
-          : message.role === 'system'
-            ? 'system'
-            : 'ai',
-        message.content ?? '',
-      ]) ?? []),
-    ] as [string, string][];
+      const messages = [
+        { role: 'system', content: `You are a helpful assistant that enhances content. Here are the guidelines: ${state.prompt}. Only respond with the enhanced content and nothing else.` },
+        { role: 'user', content: `Here is the content to enhance: ${text}` },
+      ];
 
-    const chatPrompt = ChatPromptTemplate.fromMessages(chatPromptMessages);
-    const chain = chatPrompt.pipe(modelWithTools);
-    const chainResponse: any = await chain.invoke({
-      content: JSON.stringify({ blockId, text }),
-    });
-
-    let response: WorkerAIResponseBlock[] = [];
-    const toolArgs = chainResponse?.tool_calls?.[0]?.args;
-
-    if (!toolArgs) {
-      console.warn('No tool arguments received from the model');
-      return [];
-    }
-
-    if (typeof toolArgs === 'string') {
       try {
-        response = JSON.parse(toolArgs).enhancedParagraphs;
+        const chainResponse = await modelWithTools.invoke(messages);
+        return {
+          blockId,
+          text: chainResponse.content,
+        };
       } catch (e) {
-        console.error('Failed to parse string tool arguments:', e);
-        return [];
+        console.error('Failed to invoke model:', e);
+        return {
+          blockId,
+          text: '',
+        };
       }
-    } else if (toolArgs.enhancedParagraphs) {
-      if (typeof toolArgs.enhancedParagraphs === 'string') {
-        try {
-          response = JSON.parse(toolArgs.enhancedParagraphs ?? '[]');
-        } catch (e) {
-          console.error('Failed to parse enhancedParagraphs string:', e);
-          return [];
-        }
-      } else {
-        response = toolArgs.enhancedParagraphs;
-      }
-    }
+    })
+  );
 
-    // Ensure response is always an array
-    return Array.isArray(response) ? response : [];
+  return {
+    response: processedBlocks.flat(),
+  };
+};
+
+// Create and compile the graph
+const workflow = new StateGraph<GraphState>({
+  channels: graphState,
+})
+  .addNode("generate", generateNode)
+  .addEdge(START, "generate")
+  .addEdge("generate", END);
+
+const graph = workflow.compile();
+
+// Message handler
+self.onmessage = async (event: WorkerAIMessage) => {
+  const { name, blocks, prompt } = event.data;
+
+  const result = await graph.invoke({
+    blocks,
+    name,
+    prompt,
+    response: [],
   });
-  const allResponses = (await Promise.all(processBlocks)).flat();
-  self.postMessage({ name, response: allResponses });
+
+  self.postMessage({
+    name,
+    response: result.response
+  });
 };

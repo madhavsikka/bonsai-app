@@ -189,7 +189,7 @@ impl Entity for Embedding {
     const TABLE_NAME: &'static str = "embeddings";
     const CREATE_TABLE: &'static str = "
         CREATE VIRTUAL TABLE IF NOT EXISTS embeddings USING vec0(
-            embedding float[2304]
+            embedding float[3072]
         );
         CREATE TABLE IF NOT EXISTS embedding_metadata (
             rowid INTEGER PRIMARY KEY,

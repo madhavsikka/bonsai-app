@@ -12,6 +12,7 @@
   "dependencies": {
     "@langchain/community": "^0.0.40",
     "@langchain/core": "^0.3.19",
+    "@langchain/langgraph": "^0.2.23",
     "@langchain/ollama": "^0.1.2",
     "@langchain/openai": "^0.0.14",
     "@radix-ui/react-checkbox": "^1.0.4",

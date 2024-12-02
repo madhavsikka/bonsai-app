@@ -6,7 +6,7 @@ import {
 import Paragraph, { ParagraphOptions } from '@tiptap/extension-paragraph';
 import { ChatMessage } from '@/hooks/ai/useChat';
 import { debounce } from '../AIWorker/AIWorker';
-import { AIParagraphViewWithoutChat } from './AIParagraphViewWithoutChat';
+import { AIParagraphView } from './AIParagraphView';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -89,8 +89,7 @@ export const AIParagraph = Paragraph.extend<AIParagraphOptions>({
   },
 
   addNodeView() {
-    // return ReactNodeViewRenderer(AIParagraphView);
-    return ReactNodeViewRenderer(AIParagraphViewWithoutChat);
+    return ReactNodeViewRenderer(AIParagraphView);
   },
 
   onCreate() {
@@ -100,7 +99,10 @@ export const AIParagraph = Paragraph.extend<AIParagraphOptions>({
   },
 
   onUpdate() {
-    this.options.debouncedUpdate?.();
+    const { tr } = this.editor.state;
+    if (tr.docChanged) {
+      this.options.debouncedUpdate?.();
+    }
   },
 
   addCommands() {
