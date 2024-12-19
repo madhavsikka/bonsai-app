@@ -20,6 +20,9 @@ module.exports = {
       fontFamily: {
         worksans: ['WorkSans', 'sans-serif'],
         jetbrainsmono: ['JetBrainsMono', 'monospace'],
+        nunitosans: ['NunitoSans', 'sans-serif'],
+        parkinsans: ['Parkinsans', 'sans-serif'],
+        funneldisplay: ['FunnelDisplay', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',

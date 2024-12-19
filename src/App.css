@@ -34,6 +34,38 @@
   font-style: italic;
 }
 
+@font-face {
+  font-family: 'NunitoSans';
+  src: url('/fonts/NunitoSans-VariableFont.ttf') format('truetype');
+  font-weight: 100 900;
+  font-stretch: 75% 125%;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NunitoSans';
+  src: url('/fonts/NunitoSans-Italic-VariableFont.ttf') format('truetype');
+  font-weight: 100 900;
+  font-stretch: 75% 125%;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Parkinsans';
+  src: url('/fonts/Parkinsans.ttf') format('truetype');
+  font-weight: 100 900;
+  font-stretch: 75% 125%;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'FunnelDisplay';
+  src: url('/fonts/FunnelDisplay.ttf') format('truetype');
+  font-weight: 100 900;
+  font-stretch: 75% 125%;
+  font-style: normal;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -107,12 +139,12 @@
     @apply border-border;
   }
   html {
-    @apply bg-background text-foreground font-jetbrainsmono;
+    @apply bg-background text-foreground font-funneldisplay;
     width: 100%;
     height: 100%;
   }
   body {
-    @apply bg-background text-foreground font-jetbrainsmono;
+    @apply bg-background text-foreground font-funneldisplay;
     width: 100%;
     height: 100%;
   }

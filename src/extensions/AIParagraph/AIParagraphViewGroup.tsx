@@ -50,7 +50,7 @@ function toCamelCase(str: string): string {
   });
 
   // Join the words to form the camel case string
-  const camelCaseStr = camelCaseWords.join('');
+  const camelCaseStr = camelCaseWords.join(' ');
 
   return camelCaseStr;
 }
